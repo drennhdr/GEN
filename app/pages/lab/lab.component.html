@@ -1,0 +1,229 @@
+<!-- Page Name       : Lab                      -->
+<!-- Date Created    : 03/18/2023               -->
+<!-- Written By      : Stephen Farkas           -->
+<!-- Description     : Lab Entry / Edit         -->
+<!-- MM/DD/YYYY xxx  Description                -->
+<!--                                            -->
+<!-- ----------------------------------------------------------------------------- -->
+<div class="panel-header panel-header-sm">
+</div>
+<div class="main-content">
+    <div  id="topOfScreen"></div>
+
+    <!-- List of Labs                                 -->
+    <div class="row" *ngIf="showSearchList" id="labSerchListCard">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-md-9  pr-1">
+                            <h4 class="card-title">Labs</h4>
+                        </div>
+                        <div class="col-md-3  pr-1">
+                            <button type="button" (click)="addButtonClicked()" class="btn btn-primary">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                    <table class="table table-striped" datatable >
+                        <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
+                        <thead class=" text-primary">
+                            <th>Name</th>
+                            <th>Actions</th>
+                        </thead>
+                        <tbody>
+                        <tr *ngFor="let item of labSearchData">
+                            <td>{{item.name}}</td>
+                            <td><button type="button" (click)="selectButtonClicked(item.labId)" class="btn btn-primary" >Select</button></td>                    
+                        </tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Show errors                -->
+    <div class="row" *ngIf="showError" >
+        <div class="col-md-12">
+            <!-- Errors -->
+            <div class="card">
+                <div class="card-header">
+                <h5 class="title">Error Message</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <textarea rows="3" cols="80" class= "form-control alert-login">{{errorMessage}}</textarea>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Lab Edit                                  -->  
+    <div id="labEditCard">
+        <div class="row" *ngIf="showLab">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="title">Lab</h5>
+                    </div>
+                    <div class="card-body">
+                        <form name="lab-form">
+                            <div class="row">
+                                <div class="col-md-3  pr-1">
+                                    <div class="form-group" >
+                                        <label>Name</label>
+                                        <input [(ngModel)]="labData.name" maxlength="100" name="name" type="text" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-1 pr-1">
+                                    <div class="form-group">
+                                        <label>Active</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="active" name="active" [(ngModel)]="labData.active" >
+                                            <label class="custom-control-label" for="active"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 pr-1">
+                                    <div class="form-group">
+                                        <label>Contact Name</label>
+                                        <input [(ngModel)]="labData.contactName" maxlength="40" name="contactName" type="test" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-3 pr-1">
+                                    <div class="form-group">
+                                        <label>Phone</label>
+                                        <input [(ngModel)]="labData.contactPhone" maxlength="15" name="contactPhone" type="text" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-5 pr-1">
+                                    <div class="form-group">
+                                        <label>Email Address</label>
+                                        <input [(ngModel)]="labData.contactEmail" maxlength="60" name="contactEmail" type="text" class="form-control">
+                                    </div>
+                                </div>  
+                            </div> 
+
+                            <!-- Address  -->
+                            <h5>Address</h5>
+                            <div class="row">
+                                <div class="col-md-6  pr-1">
+                                    <div class="form-group" >
+                                        <label>Address 1</label>
+                                        <input [(ngModel)]="labData.address.street1" maxlength="50" name="locationStreet1" type="text" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-6  pr-1">
+                                    <div class="form-group">
+                                        <label>Address 2</label>
+                                        <input [(ngModel)]="labData.address.street2" maxlength="30" name="locationStreet2" type="text" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 pr-1">
+                                    <div class="form-group">
+                                        <label>Zip Code</label>
+                                        <input [(ngModel)]="labData.address.postalCode" maxlength="10" name="locationPostal" type="text" class="form-control" (keyup)="zipKeypress($event)">
+                                    </div>
+                                </div>
+                                <div class="col-md-4 pr-1">
+                                    <div class="form-group" >
+                                        <label>City</label>
+                                        <input [(ngModel)]="labData.address.city" maxlength="30" name="locationCity" type="text" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-4 pr-1">
+                                    <div class="form-group">
+                                        <label>State</label>
+                                        <input [(ngModel)]="labData.address.state" maxlength="20" name="locationState" type="text" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <h5>Services</h5>
+                            <div class="row">
+                                <div class="col-md-3 pr-1">
+                                    <div class="form-group">
+                                        <label>Toxicology Urine</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="ToxUrine" name="ToxUrine" [(ngModel)]="labData.service_ToxUrine">
+                                            <label class="custom-control-label" for="ToxUrine"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 pr-1">
+                                    <div class="form-group">
+                                        <label>Toxicology Oral</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="ToxOral" name="ToxOral" [(ngModel)]="labData.service_ToxOral">
+                                            <label class="custom-control-label" for="ToxOral"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 pr-1">
+                                    <div class="form-group">
+                                        <label>RPP</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="RPP" name="RPP" [(ngModel)]="labData.service_RPP">
+                                            <label class="custom-control-label" for="RPP"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 pr-1">
+                                    <div class="form-group">
+                                        <label>UTI/STI</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="UTI" name="UTI" [(ngModel)]="labData.service_UTISTI">
+                                            <label class="custom-control-label" for="UTI"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 pr-1">
+                                    <div class="form-group">
+                                        <label>GPP</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="GPP" name="GPP" [(ngModel)]="labData.service_GPP">
+                                            <label class="custom-control-label" for="GPP"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 pr-1">
+                                    <div class="form-group">
+                                        <label>Urinalysis</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="Urinalysis" name="Urinalysis" [(ngModel)]="labData.service_Urinalysis">
+                                            <label class="custom-control-label" for="Urinalysis"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 pr-1">
+                                    <div class="form-group">
+                                        <label>Hematology</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="Hematology" name="Hematology" [(ngModel)]="labData.service_Hematology">
+                                            <label class="custom-control-label" for="Hematology"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <button type="button" (click)="saveLabButtonClicked()" class="btn btn-primary" >Save</button>
+                            <button type="button" (click)="cancelLabButtonClicked()" class="btn btn-primary" >Cancel</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

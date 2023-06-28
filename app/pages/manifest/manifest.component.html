@@ -1,0 +1,211 @@
+<!-- Page Name       : Manifest                 -->
+<!-- Date Created    : 09/20/2022               -->
+<!-- Written By      : Stephen Farkas           -->
+<!-- Description     : Create Manifest          -->
+<!-- MM/DD/YYYY xxx  Description                -->
+<!-- 03/17/2023 SJF  Updated to new format      -->
+<!-- ----------------------------------------------------------------------------- -->
+<div class="panel-header panel-header-sm">
+</div>
+<div class="main-content">
+    
+    <div  id="topOfScreen"></div>
+
+    <div class="row">
+    <!-- Show errors                -->
+    <div class="row" *ngIf="showError" >
+        <div class="col-md-12">
+            <!-- Errors -->
+            <div class="card">
+                <div class="card-header">
+                <h5 class="title">Error Message</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <textarea rows="3" cols="80" class= "form-control alert-login">{{errorMessage}}</textarea>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+        <!-- Left Side of Screen -->
+        <div class="col-md-3" *ngIf="showManifest">
+            <!-- Location -->
+            <div class="row" >
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="title">Lab</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group" >
+                                <label>Lab</label>
+                                <select class="form-control required" id="labSelect" name="labSelect" (change) = "labChange()" [disabled]="editMode" [(ngModel)]="labId">
+                                    <option *ngFor="let option of labList" [value]="option.labId">
+                                    {{option.name}}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8 pr-1">
+                                    <div class="form-group" >
+                                        <label>Scan Specimen Barcode</label>
+                                        <input [(ngModel)]="searchSpecimenBarcode" maxlength="100" name="searchSpecimenBarcode" [disabled]="editMode" type="text" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-3 pr-1">
+                                    <button type="button" (click)="manifestSearchButtonClicked()" [disabled]="editMode" class="btn btn-primary" >Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Manifest History 30 Days                -->
+            <div class="row" >
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="col-md-8">
+                                <h5 class="title">Manifest History</h5>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="button" *ngIf="!editMode" (click)="newManifestButtonClicked()" class="btn btn-primary" >New</button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped" datatable >
+                                    <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
+                                    <thead class=" text-primary">
+                                        <th>Date</th>
+                                        <th>Seq.</th>
+                                        <th>Status</th>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let item of manifestHistoryData">
+                                            <td>{{item.dateCreated}}</td>
+                                            <td>{{item.sequence}}</td>
+                                            <td *ngIf="item.status==0">Created</td>
+                                            <td *ngIf="item.status==1">Finalized</td>
+                                            <td><button *ngIf="!editMode" type="button" (click)="selectButtonClicked(item.manifestId)" class="btn btn-primary" >Get</button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Right Side of Screen -->
+        
+        <div class="col-md-9" *ngIf="showManifest">
+            <!-- manifest                           -->
+            <div id="manifestCard">
+                <div class="row" >
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="row">
+                                    <div class="col-md-6 pr-1">
+                                        <h5 class="title">Manifest Items - {{manifestKey}}</h5>
+                                    </div>
+                                    <div class="col-md-3 pr-1">
+                                        <div class="form-group" >
+                                            <label>Tracking Number</label>
+                                            <input [(ngModel)]="manifestData.trackingNo" maxlength="30" name="trackingNo" type="text" class="form-control required" [disabled]="!editMode">
+                                        </div>
+                                    </div>
+                                </div>
+                                <form name="search-form">
+                                    <div class="row" *ngIf="editMode">
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Scan Barcode</label>
+                                                <input [(ngModel)]="searchBarcode" maxlength="100" name="searchBarcode" type="text" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 pr-1">
+                                            <button type="button" (click)="searchButtonClicked()" class="btn btn-primary" >Search</button>
+                                        </div>
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Lab Type</label>
+                                                <select class="form-control required" id="labTypeSelect" name="labTypeSelect" (change) = "labTypeChange()" [(ngModel)]="labTypeId">
+                                                    <option *ngFor="let option of labTypeList" [value]="option.id">
+                                                    {{option.description}}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Start Date</label>
+                                                <input [(ngModel)]="searchStartDate" name="searchStartDate" type="date" class="form-control"  (change)="dateChanged()">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="card-body">
+                                <!-- Items   -->
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <label style="color:red;">{{this.errorMessage}}</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped" datatable >
+                                            <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
+                                            <thead class=" text-primary">
+                                                <th><input type="checkbox" (change)="allSelectChange($event.target.checked)" [disabled]="editMode == false"> Select</th>
+                                                <th>Specimen</th>
+                                                <th>Collection Date</th>
+                                                <th>Lab Type</th>
+                                                <th>Patient</th>
+                                                <th>Status</th>
+                                                <!-- <th>DOB</th>
+                                                <th>Gender</th> -->
+                                            </thead>
+
+                                            <tr *ngFor="let item of manifestData.specimens">
+                                                <td>
+                                                    <label class="dark-label">
+                                                        <input type="checkbox" [(ngModel)]="item.checked" [disabled]="editMode == false" (change)="checkChange()">
+                                                    </label>
+                                                </td>
+                                                <td>{{item.specimenBarcode}}</td>
+                                                <td>{{item.collectionDate}}</td>
+                                                <td>{{item.labType}}</td>
+                                                <td>{{item.patientName}}</td>
+                                                <td>{{item.labStatus}}</td>
+                                                <!-- <td>{{item.patientDOB}}</td>
+                                                <td>{{item.patientGender}}</td> -->
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-9 pr-1">
+                                        <button type="button" *ngIf="editMode  && manifestData.trackingNo != ''" (click)="saveButtonClicked()" class="btn btn-primary" >Save</button>
+                                        <button type="button" *ngIf="editMode && manifestData.trackingNo != ''" (click)="finalizeButtonClicked()" class="btn btn-primary" >Finalize and Print</button>
+                                        <button type="button" (click)="backButtonClicked()" class="btn btn-primary" >Back</button>
+                                        <button type="button" *ngIf="!editMode" (click)="printButtonClicked()" class="btn btn-primary" >Print</button>
+                                    </div>
+                                    <div class="col-md-3 pr-1">
+                                        <label>Count {{checkCnt}}</label>
+                                    </div>
+                                </div>
+                            </div>    
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

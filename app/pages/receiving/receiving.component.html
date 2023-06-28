@@ -1,0 +1,144 @@
+<!-- Page Name       : Receiving                -->
+<!-- Date Created    : 09/20/2023               -->
+<!-- Written By      : Stephen Farkas           -->
+<!-- Description     : REceive Shipment         -->
+<!-- MM/DD/YYYY xxx  Description                -->
+<!-- ----------------------------------------------------------------------------- -->
+<div class="panel-header panel-header-sm">
+</div>
+<div class="main-content">
+    
+    <div  id="topOfScreen"></div>
+
+    <!-- Search                   -->
+    <div class="row" *ngIf="showSearch" id="barcodeSearchCard">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="title">Receive ShipLog</h5>
+                </div>
+                <div class="card-body">
+                <form name="search-form">
+                    <div class="row">
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Scan ShipLog Barcode</label>
+                                <input [(ngModel)]="searchShipLogBarcode" maxlength="100" name="searchShipLogBarcode" type="text" class="form-control" >
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <button type="button" (click)="shipLogSearchButtonClicked()" class="btn btn-primary" >Search</button>
+                </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Show errors                -->
+    <div class="row" *ngIf="showError" >
+        <div class="col-md-12">
+            <!-- Errors -->
+            <div class="card">
+                <div class="card-header">
+                <h5 class="title">Error Message</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <textarea rows="3" cols="80" class= "form-control alert-login">{{errorMessage}}</textarea>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+  
+
+    <!-- shipLog                           -->
+    <div class="row" *ngIf="showShipLog">
+        <div class="col-md-12">
+            <div id="shipLogCard">
+                <div class="row" >
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="row">
+                                    <div class="col-md-6 pr-1">
+                                        <h5 class="title">ShipLog Items - {{shipLogData.location}} - {{searchShipLogBarcode}}</h5>
+                                    </div>
+                                    <div class="col-md-3 pr-1">
+                                        <div class="form-group" >
+                                            <label>Tracking Number</label>
+                                            <input [(ngModel)]="shipLogData.trackingNo" maxlength="30" name="trackingNo" type="text" [disabled]="editMode == false" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <form name="search-form">
+                                    <div class="row" *ngIf="editMode">
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Scan Barcode</label>
+                                                <input [(ngModel)]="searchBarcode" maxlength="100" name="searchBarcode" type="text" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 pr-1">
+                                            <button type="button" (click)="searchButtonClicked()" class="btn btn-primary" >Search</button>
+                                        </div>
+                                    </div>
+                                    <div class="row" *ngIf="!editMode">
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Date Received</label>
+                                                <input [(ngModel)]="shipLogData.dateReceived" name="dateReceived" type="text" disabled="true" class="form-control">
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="card-body">
+                                <!-- Items   -->
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <label style="color:red;">{{this.errorMessage}}</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped" datatable >
+                                            <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
+                                            <thead class=" text-primary">
+                                                <th><input type="checkbox" (change)="allSelectChange($event.target.checked)" [disabled]="editMode == false"> Select</th>
+                                                <th>Specimen</th>
+                                                <th>Collection Date</th>
+                                                <th>Lab Type</th>
+                                                <th>Patient</th>
+                                            </thead>
+
+                                            <tr *ngFor="let item of shipLogData.specimens">
+                                                <td>
+                                                    <label class="dark-label">
+                                                        <input type="checkbox" [(ngModel)]="item.checked" [disabled]="editMode == false">
+                                                    </label>
+                                                </td>
+                                                <td>{{item.specimenBarcode}}</td>
+                                                <td>{{item.collectionDate}}</td>
+                                                <td>{{item.labType}}</td>
+                                                <td>{{item.patientName}}</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <button type="button" *ngIf="editMode" (click)="saveButtonClicked()" class="btn btn-primary" >Save</button>
+                                   <button type="button" (click)="backButtonClicked()" class="btn btn-primary" >Back</button>
+                                </div>
+                            </div>    
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

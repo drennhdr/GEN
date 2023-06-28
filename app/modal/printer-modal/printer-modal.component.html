@@ -1,0 +1,49 @@
+<!-- Page Name       : Printer-Modal                -->
+<!-- Date Created    : 10/10/2022                   -->
+<!-- Written By      : Stephen Farkas               -->
+<!-- Description     : Printer Modal                -->
+<!-- MM/DD/YYYY xxx  Description                    -->
+<!-- ------------------------------------------------------------------------------->
+<div class="modal-header">
+    <h4 class="modal-title">Barcode Printer Setup</h4>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <div class="col-md-12 pr-1">
+            <div class="form-group" >
+                <label>Barcode Printer</label>
+                <input [(ngModel)]="printer" maxlength="50" name="printer" type="text" class="form-control">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 pr-1">
+            <div class="form-group" >
+                <label>Barcode Quantity</label>
+                <input [(ngModel)]="quantity" maxlength="10" name="quantity" type="number" min="0" max="5" class="form-control">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h4>Camera Setup</h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="form-group" >
+                <label class="dark-label">
+                    <input type="checkbox" name="camera" [(ngModel)]="camera" name="camera">
+                    Camera active
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <button type="button" (click)="savePrinterButtonClicked()" class="btn btn-primary" >Update</button>
+            <button type="button" (click)="closeModalButtonClicked()" class="btn btn-primary" >Close</button>
+        </div>
+        
+    </div>
+</div>

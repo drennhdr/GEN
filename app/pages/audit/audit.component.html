@@ -1,0 +1,481 @@
+<!-- Page Name       : Audit                        -->
+<!-- Date Created    : 11/21/2022                   -->
+<!-- Written By      : Stephen Farkas               -->
+<!-- Description     : Accessioning Audit           -->
+<!-- MM/DD/YYYY xxx  Description                    -->
+<!-- ------------------------------------------------------------------------------->
+<div class="panel-header panel-header-sm">
+</div>
+<div class="main-content">
+
+    <div  id="topOfScreen"></div>
+
+    <!-- Search                   -->
+    <div class="row" *ngIf="showSearch" id="labOrderSearchCard">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                <h5 class="title">Lab Order Search {{customerFilter}}</h5>
+                </div>
+                <div class="card-body">
+                <form name="search-form">
+                    <div class="row">
+                        <div class="col-md-2 pr-1">
+                            <label>Date Type</label>
+                            <div class="form-group" >
+                                <select class="form-control" id="dateTypeId" name="dateTypeId" [(ngModel)]="searchDateTypeId">
+                                    <option *ngFor="let option of dateTypeList" [value]="option.id">
+                                    {{option.description}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2 pr-1">
+                            <div class="form-group" >
+                                <label>Start Date</label>
+                                <input [(ngModel)]="searchStartDate" name="searchStartDate" type="date" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-2 pr-1">
+                            <div class="form-group" >
+                                <label>End Date</label>
+                                <input [(ngModel)]="searchEndDate" name="searchEndDate" type="date" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-2 pr-1">
+                            <div class="form-group" >
+                                <label>Lab Type</label>
+                                <select class="form-control" id="searchLabTypeId" name="searchLabTypeId" [(ngModel)]="searchLabTypeId">
+                                    <option *ngFor="let option of labTypeList" [value]="option.id">
+                                    {{option.description}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Include Audited</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="searchProcessed" name="searchProcessed" [(ngModel)]="searchProcessed">
+                                    <label class="custom-control-label" for="searchProcessed"></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" (click)="searchButtonClicked()" class="btn btn-primary" >Search</button>
+                    <button type="button" (click)="selectAllButtonClicked()" class="btn btn-primary" >Process List</button>
+                </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Items Returned From Search                                  -->
+    <div class="row" *ngIf="showSearchList" id="labOrderSearchListCard">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Lab Orders</h4>
+                    <p class="category">Select a lab order</p>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                    <table class="table table-striped" datatable >
+                        <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
+                        <thead class=" text-primary">
+                            <th><a (click)="sortBy('collectionDate')">Collected</a></th>
+                            <th><a (click)="sortBy('receivedDate')">Received</a></th>
+                            <th><a (click)="sortBy('accessionedDate')">Assessioned</a></th>
+                            <th>Audited</th>
+                            <th>Resulted</th>
+                            <th><a (click)="sortBy('status')">Status</a></th>
+                            <th><a (click)="sortBy('specimenBarcode')">Specimen ID</a></th>
+                            <th><a (click)="sortBy('patient')">Patient</a></th>
+                            <th><a (click)="sortBy('customer')">Account</a></th>
+                            <th><a (click)="sortBy('labType')">Test Type</a></th>
+                            <th>Actions</th>
+                        </thead>
+                        <tbody *ngIf="searchData!=null">
+                            <tr *ngFor="let item of searchData">
+                                <td>{{item.collectionDate + ' UTC' | date: 'MM/dd/yyyy hh:mm a' : local}}</td>
+                                <td>{{item.receivedDate + ' UTC' | date: 'MM/dd/yyyy hh:mm a' : local}}</td>
+                                <td>{{item.accessionedDate + ' UTC' | date: 'MM/dd/yyyy hh:mm a' : local}}</td>
+                                <td>{{item.reviewDate + ' UTC' | date: 'MM/dd/yyyy hh:mm a' : local}}</td>
+                                <td>{{item.resulted}}</td>
+                                <td>{{item.status}}</td>
+                                <td>{{item.specimenBarcode}}</td>
+                                <td>{{item.patient}}</td>
+                                <td>{{item.customer}}</td>
+                                <td>{{item.labType}}</td>
+                                <td><button type="button" (click)="selectButtonClicked(item.labOrderId)" class="btn btn-primary" >Select</button></td>
+                            </tr>
+                        
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audit Screen                                  -->
+    <div class="row" *ngIf="showAudit" id="labOrderSearchListCard">
+        <!-- Left Side of screen - Show Order Info -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-md-2 pr-1">
+                            <label style="font-weight: bold;">Specimen ID</label>
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <label style="color:blue;">{{labOrderData.specimens[0].specimenBarcode}}</label>
+                        </div>
+                        <div class="col-md-2 pr-1">
+                            <label style="font-weight: bold;">Ticket ID</label>
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <label style="color:blue;">{{labOrderData.ticketId}}</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2 pr-1">
+                            <label style="font-weight: bold;">Collected</label>
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <label style="color:blue;">{{collectedDate}}</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-2 pr-1">
+                            <label>Account</label>
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <label style="color:blue;">{{labOrderData.customer}}</label>
+                        </div>
+                        <div class="col-md-2 pr-1">
+                            <label>Location</label>
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <label style="color:blue;">{{labOrderData.location}}</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2 pr-1">
+                            <label>Physician</label>
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <label style="color:blue;">{{labOrderData.user_Physician}}</label>
+                        </div>
+                        <div class="col-md-2 pr-1">
+                            <label>Created By</label>
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <label style="color:blue;">{{labOrderData.userCreatedName}}</label>
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-md-2 pr-1">
+                            <label style="font-weight: bold;">Patient</label>
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <label style="color:blue;">{{labOrderData.firstName}} {{labOrderData.lastName}}</label>
+                        </div>
+                        <div class="col-md-2 pr-1">
+                            <label style="font-weight: bold;">DOB</label>
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <label style="color:blue;">{{labOrderData.dob | date:'MM/dd/yyyy'}}}</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2 pr-1">
+                            <label>Address</label>
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <label style="color:blue;">{{patientData.address.street1}} {{patientData.address.street2}}</label>
+                        </div>
+                        <div class="col-md-2 pr-1">
+                            <label>Gender</label>
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <label style="color:blue;">{{patientData.gender}}</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2 pr-1">
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <label style="color:blue;">{{patientData.address.city}}, {{patientData.address.state}} {{patientData.address.postalCode}}</label>
+                        </div>
+                        <div class="col-md-2 pr-1">
+                            <label>SSN</label>
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <label style="color:blue;">{{patientData.ssn}}</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2 pr-1">
+                            <label>Phone</label>
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <label style="color:blue;">{{patientData.phone}}</label>
+                        </div>
+                        <div class="col-md-2 pr-1">
+                            <label>MR #</label>
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <label style="color:blue;">{{patientData.medicalId}}</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2 pr-1">
+                            <label>Email</label>
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <label style="color:blue;">{{patientData.email}}</label>
+                        </div>
+
+                    </div>
+
+                    <br />
+
+                    <div class="row">
+                        <div class="col-md-2 pr-1">
+                            <label>Carrier</label>
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <label style="color:blue;">{{insuranceData.insurance_1}}</label>
+                       </div>
+                        <div class="col-md-2 pr-1">
+                            <label>Member #</label>
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <label style="color:blue;">{{insuranceData.memberId_1}}</label>
+                         </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2 pr-1">
+                            <label>Veriied Date</label>
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <label style="color:blue;">{{insuranceData.verified}}</label>
+                       </div>
+                        <div class="col-md-2 pr-1">
+                            <label>Merged</label>
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <label style="color:blue;">{{insuranceData.merged}}</label>
+                         </div>
+                    </div>
+                    <div class="row">
+                        <button  type="button" (click)="elgibilityButtonClicked()" class="btn btn-primary">Elgibility</button>
+                    </div>
+
+
+                    <br />
+
+
+                    <div class="row">
+                        <div class="col-md-2 pr-1">
+                            <label>Lab Type</label>
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <label style="color:blue;">{{labOrderData.specimens[0].labType}}</label>
+                        </div>
+                        <div class="col-md-2 pr-1">
+                            <label>Lab Status</label>
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <label style="color:blue;">{{labOrderData.specimens[0].labStatus}}</label>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-2 pr-1">
+                            <label>Tests</label>
+                        </div>
+                        <div class="col-md-10 pr-1">
+                            <label style="color:blue;">{{tests}}</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2 pr-1">
+                            <label>Diagnosis</label>
+                        </div>
+                        <div class="col-md-10 pr-1">
+                            <label style="color:blue;">{{diagnosis}}</label>
+                        </div>
+                    </div>
+                    <div class="row" *ngIf="medications!=''">
+                        <div class="col-md-2 pr-1">
+                            <label>Medications</label>
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <label style="color:blue;">{{medications1}}</label>
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <label style="color:blue;">{{medications2}}</label>
+                        </div>
+                    </div>
+                    <div class="row" *ngIf="allergies!=''">
+                        <div class="col-md-2 pr-1">
+                            <label>Allergies</label>
+                        </div>
+                        <div class="col-md-10 pr-1">
+                            <label style="color:blue;">{{allergies}}</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2 pr-1">
+                            <label>Physician Sig.</label>
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <label style="color:blue;">{{physicianSig}}</label>
+                        </div>
+                        <div class="col-md-2 pr-1">
+                            <label>Patient Sig.</label>
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <label style="color:blue;">{{patientSig}}</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2 pr-1">
+                            <label>Accessioner</label>
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <label style="color:blue;">{{labOrderData.specimens[0].accessioner}}</label>
+                        </div>
+                        <div class="col-md-2 pr-1">
+                            <label>Accession Date</label>
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <label style="color:blue;">{{accessionedDate}}</label>
+                        </div>
+                    </div>
+
+
+                    <div *ngIf="hasIssues == 0" class="row">
+                        <button  type="button" (click)="cancelButtonClicked()" class="btn btn-primary">Cancel</button>
+                        <button  type="button" (click)="VerifiedButtonClicked()" class="btn btn-primary">Verified</button>
+                        <button  type="button" (click)="IssueSrdButtonClicked()" class="btn btn-primary">SRD</button>
+                        <button  type="button" (click)="IssueQaButtonClicked()" class="btn btn-primary">QA</button>
+                        <!-- <button  type="button" (click)="IssueAccountButtonClicked()" class="btn btn-primary">Account Incident</button> -->
+                        <button  type="button" (click)="IssueRejectButtonClicked()" class="btn btn-primary">Reject</button>
+                    </div>
+                    <br />
+                    <div *ngIf="hasIssues == 2" class="row">
+                        <div class="col-md-6 pr-1">
+                            <div class="form-group" >
+                                <label>Issues Type</label>
+                                <select class="form-control required" id="auditSrdType" name="auditSrdType" [(ngModel)]="reviewData.auditSrdTypeId" >
+                                    <option *ngFor="let option of srdList" [value]="option.id">
+                                    {{option.description}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngIf="hasIssues == 4" class="row">
+                        <div class="col-md-6 pr-1">
+                            <div class="form-group" >
+                                <label>Incident Type</label>
+                                <select class="form-control" id="auditIncidentTypeId" name="auditIncidentTypeId" [(ngModel)]="reviewData.auditIncidentTypeId" >
+                                    <option *ngFor="let option of incidentList" [value]="option.id">
+                                    {{option.description}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <div class="form-group" >
+                                <label>Incident Date</label>
+                                <input [(ngModel)]="reviewData.incidentDate" name="incidentDate" type="date" class="form-control" >
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngIf="hasIssues == 4" class="row">
+                        <div class="col-md-6 pr-1">
+                            <div class="form-group" >
+                                <label>Carrier</label>
+                                <select class="form-control" id="shippingMethodId" name="shippingMethodId" [(ngModel)]="reviewData.shippingMethodId" >
+                                    <option *ngFor="let option of shippingList" [value]="option.id">
+                                    {{option.description}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <div class="form-group" >
+                                <label>Tracking #</label>
+                                <input [(ngModel)]="reviewData.trackingNo" maxlength="20" name="trackingNo" type="text" class="form-control">                  
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngIf="hasIssues == 5" class="row">
+                        <div class="col-md-6 pr-1">
+                            <div class="form-group" >
+                                <label>Rejection Type</label>
+                                <select class="form-control" id="auditRejectionTypeId" name="auditRejectionTypeId" [(ngModel)]="reviewData.auditRejectionTypeId" >
+                                    <option *ngFor="let option of rejectionList" [value]="option.id">
+                                    {{option.description}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngIf="hasIssues > 0" class="row">
+                        <div class="col-md-12 pr-1">
+                            <div class="form-group" >
+                                <label>Zendesk Note</label>
+                                <textarea rows = "4" [(ngModel)]="reviewData.zendeskNote"  name="zendeskNote" type="text" class="form-control" ></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngIf="hasIssues > 0" class="row">
+                        <div class="col-md-12 pr-1">
+                            <div class="form-group" >
+                                <label>Internal Note</label>
+                                <textarea rows = "4" [(ngModel)]="reviewData.internalNote"  name="internalNote" type="text" class="form-control" ></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngIf="hasIssues > 0" class="row">
+                            <button  type="button" (click)="backButtonClicked()" class="btn btn-primary">Back</button>
+                            <button  type="button" (click)="cancelButtonClicked()" class="btn btn-primary">Cancel</button>
+                            <button type="button" (click)="saveIssueButtonClicked()" class="btn btn-primary" >Save w/Issues</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Right Side of screen - show documents -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <!-- <h4 class="card-title">Attachments</h4> -->
+                    <div class="row"> 
+                        <button  type="button" *ngIf="attachment1 != ''" (click)="attachmentButtonClicked(attachment1Id)" class="btn btn-primary">{{attachment1}}</button>
+                        <button  type="button" *ngIf="attachment2 != ''" (click)="attachmentButtonClicked(attachment2Id)" class="btn btn-primary">{{attachment2}}</button>
+                        <button  type="button" *ngIf="attachment3 != ''" (click)="attachmentButtonClicked(attachment3Id)" class="btn btn-primary">{{attachment3}}</button>
+                        <button  type="button" *ngIf="attachment4 != ''" (click)="attachmentButtonClicked(attachment4Id)" class="btn btn-primary">{{attachment4}}</button>
+                        <button  type="button" *ngIf="attachment5 != ''" (click)="attachmentButtonClicked(attachment5Id)" class="btn btn-primary">{{attachment5}}</button>
+                        <button  type="button" *ngIf="attachment6 != ''" (click)="attachmentButtonClicked(attachment6Id)" class="btn btn-primary">{{attachment6}}</button>
+                        <button  type="button" *ngIf="attachment7 != ''" (click)="attachmentButtonClicked(attachment7Id)" class="btn btn-primary">{{attachment7}}</button>
+                        <button  type="button" *ngIf="attachment8 != ''" (click)="attachmentButtonClicked(attachment8Id)" class="btn btn-primary">{{attachment8}}</button>
+                    </div>
+                </div>
+                <div class="card-body">                   
+                    <iframe id="ifrm" style="width: 100%; height: 700px;"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>

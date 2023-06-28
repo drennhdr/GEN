@@ -1,0 +1,902 @@
+<!-- Page Name       : Physician Preference         -->
+<!-- Date Created    : 08/10/2022                   -->
+<!-- Written By      : Stephen Farkas               -->
+<!-- Description     : Physician Preference Entry   -->
+<!-- MM/DD/YYYY xxx  Description                    -->
+<!-- ----------------------------------------------------------------------------- -->
+<div class="panel-header panel-header-sm">
+</div>
+<div class="main-content">
+
+    <!-- Existing Preferences                                  -->
+    <div class="row" *ngIf="showList">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5 class="title">Physician Preference</h5>
+                            <p class="category">Select a Preference</p>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="button" (click)="addToxUrineButtonClicked()" class="btn btn-primary" >Add Tox Urine</button>
+                            <button type="button" (click)="addToxOralButtonClicked()" class="btn btn-primary" >Add Tox Oral</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                    <table class="table table-striped" datatable >
+                        <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
+                        <thead class=" text-primary">
+                            <th>Name</th>
+                            <th>Lab Type</th>
+                            <th>Effective Date</th>
+                            <th>Available For All</th>
+                            <th>Actions</th>
+                        </thead>
+                        <tbody>
+                        <tr *ngFor="let item of preferenceListhData">
+                            <td>{{item.name}}</td>
+                            <td>{{item.labType}}</td>
+                            <td>{{item.effectiveDate}}</td>
+                            <td>{{item.availableForAllYN}}</td>
+                            <td><button type="button" (click)="selectButtonClicked(item.physicianPreferenceId)" class="btn btn-primary" >Select</button></td> 
+                        </tr>
+                        
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preference Info                -->
+    <div class="row" *ngIf="showInfo">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Name</label>
+                                <input [(ngModel)]="preferenceData.name" maxlength="20" name="Name" type="text" class="form-control required" placeholder="Name required" (change)="preferenceChanged()">                  
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Effecive Date</label>
+                                <input [(ngModel)]="preferenceData.effectiveDate" name="effectiveDate" type="date" class="form-control required" placeholder="Name required" (change)="effectiveDateChanged()">                  
+                            </div>
+                        </div>
+                        <div class="col-md-1 pr-1">
+                            <div class="form-group" >
+                                <label>Available for all</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="availableForAll" name="availableForAll" [(ngModel)]="preferenceData.availableForAll" (change)="preferenceChanged()">
+                                    <label class="custom-control-label" for="availableForAll"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 pr-1" *ngIf="orderDisabled">
+                            <div class="form-group" >
+                                <label>Sunset Date</label>
+                                <input [(ngModel)]="preferenceData.sunsetDate" name="sunsetDate" type="date" class="form-control required" placeholder="Name required" (change)="sunsetChanged()">                  
+                            </div>
+                        </div>
+                        <div class="col-md-1 pr-1" *ngIf="preferenceSunset">
+                            <div class="form-group" >
+                                <button type="button" (click)="sunsetButtonClicked()" class="btn btn-primary" >Sunset</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label  style="color:red;" >{{dateErrorMessage}}</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Tox Urine                -->
+    <div class="row" *ngIf="showUrine">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col md-3">
+                            <h5 class="title">Order Selection (Tox Urine)</h5>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <label style="color:blue;">
+                                <input type="checkbox" name="toxUrineTargetReflexPanel" [(ngModel)]="toxUrineTargetReflexPanel" [disabled]="orderDisabled" (change)="toxReflex(1)">
+                                Targeted Reflex
+                            </label>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <label style="color:blue;">
+                                <input type="checkbox" name="toxUrineUniversalReflexPanel" [(ngModel)]="toxUrineUniversalReflexPanel" [disabled]="orderDisabled" (change)="toxReflex(2)">
+                                Universal Reflex
+                            </label>
+                        </div>          
+                    </div>         
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- We want to have six columns  -->
+                        <div class="col md-2">
+                            <div class="form-group" >
+                                <label style="color:blue;">
+                                     PRESUMPTIVE SCREENS(15 or 13)
+                                </label>
+                            </div>
+                            <div>
+                                <label class="small">(Cannot be ordered individually)</label>
+                            </div>
+                            <div style="margin-left:10px;">
+                                <label>
+                                    Amphetamines<br />
+                                    Barbiturates<br />
+                                    Benzodiazepine<br />
+                                    Buprenorphine<br />
+                                    Cannabinoids (THC)<br />
+                                    Cocaine metabolite<br />
+                                    Ecstasy (MDMA)<br />
+                                    Ethanol<br />
+                                    Fentanyl<br />
+                                    Methadone<br />
+                                    Opiates (morphine/heroin)<br />
+                                    Oxycodone
+                                    PCP<br />
+                                    TCAs<br />
+                                    Tramadol<br />
+                                </label>
+                            </div>
+                            <div>
+                                <label style="color:blue;">
+                                    <input [(ngModel)]="presumptiveTesting15" type="checkbox" name="presumptiveTestingU13" [disabled]="orderDisabled" (change)="presumtiveChanged15()">
+                                    15 panel screen
+                                </label>
+                            </div>
+                            <div>
+                                <label style="color:blue;">
+                                    <input [(ngModel)]="presumptiveTesting13" type="checkbox" name="presumptiveTestingU15" [disabled]="orderDisabled" (change)="presumtiveChanged13()">
+                                    13 panel Screen<br />
+                                    no Ethanol or THC
+                                </label>
+                            </div>
+                            <div class="form-group" >
+                                <label style="color:blue;">
+                                    <input [(ngModel)]="dissociative.full" type="checkbox" name="dissociativeU" [disabled]="orderDisabled"  (change)="dissociativeUChanged()">
+                                    DISSOCIATIVE AGENTS
+                                </label>
+                            </div>
+                            <div class="form-group" style="margin-left:10px;">
+                                <label>
+                                    <input [(ngModel)]="dissociative.ketamine" type="checkbox" name="dissociativeU1" [disabled]="orderDisabled"  (change)="dissociativeItemUChanged()">
+                                    Ketamine (m)<br />
+                                    <input [(ngModel)]="dissociative.pcp" type="checkbox" name="dissociativeU2" [disabled]="orderDisabled"  (change)="dissociativeItemUChanged()">
+                                    3-Chloride-PCP
+                                </label>
+                            </div>
+                            <div>
+                                <label style="color:blue;">(m) = testing only a metabolite</label>
+                            </div>
+                            <div>
+                                <label style="color:blue;">* = test in development</label>
+                            </div>
+
+                        </div>
+
+                        <div class="col md-2">
+                            <div class="form-group" >
+                                <label style="color:blue;">
+                                    <input [(ngModel)]="illicit.full" type="checkbox" name="illicitU" [disabled]="orderDisabled"  (change)="illicitUChanged()">
+                                    ILLICIT DRUGS
+                                </label>
+                            </div>
+                            <div class="form-group" style="margin-left:10px;">
+                                <label>
+                                    <input [(ngModel)]="illicit.amphetamine" type="checkbox" name="illicitU1" [disabled]="orderDisabled"  (change)="illicitItemUChanged()">
+                                    Amphetamine/Lisdexamfetamine<br />
+                                    <input [(ngModel)]="illicit.cocaine" type="checkbox" name="illicitU2" [disabled]="orderDisabled"  (change)="illicitItemUChanged()">
+                                    Cocaine (m)<br />
+                                    <input [(ngModel)]="illicit.heroin" type="checkbox" name="illicitU3" [disabled]="orderDisabled"  (change)="illicitItemUChanged()">
+                                    Heroin (m)<br />
+                                    <input [(ngModel)]="illicit.mdma" type="checkbox" name="illicitU5" [disabled]="orderDisabled"  (change)="illicitItemUChanged()">
+                                    MDMA (ecstasy, molly)<br />
+                                    <input [(ngModel)]="illicit.methamphetamine" type="checkbox" name="illicitU6" [disabled]="orderDisabled"  (change)="illicitItemUChanged()">
+                                    Methamphetamine<br />
+                                    <div style="margin-left:10px;">
+                                        <input [(ngModel)]="illicit.methamphetaminePosative" type="checkbox" name="illicitU6P" [disabled]="orderDisabled" (change)="illicitItemUChanged()">
+                                        if positive run test to determine isomer<br />
+                                    </div>
+                                    <input [(ngModel)]="illicit.pcp" type="checkbox" name="illicitU7" [disabled]="orderDisabled"  (change)="illicitItemUChanged()">
+                                    PCP
+                                </label>
+                            </div>
+
+                            <div>
+                                <label style="color:blue;">
+                                    <input [(ngModel)]="cannabinoids.full" type="checkbox" name="cannabinoidU" [disabled]="orderDisabled"  (change)="cannabinoidsUChanged()">
+                                    NATURAL CANNABINOIDS
+                                </label>
+                            </div>
+                            <div class="form-group" style="margin-left:10px;">
+                                <label>
+                                    <input [(ngModel)]="cannabinoids.cbd" type="checkbox" name="cannabinoidsU1" [disabled]="orderDisabled"  (change)="cannabinoidsItemUChanged()">
+                                    CBD (m)<br />
+                                    <input [(ngModel)]="cannabinoids.thc" type="checkbox" name="cannabinoidsU2" [disabled]="orderDisabled"  (change)="cannabinoidsItemUChanged()">
+                                    THC (m)
+                                </label>
+                            </div>
+                            <div class="form-group" >
+                                <label style="color:blue;">
+                                    <input [(ngModel)]="thcSource" type="checkbox" name="thcU" [disabled]="orderDisabled"  (change)="thcSourceUChanged()">
+                                    THC source
+                                </label>
+                            </div>
+                            <div class="form-group" style="margin-left:10px;">
+                                <label>
+                                    Measures levels of CBD and THC metabolites to determine if source of THC positive was hemp derived CBD or marijuana.
+                                </label>
+                            </div>
+                            <div>
+                                <label style="color:blue;">
+                                    <input [(ngModel)]="cannabinoidsSynth.full" type="checkbox" name="cannabinoidSynthU" [disabled]="orderDisabled"  (change)="cannabinoidsSynthUChanged()">
+                                    SYNTHETIC CANNABINOIDS
+                                </label>
+                            </div>
+                            <div class="form-group" style="margin-left:10px;">
+                                <label>
+                                    <input [(ngModel)]="cannabinoidsSynth.adb" type="checkbox" name="cannabinoidsSynthU3" [disabled]="orderDisabled"  (change)="cannabinoidsSynthItemUChanged()">
+                                    ADB-BUTINACA<br />
+                                    <input [(ngModel)]="cannabinoidsSynth.mdmb" type="checkbox" name="cannabinoidsSynthU4" [disabled]="orderDisabled"  (change)="cannabinoidsSynthItemUChanged()">
+                                    MDMB-4en-PINACA<br />
+                                    <input [(ngModel)]="cannabinoidsSynth.mdmb5f" type="checkbox" name="cannabinoidsSynthU5" [disabled]="orderDisabled"  (change)="cannabinoidsSynthItemUChanged()">
+                                    5F-MDMB-PICA
+                                </label>
+                            </div>
+                            
+
+                            <div>
+                                <label style="color:blue;">
+                                    <input [(ngModel)]="alcohol.full" type="checkbox" name="alcoholU" [disabled]="orderDisabled"  (change)="alcoholUChanged()">
+                                    ALCOHOL and NICOTINE
+                                </label>
+                            </div>
+                            <div class="form-group" style="margin-left:10px;">
+                                <label>
+                                    <input [(ngModel)]="alcohol.etg" type="checkbox" name="alcoholU1" [disabled]="orderDisabled"  (change)="alcoholIemUChanged()">
+                                    EtG (ethanol metabolite)<br />
+                                    <input [(ngModel)]="alcohol.ets" type="checkbox" name="alcoholU2" [disabled]="orderDisabled"  (change)="alcoholIemUChanged()">
+                                    EtS (ethanol metabolite)<br />
+                                    <input [(ngModel)]="alcohol.nicotine" type="checkbox" name="alcoholU3" [disabled]="orderDisabled"  (change)="alcoholIemUChanged()">
+                                    Nicotine (m)
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="col md-2">
+                            <div class="form-group" >
+                                <label style="color:blue;">
+                                    <input [(ngModel)]="opioidAgonists.full" type="checkbox" name="opioidAgonistsU" [disabled]="orderDisabled"  (change)="opioidAgonistsUChanged()">
+                                    OPIOID AGONISTS
+                                </label>
+                            </div>
+                            <div class="form-group" style="margin-left:10px;">
+                                <label>
+                                    <input [(ngModel)]="opioidAgonists.buprenorphine" type="checkbox" name="opioidAgonistsU1" [disabled]="orderDisabled"  (change)="opioidAgonistsItemUChanged()">
+                                    Buprenorphine<br />
+                                    <div style="margin-left:10px;">
+                                        <input [(ngModel)]="opioidAgonists.norbuprenorphine" type="checkbox" name="opioidAgonistsU2" [disabled]="true">
+                                        norbuprenorphine<br />
+                                    </div>
+                                    <input [(ngModel)]="opioidAgonists.codeine" type="checkbox" name="opioidAgonistsU3" [disabled]="orderDisabled"  (change)="opioidAgonistsItemUChanged()">
+                                    Codeine<br />
+                                    <input [(ngModel)]="opioidAgonists.dextromethorphan" type="checkbox" name="opioidAgonistsU4" [disabled]="orderDisabled"  (change)="opioidAgonistsItemUChanged()">
+                                    Dextromethorphan<br />
+                                    <input [(ngModel)]="opioidAgonists.levorphanol" type="checkbox" name="opioidAgonistsU5" [disabled]="orderDisabled"  (change)="opioidAgonistsItemUChanged()">
+                                    Levorphanol/Dextrorphan<br />
+                                    <input [(ngModel)]="opioidAgonists.dihydrocodeine" type="checkbox" name="opioidAgonistsU6" [disabled]="orderDisabled"  (change)="opioidAgonistsItemUChanged()">
+                                    Dihydrocodeine<br />
+                                    <input [(ngModel)]="opioidAgonists.fentanyl" type="checkbox" name="opioidAgonistsU7" [disabled]="orderDisabled"  (change)="opioidAgonistsItemUChanged()">
+                                    Fentanyl<br />
+                                    <div style="margin-left:10px;">
+                                        <input [(ngModel)]="opioidAgonists.norfentanyl" type="checkbox" name="opioidAgonistsU8" [disabled]="true">
+                                        norfentanyl<br />
+                                    </div>
+                                    <input [(ngModel)]="opioidAgonists.acetylfentanyl" type="checkbox" name="opioidAgonistsU9" [disabled]="orderDisabled"  (change)="opioidAgonistsItemUChanged()">
+                                    Acetyl fentanyl<br />
+                                    <input [(ngModel)]="opioidAgonists.carfentanil" type="checkbox" name="opioidAgonistsU10" [disabled]="orderDisabled"  (change)="opioidAgonistsItemUChanged()">
+                                    Carfentanil<br />
+                                    <div style="margin-left:10px;">
+                                        <input [(ngModel)]="opioidAgonists.norcarfentanil" type="checkbox" name="opioidAgonistsU11" [disabled]="true">
+                                        norcarfentanil<br />
+                                    </div>
+                                    <input [(ngModel)]="opioidAgonists.fluorofentanyl" type="checkbox" name="opioidAgonistsU12" [disabled]="orderDisabled"  (change)="opioidAgonistsItemUChanged()">
+                                    Fluorofentanyl<br />
+                                    <input [(ngModel)]="opioidAgonists.hydrocodone" type="checkbox" name="opioidAgonistsU13" [disabled]="orderDisabled"  (change)="opioidAgonistsItemUChanged()">
+                                    Hydrocodone<br />
+                                    <div style="margin-left:10px;">
+                                        <input [(ngModel)]="opioidAgonists.norhydrocodone" type="checkbox" name="opioidAgonistsU14" [disabled]="true">
+                                        norhydrocodone<br />
+                                    </div>
+                                    <input [(ngModel)]="opioidAgonists.hydromorphone" type="checkbox" name="opioidAgonistsU15" [disabled]="orderDisabled"  (change)="opioidAgonistsItemUChanged()">
+                                    Hydromorphone<br />
+                                    <input [(ngModel)]="opioidAgonists.isotonitazene" type="checkbox" name="opioidAgonistsU16" [disabled]="orderDisabled"  (change)="opioidAgonistsItemUChanged()">
+                                    Isotonitazene<br />
+                                    <input [(ngModel)]="opioidAgonists.meperidine" type="checkbox" name="opioidAgonistsU17" [disabled]="orderDisabled"  (change)="opioidAgonistsItemUChanged()">
+                                    Meperidine (m)<br />
+                                    <input [(ngModel)]="opioidAgonists.methadone" type="checkbox" name="opioidAgonistsU18" [disabled]="orderDisabled"  (change)="opioidAgonistsItemUChanged()">
+                                    Methadone<br />
+                                    <div style="margin-left:10px;">
+                                        <input [(ngModel)]="opioidAgonists.eddp" type="checkbox" name="opioidAgonistsU19" [disabled]="true">
+                                        EDDP<br />
+                                    </div>
+                                    <input [(ngModel)]="opioidAgonists.morphine" type="checkbox" name="opioidAgonistsU20" [disabled]="orderDisabled"  (change)="opioidAgonistsItemUChanged()">
+                                    Morphine<br />
+                                    <input [(ngModel)]="opioidAgonists.oxycodone" type="checkbox" name="opioidAgonistsU21" [disabled]="orderDisabled"  (change)="opioidAgonistsItemUChanged()">
+                                    Oxycodone<br />
+                                    <div style="margin-left:10px;">
+                                        <input [(ngModel)]="opioidAgonists.noroxycodone" type="checkbox" name="opioidAgonistsU22" [disabled]="true">
+                                        noroxycodone<br />
+                                    </div>
+                                    <input [(ngModel)]="opioidAgonists.oxymorphone" type="checkbox" name="opioidAgonistsU23" [disabled]="orderDisabled"  (change)="opioidAgonistsItemUChanged()">
+                                    Oxymorphone<br />
+                                    <input [(ngModel)]="opioidAgonists.tapentadol" type="checkbox" name="opioidAgonistsU24" [disabled]="orderDisabled"  (change)="opioidAgonistsItemUChanged()">
+                                    Tapentadol<br />
+                                    <input [(ngModel)]="opioidAgonists.tramadol" type="checkbox" name="opioidAgonistsU25" [disabled]="orderDisabled"  (change)="opioidAgonistsItemUChanged()">
+                                    Tramadol (m)<br />
+                                    <input [(ngModel)]="opioidAgonists.tianeptine" type="checkbox" name="opioidAgonistsU26" [disabled]="orderDisabled"  (change)="opioidAgonistsItemUChanged()">
+                                    Tianeptine
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="col md-2">
+                            <div class="form-group" >
+                                <label style="color:blue;">
+                                    <input [(ngModel)]="opioidAntagonists.full" type="checkbox" name="opioidAntagonistU" [disabled]="orderDisabled"  (change)="opioidAntagonistsUChanged()">
+                                    OPIOID ANTAGONISTS
+                                </label>
+                            </div>
+                            <div class="form-group" style="margin-left:10px;">
+                                <label>
+                                    <input [(ngModel)]="opioidAntagonists.naloxone" type="checkbox" name="opioidAntagonistU1" [disabled]="orderDisabled"  (change)="opioidAntagonistsItemUChanged()">
+                                    Naloxone<br />
+                                    <input [(ngModel)]="opioidAntagonists.nalmefene" type="checkbox" name="opioidAntagonistU2" [disabled]="orderDisabled"  (change)="opioidAntagonistsItemUChanged()">
+                                    Nalmefene<br />
+                                    <input [(ngModel)]="opioidAntagonists.naltrexone" type="checkbox" name="opioidAntagonistU3" [disabled]="orderDisabled"  (change)="opioidAntagonistsItemUChanged()">
+                                    Naltrexone (m)<br />
+                                </label>
+                            </div>
+                            <div class="form-group" >
+                                <label style="color:blue;">
+                                    <input [(ngModel)]="skeletal.full" type="checkbox" name="skeletalU" [disabled]="orderDisabled"  (change)="skeletalUChanged()">
+                                    SKELETAL MUSCLE RELAXANTS
+                                </label>
+                            </div>
+                            <div class="form-group" style="margin-left:10px;">
+                                <label>
+                                    <input [(ngModel)]="skeletal.baclofen" type="checkbox" name="skeletalU1" [disabled]="orderDisabled"  (change)="skeletalItemUChanged()">
+                                    Baclofen<br />
+                                    <input [(ngModel)]="skeletal.carisoprodol" type="checkbox" name="skeletalU2" [disabled]="orderDisabled"  (change)="skeletalItemUChanged()">
+                                    Carisoprodol<br />
+                                    <input [(ngModel)]="skeletal.cyclobenzaprine" type="checkbox" name="skeletalU3" [disabled]="orderDisabled"  (change)="skeletalItemUChanged()">
+                                    Cyclobenzaprine<br />
+                                    <input [(ngModel)]="skeletal.meprobamate" type="checkbox" name="skeletalU4" [disabled]="orderDisabled"  (change)="skeletalItemUChanged()">
+                                    Meprobamate<br />
+                                    <input [(ngModel)]="skeletal.methocarbamol" type="checkbox" name="skeletalU5" [disabled]="orderDisabled"  (change)="skeletalItemUChanged()">
+                                    Methocarbamol<br />
+                                    <input [(ngModel)]="skeletal.tizanidine" type="checkbox" name="skeletalU6" [disabled]="orderDisabled"  (change)="skeletalItemUChanged()">
+                                    Tizanidine
+                                </label>
+                            </div>
+                            <div class="form-group" >
+                                <label style="color:blue;">
+                                    <input [(ngModel)]="gabapentinoids.full" type="checkbox" name="gabapentinoidsU" [disabled]="orderDisabled"  (change)="gabapentinoidsUChanged()">
+                                    GABAPENTINOIDS
+                                </label>
+                            </div>
+                            <div class="form-group" style="margin-left:10px;">
+                                <label>
+                                    <input [(ngModel)]="gabapentinoids.gabapentin" type="checkbox" name="gabapentinoidsU1" [disabled]="orderDisabled"  (change)="gabapentinoidsItemUChanged()">
+                                    Gabapentin<br />
+                                    <input [(ngModel)]="gabapentinoids.pregabalin" type="checkbox" name="gabapentinoidsU2" [disabled]="orderDisabled"  (change)="gabapentinoidsItemUChanged()">
+                                    Pregabalin<br />
+                                </label>
+                            </div>
+                            <div class="form-group" >
+                                <label style="color:blue;">
+                                    <input [(ngModel)]="hallucinogens.full" type="checkbox" name="hallucinogensU" [disabled]="orderDisabled"  (change)="hallucinogensUChanged()">
+                                    HALLUCINOGENS
+                                </label>
+                            </div>
+                            <div class="form-group" style="margin-left:10px;">
+                                <label>
+                                    <input [(ngModel)]="hallucinogens.lsd" type="checkbox" name="hallucinogensU1" [disabled]="orderDisabled"  (change)="hallucinogensItemUChanged()">
+                                    LSD<br />
+                                    <input [(ngModel)]="hallucinogens.psilocybin" type="checkbox" name="hallucinogensU2" [disabled]="true"  (change)="hallucinogensItemUChanged()">
+                                    Psilocybin/Psilocin (mushrooms)*<br />
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="col md-2">
+                            <div class="form-group" >
+                                <label style="color:blue;">
+                                    <input [(ngModel)]="antipsychotics.full" type="checkbox" name="antipsychoticsU" [disabled]="orderDisabled"  (change)="antipsychoticsUChanged()">
+                                    ANTIPSYCHOTICS
+                                </label>
+                            </div>
+                            <div class="form-group" style="margin-left:10px;">
+                                <label>
+                                    <input [(ngModel)]="antipsychotics.aripiprazole" type="checkbox" name="antipsychoticsU1" [disabled]="orderDisabled"  (change)="antipsychoticsItemUChanged()">
+                                    Aripiprazole (m)<br />
+                                    <input [(ngModel)]="antipsychotics.haloperidol" type="checkbox" name="antipsychoticsU2" [disabled]="orderDisabled"  (change)="antipsychoticsItemUChanged()">
+                                    Haloperidol<br />
+                                    <input [(ngModel)]="antipsychotics.lurasidone" type="checkbox" name="antipsychoticsU3" [disabled]="orderDisabled"  (change)="antipsychoticsItemUChanged()">
+                                    Lurasidone<br />
+                                    <input [(ngModel)]="antipsychotics.olanzapine" type="checkbox" name="antipsychoticsU4" [disabled]="orderDisabled"  (change)="antipsychoticsItemUChanged()">
+                                    Olanzapine<br />
+                                    <input [(ngModel)]="antipsychotics.quetiapine" type="checkbox" name="antipsychoticsU5" [disabled]="orderDisabled"  (change)="antipsychoticsItemUChanged()">
+                                    Quetiapine<br />
+                                    <input [(ngModel)]="antipsychotics.risperidone" type="checkbox" name="antipsychoticsU6" [disabled]="orderDisabled"  (change)="antipsychoticsItemUChanged()">
+                                    Risperidone (m)<br />
+                                    <input [(ngModel)]="antipsychotics.ziprasidone" type="checkbox" name="antipsychoticsU7" [disabled]="orderDisabled"  (change)="antipsychoticsItemUChanged()">
+                                    Ziprasidone
+                                </label>
+                            </div>  
+                            <div class="form-group" >
+                                <label style="color:blue;">
+                                    <input [(ngModel)]="benzodiazepines.full" type="checkbox" name="benzodiazepinesU" [disabled]="orderDisabled"  (change)="benzodiazepinesUChanged()">
+                                    BENZODIAZEPINES
+                                </label>
+                            </div>
+                            <div class="form-group" style="margin-left:10px;">
+                                <label>
+                                    <input [(ngModel)]="benzodiazepines.alprazolam" type="checkbox" name="benzodiazepinesU1" [disabled]="orderDisabled"  (change)="benzodiazepinesItemUChanged()">
+                                    Alprazolam (m)<br />
+                                    <input [(ngModel)]="benzodiazepines.chlordiazepoxide" type="checkbox" name="benzodiazepinesU2" [disabled]="orderDisabled"  (change)="benzodiazepinesItemUChanged()">
+                                    Chlordiazepoxide/Clorazepate/ Diazepam (m)<br />
+                                    <input [(ngModel)]="benzodiazepines.clonazepam" type="checkbox" name="benzodiazepinesU3" [disabled]="orderDisabled"  (change)="benzodiazepinesItemUChanged()">
+                                    Clonazepam (m)<br />
+                                    <input [(ngModel)]="benzodiazepines.clonazolam" type="checkbox" name="benzodiazepinesU4" [disabled]="orderDisabled"  (change)="benzodiazepinesItemUChanged()">
+                                    Clonazolam (m)<br />
+                                    <input [(ngModel)]="benzodiazepines.etizolam" type="checkbox" name="benzodiazepinesU5" [disabled]="orderDisabled"  (change)="benzodiazepinesItemUChanged()">
+                                    Etizolam (m)<br />
+                                    <input [(ngModel)]="benzodiazepines.flualprazolam" type="checkbox" name="benzodiazepinesU6" [disabled]="orderDisabled"  (change)="benzodiazepinesItemUChanged()">
+                                    Flualprazolam<br />
+                                    <input [(ngModel)]="benzodiazepines.lorazepam" type="checkbox" name="benzodiazepinesU7" [disabled]="orderDisabled"  (change)="benzodiazepinesItemUChanged()">
+                                    Lorazepam<br />
+                                    <input [(ngModel)]="benzodiazepines.midazolam" type="checkbox" name="benzodiazepinesU8" [disabled]="orderDisabled"  (change)="benzodiazepinesItemUChanged()">
+                                    Midazolam (m)<br />
+                                    <input [(ngModel)]="benzodiazepines.oxazepam" type="checkbox" name="benzodiazepinesU9" [disabled]="orderDisabled"  (change)="benzodiazepinesItemUChanged()">
+                                    Oxazepam<br />
+                                    <input [(ngModel)]="benzodiazepines.temazepam" type="checkbox" name="benzodiazepinesU10" [disabled]="orderDisabled"  (change)="benzodiazepinesItemUChanged()">
+                                    Temazepam<br />
+                                    <input [(ngModel)]="benzodiazepines.triazolam" type="checkbox" name="benzodiazepinesU11" [disabled]="orderDisabled"  (change)="benzodiazepinesItemUChanged()">
+                                    Triazolam (m)
+                                </label>
+                            </div>
+                            <div class="form-group" >
+                                <label style="color:blue;">
+                                    <input [(ngModel)]="sedative.full" type="checkbox" name="sedativeU" [disabled]="orderDisabled"  (change)="sedativeUChanged()">
+                                    SEDATIVES / HYPNOTICS
+                                </label>
+                            </div>
+                            <div class="form-group" style="margin-left:10px;">
+                                <label>
+                                    <input [(ngModel)]="sedative.butalbital" type="checkbox" name="sedativeU1" [disabled]="orderDisabled"  (change)="sedativeItemUChanged()">
+                                    Butalbital<br />
+                                    <input [(ngModel)]="sedative.phenibut" type="checkbox" name="sedativeU2" [disabled]="orderDisabled"  (change)="sedativeItemUChanged()">
+                                    Phenibut<br />
+                                    <input [(ngModel)]="sedative.xylazine" type="checkbox" name="sedativeU3" [disabled]="orderDisabled"  (change)="sedativeItemUChanged()">
+                                    Xylazine<br />
+                                    <input [(ngModel)]="sedative.zolpidem" type="checkbox" name="sedativeU4" [disabled]="orderDisabled"  (change)="sedativeItemUChanged()">
+                                    Zolpidem (m)<br />
+                                    <input [(ngModel)]="sedative.zopiclone" type="checkbox" name="sedativeU5" [disabled]="orderDisabled"  (change)="sedativeItemUChanged()">
+                                    Zopiclone/Eszopiclone (m)
+                                </label>
+                            </div>
+                        </div>  
+                      
+                        <div class="col md-2">
+                            <div class="form-group" >
+                                <label style="color:blue;">
+                                    <input [(ngModel)]="antidepressants.full" type="checkbox" name="antidepressantsU" [disabled]="orderDisabled"  (change)="antidepressantsUChanged()">
+                                    ANTIDEPRESSANTS
+                                </label>
+                            </div>
+                            <div class="form-group" style="margin-left:10px;">
+                                <label>
+                                    <input [(ngModel)]="antidepressants.amitriptyline" type="checkbox" name="antidepressantsU1" [disabled]="orderDisabled"  (change)="antidepressantsItemUChanged()">
+                                    Amitriptyline/Nortriptyline<br />
+                                    <input [(ngModel)]="antidepressants.doxepin" type="checkbox" name="antidepressantsU2" [disabled]="orderDisabled"  (change)="antidepressantsItemUChanged()">
+                                    Doxepin<br />
+                                    <input [(ngModel)]="antidepressants.imipramine" type="checkbox" name="antidepressantsU3" [disabled]="orderDisabled"  (change)="antidepressantsItemUChanged()">
+                                    Imipramine/Desipramine<br />
+                                    <input [(ngModel)]="antidepressants.mirtazapine" type="checkbox" name="antidepressantsU4" [disabled]="orderDisabled"  (change)="antidepressantsItemUChanged()">
+                                    Mirtazapine<br />
+                                    <input [(ngModel)]="antidepressants.citalopram" type="checkbox" name="antidepressantsU5" [disabled]="orderDisabled"  (change)="antidepressantsItemUChanged()">
+                                    Citalopram/Escitalopram<br />
+                                    <input [(ngModel)]="antidepressants.duloxetine" type="checkbox" name="antidepressantsU6" [disabled]="orderDisabled"  (change)="antidepressantsItemUChanged()">
+                                    Duloxetine<br />
+                                    <input [(ngModel)]="antidepressants.fluoxetine" type="checkbox" name="antidepressantsU7" [disabled]="orderDisabled"  (change)="antidepressantsItemUChanged()">
+                                    Fluoxetine<br />
+                                    <input [(ngModel)]="antidepressants.paroxetine" type="checkbox" name="antidepressantsU8" [disabled]="orderDisabled"  (change)="antidepressantsItemUChanged()">
+                                    Paroxetine<br />
+                                    <input [(ngModel)]="antidepressants.sertraline" type="checkbox" name="antidepressantsU9" [disabled]="orderDisabled"  (change)="antidepressantsItemUChanged()">
+                                    Sertraline<br />
+                                    <input [(ngModel)]="antidepressants.bupropion" type="checkbox" name="antidepressantsU10" [disabled]="orderDisabled"  (change)="antidepressantsItemUChanged()">
+                                    Bupropion (m)<br />
+                                    <input [(ngModel)]="antidepressants.trazodone" type="checkbox" name="antidepressantsU11" [disabled]="orderDisabled"  (change)="antidepressantsItemUChanged()">
+                                    Trazodone (m)<br />
+                                    <input [(ngModel)]="antidepressants.venlafaxine" type="checkbox" name="antidepressantsU12" [disabled]="orderDisabled"  (change)="antidepressantsItemUChanged()">
+                                    Venlafaxine/Desvenlafaxine (m)<br />
+                                    <input [(ngModel)]="antidepressants.vortioxetine" type="checkbox" name="antidepressantsU13" [disabled]="orderDisabled"  (change)="antidepressantsItemUChanged(true)">
+                                    Vortioxetine
+                                </label>
+                            </div>
+                        
+                            <div class="form-group" >
+                                <label style="color:blue;">
+                                    <input [(ngModel)]="stimulants.full" type="checkbox" name="stimulantsU" [disabled]="orderDisabled"  (change)="stimulantsUChanged()">
+                                    STIMULANTS
+                                </label>
+                            </div>
+                            <div class="form-group" style="margin-left:10px;">
+                                <label>
+                                    <input [(ngModel)]="stimulants.benzylone" type="checkbox" name="stimulantsU1" [disabled]="orderDisabled"  (change)="stimulantsItemUChanged(true)">
+                                    Benzylone (BMDP)<br />
+                                    <input [(ngModel)]="stimulants.eutylone" type="checkbox" name="stimulantsU2" [disabled]="orderDisabled"  (change)="stimulantsItemUChanged(true)">
+                                    Eutylone<br />
+                                    <input [(ngModel)]="stimulants.mda" type="checkbox" name="stimulantsU3" [disabled]="orderDisabled"  (change)="stimulantsItemUChanged(true)">
+                                    MDA (sally)<br />
+                                    <input [(ngModel)]="stimulants.methylphenidate" type="checkbox" name="stimulantsU4" [disabled]="orderDisabled"  (change)="stimulantsItemUChanged(true)">
+                                    Methylphenidate/ Dexmethylphenidate (m)<br />
+                                    <input [(ngModel)]="stimulants.phentermine" type="checkbox" name="stimulantsU5" [disabled]="orderDisabled"  (change)="stimulantsItemUChanged(true)">
+                                    Phentermine
+                                </label>
+                            </div>
+                            <div>
+                                <label style="color:blue;">
+                                    <input [(ngModel)]="kraton" type="checkbox" name="kratomU" [disabled]="orderDisabled"  (change)="kratomUChanged()">
+                                    KRATOM (mitragynine) 
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="button" (click)="backButtonClicked()" class="btn btn-primary" >Back</button>
+                    <button type="button" *ngIf="preferenceSave" (click)="saveButtonClicked(1)" class="btn btn-primary" >Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tox Oral                -->
+    <div class="row" *ngIf="showOral">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="title">Order Selection (Tox Oral)</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- We want to have six columns  -->
+                        <div class="col md-2">
+                            <div class="form-group" >
+                                <label style="color:blue;">
+                                    <input [(ngModel)]="oralIllicit.full" type="checkbox" name="illicitO" [disabled]="orderDisabled"  (change)="illicitOChanged(true)">
+                                    COMMON ILLICIT DRUGS
+                                </label>
+                            </div>
+                            <div class="form-group" style="margin-left:10px;">
+                                <label>
+                                    <input [(ngModel)]="oralIllicit.mam6" type="checkbox" name="illicitO1" [disabled]="orderDisabled"  (change)="illicitItemOChanged(true)">
+                                    6-MAM (heroin)<br />
+                                    <input [(ngModel)]="oralIllicit.amphetamine" type="checkbox" name="illicitO2" [disabled]="orderDisabled"  (change)="illicitItemOChanged(true)">
+                                    Amphetamine<br />
+                                    <input [(ngModel)]="oralIllicit.methamphetamine" type="checkbox" name="illicitO3" [disabled]="orderDisabled"  (change)="illicitItemOChanged(true)">
+                                    Methamphetamine<br />
+                                    <input [(ngModel)]="oralIllicit.benzoylecgonine" type="checkbox" name="illicitO4" [disabled]="orderDisabled"  (change)="illicitItemOChanged(true)">
+                                    Benzoylecgonine (cocaine)<br />
+                                    <input [(ngModel)]="oralIllicit.mdma" type="checkbox" name="illicitO5" [disabled]="orderDisabled"  (change)="illicitItemOChanged(true)">
+                                    MDMA (Ecstasy, Molly)<br />
+                                    <input [(ngModel)]="oralIllicit.pcp" type="checkbox" name="illicitO6" [disabled]="orderDisabled"  (change)="illicitItemOChanged(true)">
+                                    Phencyclidine (PCP)<br />
+                                    <input [(ngModel)]="oralIllicit.thc" type="checkbox" name="illicitO7" [disabled]="orderDisabled"  (change)="illicitItemOChanged(true)">
+                                    THC                                    
+                                </label>
+                            </div>
+                            <div class="form-group" >
+                                <label style="color:blue;">
+                                    <input [(ngModel)]="oralSedative.full" type="checkbox" name="sedativeO" [disabled]="orderDisabled"  (change)="sedativeOChanged(true)">
+                                    SEDATIVES / HYPNOTICS
+                                </label>
+                            </div>
+                            <div class="form-group" style="margin-left:10px;">
+                                <label>
+                                    <input [(ngModel)]="oralSedative.zolpidem" type="checkbox" name="sedativeO1" [disabled]="orderDisabled"  (change)="sedativeItemOChanged(true)">
+                                    Zolpidem<br />
+                                    <input [(ngModel)]="oralSedative.butalbital" type="checkbox" name="sedativeO2" [disabled]="orderDisabled"  (change)="sedativeItemOChanged(true)">
+                                    Butalbital
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Column 2 -->
+                        <div class="col md-2"> 
+                            <div class="form-group" >
+                                <label style="color:blue;">
+                                    <input [(ngModel)]="oralBenzodiazepines.full" type="checkbox" name="benzodiazepinesO" [disabled]="orderDisabled"  (change)="benzodiazepinesOChanged(true)">
+                                    BENZODIAZEPINES
+                                </label>
+                            </div>
+                            <div class="form-group" style="margin-left:10px;">
+                                <label>
+                                    <input [(ngModel)]="oralBenzodiazepines.alprazolam" type="checkbox" name="benzodiazepinesO1" [disabled]="orderDisabled"  (change)="benzodiazepinesItemOChanged(true)">
+                                    Alprazolam<br />
+                                    <input [(ngModel)]="oralBenzodiazepines.diazepam" type="checkbox" name="benzodiazepinesO2" [disabled]="orderDisabled"  (change)="benzodiazepinesItemOChanged(true)">
+                                    Diazepam<br />
+                                    <input [(ngModel)]="oralBenzodiazepines.clonazepam" type="checkbox" name="benzodiazepinesO3" [disabled]="orderDisabled"  (change)="benzodiazepinesItemOChanged(true)">
+                                    Clonazepam<br />
+                                    <div style="margin-left:10px;">
+                                        <input [(ngModel)]="oralBenzodiazepines.aminoclonazepam" type="checkbox" name="benzodiazepinesO4" [disabled]="true">
+                                        7-aminoclonazepam<br />
+                                    </div>
+                                    <input [(ngModel)]="oralBenzodiazepines.nordiazepam" type="checkbox" name="benzodiazepinesO5" [disabled]="orderDisabled"  (change)="benzodiazepinesItemOChanged(true)">
+                                    Nordiazepam<br />
+                                    <input [(ngModel)]="oralBenzodiazepines.lorazepam" type="checkbox" name="benzodiazepinesO6" [disabled]="orderDisabled"  (change)="benzodiazepinesItemOChanged(true)">
+                                    Lorazepam<br />
+                                    <input [(ngModel)]="oralBenzodiazepines.oxazepam" type="checkbox" name="benzodiazepinesO7" [disabled]="orderDisabled"  (change)="benzodiazepinesItemOChanged(true)">
+                                    Oxazepam<br />
+                                    <input [(ngModel)]="oralBenzodiazepines.temazepam" type="checkbox" name="benzodiazepinesO8" [disabled]="orderDisabled"  (change)="benzodiazepinesItemOChanged(true)">
+                                    Temazepam
+                                </label>
+                            </div>
+
+                            <div class="form-group" >
+                                <label style="color:blue;">
+                                    <input [(ngModel)]="oralMuscle.full" type="checkbox" name="muscularO" [disabled]="orderDisabled"  (change)="muscularOChanged(true)">
+                                    MUSCLE RELAXANTS
+                                </label>
+                            </div>
+                            <div class="form-group" style="margin-left:10px;">
+                                <label>
+                                    <input [(ngModel)]="oralMuscle.baclofen" type="checkbox" name="muscularO1" [disabled]="orderDisabled"  (change)="muscularItemOChanged(true)">
+                                    Baclofen<br />
+                                    <input [(ngModel)]="oralMuscle.carisoprodol" type="checkbox" name="muscularO2" [disabled]="orderDisabled"  (change)="muscularItemOChanged(true)">
+                                    Carisoprodol<br />
+                                    <input [(ngModel)]="oralMuscle.cyclobenzaprine" type="checkbox" name="muscularO3" [disabled]="orderDisabled"  (change)="muscularItemOChanged(true)">
+                                    Cyclobenzaprine<br />
+                                    <input [(ngModel)]="oralMuscle.meprobamate" type="checkbox" name="muscularO4" [disabled]="orderDisabled"  (change)="muscularItemOChanged(true)">
+                                    Meprobamate<br />
+                                    <input [(ngModel)]="oralMuscle.methocarbamol" type="checkbox" name="muscularO5" [disabled]="orderDisabled"  (change)="muscularItemOChanged(true)">
+                                    Methocarbamol
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Column 3 -->
+                        <div class="col md-2"> 
+                            <div class="form-group" >
+                                <label style="color:blue;">
+                                    <input [(ngModel)]="oralAntipsychotics.full" type="checkbox" name="antipsychoticsO" [disabled]="orderDisabled"  (change)="antipsychoticsOChanged(true)">
+                                    ANTIPSYCHOTICS
+                                </label>
+                            </div>
+                            <div class="form-group" style="margin-left:10px;">
+                                <label>
+                                    <input [(ngModel)]="oralAntipsychotics.aripiprazole" type="checkbox" name="antipsychoticsO1" [disabled]="orderDisabled"  (change)="antipsychoticsItemOChanged(true)">
+                                    Aripiprazole<br />
+                                    <input [(ngModel)]="oralAntipsychotics.quetiapine" type="checkbox" name="antipsychoticsO2" [disabled]="orderDisabled"  (change)="antipsychoticsItemOChanged(true)">
+                                    Quetiapine<br />
+                                    <input [(ngModel)]="oralAntipsychotics.risperidone" type="checkbox" name="antipsychoticsO3" [disabled]="orderDisabled"  (change)="antipsychoticsItemOChanged(true)">
+                                    Risperidone<br />
+                                    <input [(ngModel)]="oralAntipsychotics.ziprasidone" type="checkbox" name="antipsychoticsO4" [disabled]="orderDisabled"  (change)="antipsychoticsItemOChanged(true)">
+                                    Ziprasidone
+                                </label>
+                            </div>
+                            <div class="form-group" >
+                                <label style="color:blue;">
+                                    <input [(ngModel)]="oralAntidepressants.full" type="checkbox" name="antidepressantsO" [disabled]="orderDisabled"  (change)="antidepressantsOChanged(true)">
+                                    ANTIDEPRESSANTS
+                                </label>
+                            </div>
+                            <div class="form-group" style="margin-left:10px;">
+                                <label>
+                                    <input [(ngModel)]="oralAntidepressants.amitriptyline" type="checkbox" name="antidepressantsO1" [disabled]="orderDisabled"  (change)="antidepressantsItemOChanged(true)">
+                                    Amitriptyline<br />
+                                    <input [(ngModel)]="oralAntidepressants.citalopram" type="checkbox" name="antidepressantsO2" [disabled]="orderDisabled"  (change)="antidepressantsItemOChanged(true)">
+                                    Citalopram<br />
+                                    <input [(ngModel)]="oralAntidepressants.fluoxetine" type="checkbox" name="antidepressantsO3" [disabled]="orderDisabled"  (change)="antidepressantsItemOChanged(true)">
+                                    Fluoxetine<br />
+                                    <input [(ngModel)]="oralAntidepressants.nortriptyline" type="checkbox" name="antidepressantsO4" [disabled]="orderDisabled"  (change)="antidepressantsItemOChanged(true)">
+                                    Nortriptyline<br />
+                                    <input [(ngModel)]="oralAntidepressants.paroxetine" type="checkbox" name="antidepressantsO6" [disabled]="orderDisabled"  (change)="antidepressantsItemOChanged(true)">
+                                    Paroxetine<br />
+                                    <input [(ngModel)]="oralAntidepressants.sertraline" type="checkbox" name="antidepressantsO6" [disabled]="orderDisabled"  (change)="antidepressantsItemOChanged(true)">
+                                    Sertraline<br />
+                                    <input [(ngModel)]="oralAntidepressants.venlafaxine" type="checkbox" name="antidepressantsO7" [disabled]="orderDisabled"  (change)="antidepressantsItemOChanged(true)">
+                                    Venlafaxine<br />
+                                    <input [(ngModel)]="oralAntidepressants.desmethylvenlafaxine" type="checkbox" name="antidepressantsO8" [disabled]="orderDisabled"  (change)="antidepressantsItemOChanged(true)">
+                                    Desmethylvenlafaxine<br />
+                                    <input [(ngModel)]="oralAntidepressants.mirtazapine" type="checkbox" name="antidepressantsO9" [disabled]="orderDisabled"  (change)="antidepressantsItemOChanged(true)">
+                                    Mirtazapine<br />
+                                    <input [(ngModel)]="oralAntidepressants.trazodone" type="checkbox" name="antidepressantsO10" [disabled]="orderDisabled"  (change)="antidepressantsItemOChanged(true)">
+                                    Trazodone    
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Column 4 -->
+                        <div class="col md-2"> 
+                            <div class="form-group" >
+                                <label style="color:blue;">
+                                    <input [(ngModel)]="oralStimulants.full" type="checkbox" name="stimulantsO" [disabled]="orderDisabled"  (change)="stimulantsOChanged(true)">
+                                    STIMULANTS
+                                </label>
+                            </div>
+                            <div class="form-group" style="margin-left:10px;">
+                                <label>
+                                    <input [(ngModel)]="oralStimulants.methylphenidate" type="checkbox" name="stimulantsO1" [disabled]="orderDisabled"  (change)="stimulantsItemOChanged(true)">
+                                    Methylphenidate<br />
+                                    <input [(ngModel)]="oralStimulants.ritalinicAcid" type="checkbox" name="stimulantsO2" [disabled]="orderDisabled"  (change)="stimulantsItemOChanged(true)">
+                                    Ritalinic acid<br />
+                                    <input [(ngModel)]="oralStimulants.mda" type="checkbox" name="stimulantsO3" [disabled]="orderDisabled"  (change)="stimulantsItemOChanged(true)">
+                                    MDA (Sally)<br />
+                                    <input [(ngModel)]="oralStimulants.phentermine" type="checkbox" name="stimulantsO4" [disabled]="orderDisabled"  (change)="stimulantsItemOChanged(true)">
+                                    Phentermine
+                                </label>
+                            </div>
+                            <div class="form-group" >
+                                <label style="color:blue;">
+                                    <input [(ngModel)]="oralKratom.full" type="checkbox" name="kratomO" [disabled]="orderDisabled"  (change)="kratomOChanged(true)">
+                                    KRATOM
+                                </label>
+                            </div>
+                            <div class="form-group" style="margin-left:10px;">
+                                <label>
+                                    <input [(ngModel)]="oralKratom.mitragynine" type="checkbox" name="kratomO1" [disabled]="orderDisabled"  (change)="kratomItemOChanged(true)">
+                                    Mitragynine (Kratom)<br />
+                                </label>
+                            </div>
+                            <div class="form-group" >
+                                <label style="color:blue;">
+                                    <input [(ngModel)]="oralNicotine.full" type="checkbox" name="nicotineO" [disabled]="orderDisabled"  (change)="nicotineOChanged(true)">
+                                    NICOTINE
+                                </label>
+                            </div>
+                            <div class="form-group" style="margin-left:10px;">
+                                <label>
+                                    <input [(ngModel)]="oralNicotine.cotinine" type="checkbox" name="nicotineO1" [disabled]="orderDisabled"  (change)="nicotineItemOChanged(true)">
+                                    Cotinine<br />
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Column 5 -->
+                        <div class="col md-2"> 
+                            <div class="form-group" >
+                                <label style="color:blue;">
+                                    <input [(ngModel)]="oralOpioidAntagonists.full" type="checkbox" name="opioidAntagonistO" [disabled]="orderDisabled"  (change)="opioidAntagonistsOChanged(true)">
+                                    OPIOID ANTAGONISTS
+                                </label>
+                            </div>
+                            <div class="form-group" style="margin-left:10px;">
+                                <label>
+                                    <input [(ngModel)]="oralOpioidAntagonists.naloxone" type="checkbox" name="opioidAntagonistO1" [disabled]="orderDisabled"  (change)="opioidAntagonistsItemOChanged(true)">
+                                    Naloxone<br />
+                                    <input [(ngModel)]="oralOpioidAntagonists.naltrexone" type="checkbox" name="opioidAntagonistO3" [disabled]="orderDisabled"  (change)="opioidAntagonistsItemOChanged(true)">
+                                    Naltrexone<br />
+                                </label>
+                            </div>
+                            <div class="form-group" >
+                                <label style="color:blue;">
+                                    <input [(ngModel)]="oralGabapentinoids.full" type="checkbox" name="gabapentinoidsO" [disabled]="orderDisabled"  (change)="gabapentinoidsOChanged(true)">
+                                    GABAPENTINOIDS
+                                </label>
+                            </div>
+                            <div class="form-group" style="margin-left:10px;">
+                                <label>
+                                    <input [(ngModel)]="oralGabapentinoids.gabapentin" type="checkbox" name="gabapentinoidsO1" [disabled]="orderDisabled"  (change)="gabapentinoidsItemOChanged(true)">
+                                    Gabapentin<br />
+                                    <input [(ngModel)]="oralGabapentinoids.pregabalin" type="checkbox" name="gabapentinoidsO2" [disabled]="orderDisabled"  (change)="gabapentinoidsItemOChanged(true)">
+                                    Pregabalin<br />
+                                </label>
+                            </div>
+
+                            <div class="form-group" >
+                                <label style="color:blue;">
+                                    <input [(ngModel)]="oralDissociative.full" type="checkbox" name="dissociativeO" [disabled]="orderDisabled"  (change)="dissociativeOChanged(true)">
+                                    DISSOCIATIVE AGENTS
+                                </label>
+                            </div>
+                            <div class="form-group" style="margin-left:10px;">
+                                <label>
+                                    <input [(ngModel)]="oralDissociative.ketamine" type="checkbox" name="dissociativeO1" [disabled]="orderDisabled"  (change)="dissociativeItemOChanged(true)">
+                                    Ketamine<br />
+                                    <div style="margin-left:10px;">
+                                        <input [(ngModel)]="oralDissociative.norketamine" type="checkbox" name="dissociativeO2" [disabled]="true">
+                                        Norketamine
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Column 6 -->
+                        <div class="col md-2"> 
+                            <div class="col md-2">
+                                <div class="form-group" >
+                                    <label style="color:blue;">
+                                        <input [(ngModel)]="oralOpioidAgonists.full" type="checkbox" name="opioidAgonistsO" [disabled]="orderDisabled"  (change)="opioidAgonistsOChanged(true)">
+                                        OPIOID AGONISTS
+                                    </label>
+                                </div>
+                                <div class="form-group" style="margin-left:10px;">
+                                    <label>
+                                        <input [(ngModel)]="oralOpioidAgonists.buprenorphine" type="checkbox" name="opioidAgonistsO1" [disabled]="orderDisabled"  (change)="opioidAgonistsItemOChanged(true)">
+                                        Buprenorphine<br />
+                                        <div style="margin-left:10px;">
+                                            <input [(ngModel)]="oralOpioidAgonists.norbuprenorphine" type="checkbox" name="opioidAgonistsO2" [disabled]="true">
+                                            Norbuprenorphine<br />
+                                        </div>
+                                        <input [(ngModel)]="oralOpioidAgonists.codeine" type="checkbox" name="opioidAgonistsO3" [disabled]="orderDisabled"  (change)="opioidAgonistsItemOChanged(true)">
+                                        Codeine<br />
+                                        <input [(ngModel)]="oralOpioidAgonists.dextromethorphan" type="checkbox" name="opioidAgonistsO4" [disabled]="orderDisabled"  (change)="opioidAgonistsItemOChanged(true)">
+                                        Dextromethorphan<br />
+                                        <input [(ngModel)]="oralOpioidAgonists.hydrocodone" type="checkbox" name="opioidAgonistsO5" [disabled]="orderDisabled"  (change)="opioidAgonistsItemOChanged(true)">
+                                        Hydrocodone<br />
+                                        <div style="margin-left:10px;">
+                                            <input [(ngModel)]="oralOpioidAgonists.norhydrocodone" type="checkbox" name="opioidAgonistsO6" [disabled]="true">
+                                            Norhydrocodone<br />
+                                        </div>
+                                        <input [(ngModel)]="oralOpioidAgonists.hydromorphone" type="checkbox" name="opioidAgonistsO7" [disabled]="orderDisabled"  (change)="opioidAgonistsItemOChanged(true)">
+                                        Hydromorphone<br />
+                                        <input [(ngModel)]="oralOpioidAgonists.fentanyl" type="checkbox" name="opioidAgonistsO8" [disabled]="orderDisabled"  (change)="opioidAgonistsItemOChanged(true)">
+                                        Fentanyl<br />
+                                        <div style="margin-left:10px;">
+                                            <input [(ngModel)]="oralOpioidAgonists.norfentanyl" type="checkbox" name="opioidAgonistsO9" [disabled]="true">
+                                            Norfentanyl<br />
+                                        </div>
+                                        <input [(ngModel)]="oralOpioidAgonists.methadone" type="checkbox" name="opioidAgonistsO10" [disabled]="orderDisabled"  (change)="opioidAgonistsItemOChanged(true)">
+                                        Methadone<br />
+                                        <div style="margin-left:10px;">
+                                            <input [(ngModel)]="oralOpioidAgonists.eddp" type="checkbox" name="opioidAgonistsO11" [disabled]="true">
+                                            EDDP<br />
+                                        </div>
+                                        <input [(ngModel)]="oralOpioidAgonists.morphine" type="checkbox" name="opioidAgonists12" [disabled]="orderDisabled"  (change)="opioidAgonistsItemOChanged(true)">
+                                        Morphine<br />
+                                        <input [(ngModel)]="oralOpioidAgonists.oxycodone" type="checkbox" name="opioidAgonistsO13" [disabled]="orderDisabled"  (change)="opioidAgonistsItemOChanged(true)">
+                                        Oxycodone<br />
+                                        <div style="margin-left:10px;">
+                                            <input [(ngModel)]="oralOpioidAgonists.noroxycodone" type="checkbox" name="opioidAgonistsO14" [disabled]="true">
+                                            Noroxycodone<br />
+                                        </div>
+                                        <input [(ngModel)]="oralOpioidAgonists.oxymorphone" type="checkbox" name="opioidAgonistsO15" [disabled]="orderDisabled"  (change)="opioidAgonistsItemOChanged(true)">
+                                        Oxymorphone<br />
+                                        <input [(ngModel)]="oralOpioidAgonists.tapentadol" type="checkbox" name="opioidAgonistsO16" [disabled]="orderDisabled"  (change)="opioidAgonistsItemOChanged(true)">
+                                        Tapentadol<br />
+                                        <input [(ngModel)]="oralOpioidAgonists.tramadol" type="checkbox" name="opioidAgonistsO17" [disabled]="orderDisabled"  (change)="opioidAgonistsItemOChanged(true)">
+                                        Tramadol<br />
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    
+                    </div>
+                        
+
+                    <button type="button" (click)="backButtonClicked()" class="btn btn-primary" >Back</button>
+                    <button type="button" *ngIf="preferenceSave" (click)="saveButtonClicked(2)" class="btn btn-primary" >Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,1837 @@
+<!-- Page Name       : Accessioning             -->
+<!-- Date Created    : 08/17/2022               -->
+<!-- Written By      : Stephen Farkas           -->
+<!-- Description     : Customer Entry / Edit    -->
+<!-- MM/DD/YYYY xxx  Description                -->
+<!-- ----------------------------------------------------------------------------- -->
+<div class="panel-header panel-header-sm">
+</div>
+<div class="main-content">
+    
+    <div  id="topOfScreen"></div>
+    <!-- Search                   -->
+    <div class="row" *ngIf="showSearch" id="barcodeSeearchCard">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-md-9 pr-1">
+                            <h5 class="title">Lab Accessioning</h5>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Lab Location</label>
+                                <select [(ngModel)]="labId" class="form-control" id="labList" name="labList"  (change)="labChanged()">
+                                    <option *ngFor="let option of labList" [value]="option.labId">
+                                        {{option.labName}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                <form name="search-form">
+                    <div class="row">
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Scan Barcode</label>
+                                <input [(ngModel)]="searchBarcode" maxlength="100" name="searchBarcode" type="text" #searchField class="form-control" >
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <button type="button" (click)="searchButtonClicked()" class="btn btn-primary" >Search</button>
+                </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Show errors                -->
+    <div class="row" *ngIf="showError" >
+        <div class="col-md-12">
+            <!-- Errors -->
+            <div class="card">
+                <div class="card-header">
+                <h5 class="title">Error Message</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <textarea rows="3" cols="80" class= "form-control alert-login">{{errorMessage}}</textarea>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Side of Screen -->
+        <div class="col-md-3">
+            <!-- Lab Order Information                -->
+            <div class="row" *ngIf="showLabOrder" >
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-md-6"> 
+                                    <h5 class="title">Lab Order</h5> 
+                                </div>
+                                <div class="col-md-6">
+                                    <button type="button" (click)="viewButtonClicked()" class="btn btn-primary" >{{detailsButton}}</button>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12 pr-1">
+                                    <label>Specimen ID:</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 pr-1">
+                                    <h5>{{labOrderData.specimenBarcode}}</h5>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8 pr-1">
+                                    <label>Collection Date:</label>
+                                </div>
+                                <div class="col-md-4 pr-1">
+                                    <div class="form-group" >
+                                        <label class="dark-label">
+                                            <input type="checkbox" name="mismatchDate" [(ngModel)]="mismatchDate" (click)="showModal()">
+                                            Mismatch
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 pr-1">
+                                    <h5>{{collectionDate}}</h5>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 pr-1">
+                                    <label>CollectionAge (hours):</label>
+                                </div>
+                            </div>
+                            <div class="row" *ngIf="!overStability">
+                                <div class="col-md-12 pr-1">
+                                    <h5>{{specimenAge}}</h5>
+                                </div>
+                            </div>
+                            <div class="row" *ngIf="overStability">
+                                <div class="col-md-12 pr-1">
+                                    <h5 style="color:red;">{{specimenAge}}</h5>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 pr-1">
+                                    <label>Test Type:</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 pr-1">
+                                    <h5 *ngIf="labOrderData.labTypeId == 1" style="color:rgba(200, 200, 33, 0.931);">{{labOrderData.labType}} {{toxScreen}}</h5>
+                                    <h5 *ngIf="labOrderData.labTypeId == 2" style="color:aqua;">{{labOrderData.labType}} {{toxScreen}}</h5>
+                                    <h5 *ngIf="labOrderData.labTypeId == 3" style="color:blue;">{{labOrderData.labType}}</h5>
+                                    <h5 *ngIf="labOrderData.labTypeId == 4" style="color:pink;">{{labOrderData.labType}}</h5>
+                                    <h5 *ngIf="labOrderData.labTypeId == 5" style="color:brown;">{{labOrderData.labType}}</h5>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8 pr-1">
+                                    <label>Patient:</label>
+                                </div>
+                                <div class="col-md-4 pr-1">
+                                    <div class="form-group" >
+                                        <label class="dark-label">
+                                            <input type="checkbox" name="mismatchName" [(ngModel)]="mismatchName" (click)="showModal()">
+                                            Mismatch
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 pr-1">
+                                    <h5>{{patientData.firstName}} {{patientData.lastName}}</h5>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8 pr-1">
+                                    <label>Date of Birth:</label>
+                                </div>
+                                <div class="col-md-4 pr-1">
+                                    <div class="form-group" >
+                                        <label class="dark-label">
+                                            <input type="checkbox" name="mismatchDOB" [(ngModel)]="mismatchDOB" (click)="showModal()">
+                                            Mismatch
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 pr-1">
+                                    <h5>{{patientData.dob | date:'MM/dd/yyyy'}}</h5>
+                                </div>
+                            </div>
+                            <div class="row" *ngIf="labOrderData.labTypeId  == 4">
+                                <div class="col-md-8 pr-1">
+                                    <label>Pregnant</label>
+                                </div>
+                                <div class="col-md-4 pr-1">
+                                    <div class="form-group" >
+                                        <label class="dark-label">
+                                            <input type="checkbox" name="mismatchPregnant" [(ngModel)]="mismatchPregnant" (click)="showModal()">
+                                            Mismatch
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 pr-1" *ngIf="labOrderData.labTypeId  == 4">
+                                    <h5>{{pregnant}}</h5>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 pr-1">
+                                    <label>Customer:</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 pr-1">
+                                    <h5>{{labOrderData.customer}}</h5>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 pr-1">
+                                    <label>Status:</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 pr-1">
+                                    <h5 *ngIf="labOrderData.labStatusId >= 99" style="color:red;">{{labOrderData.labStatus}}</h5>
+                                    <h5 *ngIf="labOrderData.labStatusId < 99 && labOrderData.labStatusId >= 30" style="color:orange;">{{labOrderData.labStatus}}</h5>
+                                    <h5 *ngIf="labOrderData.labStatusId < 30" style="color:green">{{labOrderData.labStatus}}</h5>
+                                </div>
+                            </div>
+                            <!-- buttons -->
+                            <div class="row">
+                                <button type="button" *ngIf="labOrderData.labStatusId < 30" style="width:100px" (click)="holdButtonClicked()" class="btn btn-primary" >Hold</button>
+                                <button type="button" *ngIf="labOrderData.labStatusId < 30 && userType!=6" style="width:100px" (click)="rejectButtonClicked()" class="btn btn-primary" >Reject</button>
+                            </div>
+                            <div class="row">
+                                <button type="button" *ngIf="labOrderData.labStatusId < 30" style="width:100px" (click)="continueClicked()" class="btn btn-primary" >Continue</button>
+                                <button type="button" style="width:100px" (click)="backToBarcodeButtonClicked()" class="btn btn-primary" >Back</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                        <h5 class="title">Lab Order History</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped" datatable >
+                                    <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
+                                    <thead class=" text-primary">
+                                        <th>Collected</th>
+                                        <th>Specimen ID</th>
+
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let item of labHistoryData">
+                                            <td>{{item.collectionDate}}</td>
+                                            <td>{{item.specimenBarcode}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Right Side of Screen -->
+        
+        <div class="col-md-9" *ngIf="customerBillingTypeId > 2 && !showDetails">
+            <!-- Insurance list                                  -->
+            <div id="insuranceListCard">
+                <div class="row" *ngIf="showInsuranceList">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="row">
+                                    <div class="col-md-10">
+                                        <h5 class="title">Insurances</h5>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button type="button" (click)="addInsuranceButtonClicked()" class="btn btn-primary" >Add</button>
+                                    </div>
+                                    <!-- <div class="col-mdm-2">
+                                        <button type="button" (click)="eligibilityProcessClicked()" class="btn btn-primary" >Verify</button>
+                                    </div> -->
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <!-- Items   -->
+                                <div class="row">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped" datatable >
+                                            <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
+                                            <thead class=" text-primary">
+                                                <th>Payor</th>
+                                                <th>Member ID</th>
+                                                <th>Group Number</th>
+                                                <th>Effective Date</th>
+                                                <th>Expire Date</th>
+                                                <th>Sequence</th>
+                                                <th>Actions</th>
+                                            </thead>
+
+                                            <tr *ngFor="let item of patientData.insurances">
+                                                <td>{{item.insurance}}</td>
+                                                <td>{{item.memberId}}</td>
+                                                <td>{{item.groupNo}}</td>
+                                                <td>{{item.effectiveDate}}</td>
+                                                <td>{{item.expireDate}}</td>
+                                                <td>{{item.sequence}}</td>
+                                                <td><button type="button" (click)="selectInsuranceButtonClicked(item.patientInsuranceId)" class="btn btn-primary" >Select</button></td>                    
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>    
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Insurance Edit                                  -->  
+            <div id="insuranceEditCard">
+                <div class="row" *ngIf="showInsuranceEdit">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="title">Insurance</h5>
+                            </div>
+                            <div class="card-body">
+                                <form name="insurance-form">
+                                    <div class="row">
+                                        <div class="col-md-6 pr-1">
+                                            <div class="form-group">
+                                                <label>Payor</label>
+                                                <select class="form-control required" id="insurancePayor" name="insurancePayor" [(ngModel)]="insuranceData.insuranceId" (change)="insuranceChanged()">
+                                                <option *ngFor="let option of payorList" [value]="option.id">
+                                                    {{option.description}}
+                                                </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Active</label>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" class="custom-control-input" id="insuranceActive" name="insuranceActive" [(ngModel)]="insuranceData.active" (change)="insuranceChanged()">
+                                                    <label class="custom-control-label" for="insuranceActive"></label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row" *ngIf="insuranceData.insuranceId==0">
+                                        <div class="col-md-6  pr-1">
+                                            <div class="form-group" >
+                                                <label>Payor Name</label>
+                                                <input [(ngModel)]="insuranceData.insurance" maxlength="50" name="insuranceName" type="text" class="form-control required"  (change)="insuranceChanged()">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 pr-1">
+                                            <div class="form-group">
+                                                <label>Type</label>
+                                                <select class="form-control required" id="insuranceType" name="insuranceType" [(ngModel)]="insuranceData.insuranceTypeId" (change)="insuranceChanged()">
+                                                    <option *ngFor="let option of insuranceTypeList" [value]="option.id">
+                                                        {{option.description}}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6  pr-1">
+                                            <div class="form-group" >
+                                                <label>Member No.</label>
+                                                <input [(ngModel)]="insuranceData.memberId" maxlength="30" name="insuranceMember" type="text" class="form-control required" placeholder="Member No required" (change)="insuranceChanged()">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6  pr-1">
+                                            <div class="form-group" >
+                                                <label>Group No.</label>
+                                                <input [(ngModel)]="insuranceData.groupNo" maxlength="30" name="insuranceGroup" type="text" class="form-control" (change)="insuranceChanged()">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3  pr-1">
+                                            <div class="form-group" >
+                                                <label>Effective Date</label>
+                                                <input [(ngModel)]="insuranceData.effectiveDate" name="insuranceEffective" type="date" class="form-control" (change)="insuranceChanged()">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3  pr-1">
+                                            <div class="form-group" >
+                                                <label>Expire Date</label>
+                                                <input [(ngModel)]="insuranceData.expireDate" name="insuranceexpire" type="date" class="form-control" (change)="insuranceChanged()">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Relationship To Insured</label>
+                                                <select class="form-control" id="insuranceRelation" name="insuranceRelation" [(ngModel)]="insuranceData.relationshipId" (change)="insuranceChanged()">
+                                                    <option *ngFor="let option of relationshipList" [value]="option.id">
+                                                        {{option.description}}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Sequence</label>
+                                                <select class="form-control" id="insuranceSequence" name="insuranceSequence" [(ngModel)]="insuranceData.sequence" (change)="insuranceChanged()">
+                                                    <option *ngFor="let option of sequenceList" [value]="option.id">
+                                                        {{option.description}}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                
+                                    <button type="button" *ngIf="insuranceSave" (click)="saveInsuranceButtonClicked()" class="btn btn-primary" >Save</button>
+                                    <button type="button" (click)="cancelInsuranceButtonClicked()" class="btn btn-primary" >Cancel</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Eligibility Request                             -->  
+            <!-- <div id="eligibilityRequestCard">
+                <div class="row" *ngIf="showEligibilityRequest">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="title">Eligibility Request</h5>
+                            </div>
+                            <div class="card-body">
+                                <form name="eligibilityRequest-form">
+                                    <div class="row">
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group">
+                                                <label>Payor</label>
+                                                <select class="form-control" id="eligibilityPayorId" name="eligibilityPayorId" [(ngModel)]="eligibilityPayorId">
+                                                <option *ngFor="let option of insuranceList" [value]="option.id">
+                                                    {{option.description}}
+                                                </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 pr-1">
+                                            <div class="form-group" >
+                                                <label>First Name</label>
+                                                <input [(ngModel)]="eligibilityFirstName" maxlength="20" name="eligibilityFirstName" type="text" class="form-control">                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 pr-1">
+                                            <div class="form-group" >
+                                                <label>Last Name</label>
+                                                <input [(ngModel)]="eligibilityLastName" maxlength="20" name="eligibilityLastName" type="text" class="form-control">                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 pr-1">
+                                            <div class="form-group" >
+                                                <label>DOB</label>
+                                                <input [(ngModel)]="eligibilityDOB" name="DOB" type="date" class="form-control">                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 pr-1">
+                                            <button type="button" (click)="eligibilityProcessClicked()" class="btn btn-primary" >Process</button>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4 pr-1"></div>
+                                        <div class="col-md-2 pr-1">
+                                            <div class="form-group" >
+                                                <label>Member No.</label>
+                                                <input [(ngModel)]="eligibilityMemberId" maxlength="30" name="eligibilityMemberId" type="text" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 pr-1">
+                                            <div class="form-group">
+                                                <label>Type</label>
+                                                <select class="form-control" id="eligibilityRelationshipId" name="eligibilityRelationshipId" [(ngModel)]="eligibilityRelationshipId">
+                                                    <option *ngFor="let option of relationshipList" [value]="option.id">
+                                                        {{option.description}}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 pr-1">
+                                            <div class="form-group" >
+                                                <label>Date of Service Start</label>
+                                                <input [(ngModel)]="eligibilityStart" name="eligibilityStart" type="date" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 pr-1">
+                                            <div class="form-group" >
+                                                <label>Date of Service End</label>
+                                                <input [(ngModel)]="eligibilityEnd" name="eligibilityEnd" type="date" class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+
+            <!-- Eligibility list                                -->
+            <!-- <div id="eligibilityListCard">
+                <div class="row" *ngIf="showEligibilityList">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="row">
+                                    <div class="col-md-10">
+                                        <h5 class="title">Eligibility History</h5>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped" datatable >
+                                            <thead class=" text-primary">
+                                                <th>Reuest Date</th>
+                                                <th>Effective Date</th>
+                                                <th>Payor</th>
+                                                <th>Actions</th>
+                                            </thead>
+
+                                            <tr *ngFor="let item of eligibilityListData">
+                                                <td>{{item.requestDate}}</td>
+                                                <td>{{item.effectiveDate}}</td>
+                                                <td>{{item.payer}}</td>
+                                                <td>{{item.status}}</td>
+                                                <td><button type="button" (click)="elgibilityViewButtonClicked(item.patientEligibilityId)" class="btn btn-primary" >View</button></td>
+                                                <td><button type="button" (click)="elgibilityMergeButtonClicked(item.patientEligibilityId)" class="btn btn-primary" >Merge</button></td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>    
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+            
+            <!-- Eligibility View                                -->  
+            <!-- <div id="eligibilityViewCard">
+                <div class="row" *ngIf="showEligibilityView">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="title">Eligibility View</h5>
+                            </div>
+                            <div class="card-body">
+                                <form name="eligibilityRequest-form">
+                                    <div class="row">
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>First Name</label>
+                                                <input [(ngModel)]="eligibilityData.firstName" name="viewFirstName" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Last Name</label>
+                                                <input [(ngModel)]="eligibilityData.lastName" name="viewLastName" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>DOB</label>
+                                                <input [(ngModel)]="eligibilityData.dob" name="viewDOB" type="date" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Sex</label>
+                                                <input [(ngModel)]="eligibilityData.gender" name="viewGender" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Phone</label>
+                                                <input [(ngModel)]="eligibilityData.phone" name="viewPhone" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Driver's License No</label>
+                                                <input [(ngModel)]="eligibilityData.driversLicense" name="viewLicense" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>License State</label>
+                                                <input [(ngModel)]="eligibilityData.driversLicenseState" name="viewDOB" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Ethnicity</label>
+                                                <input [(ngModel)]="eligibilityData.ethnicity" name="viewEthnicity" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 pr-1">
+                                            <div class="form-group" >
+                                                <label>Payer</label>
+                                                <input [(ngModel)]="eligibilityData.payer" name="viewPayer" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Member ID</label>
+                                                <input [(ngModel)]="eligibilityData.memberId" name="viewMemberId" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Group No</label>
+                                                <input [(ngModel)]="eligibilityData.groupNo" name="viewGroupNo" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Effective Date</label>
+                                                <input [(ngModel)]="eligibilityData.effectiveDate" name="viewEffectiveDate" type="date" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>End Date</label>
+                                                <input [(ngModel)]="eligibilityData.endDate" name="viewEndDate" type="date" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 pr-1">
+                                            <div class="form-group" >
+                                                <label>Address Line 1</label>
+                                                <input [(ngModel)]="eligibilityData.street1" name="viewStreet1" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 pr-1">
+                                            <div class="form-group" >
+                                                <label>Address Line 2</label>
+                                                <input [(ngModel)]="eligibilityData.street2" name="viewStreet2" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>City</label>
+                                                <input [(ngModel)]="eligibilityData.city" name="viewCity" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>>State</label>
+                                                <input [(ngModel)]="eligibilityData.state" name="viewState" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Zip</label>
+                                                <input [(ngModel)]="eligibilityData.postalCode" name="viewZip" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Phone</label>
+                                                <input [(ngModel)]="eligibilityData.phone" name="viewPhone" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Work Phone</label>
+                                                <input [(ngModel)]="eligibilityData.phoneWork" name="viewWorkPhone" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 pr-1">
+                                            <div class="form-group" >
+                                                <label>Email</label>
+                                                <input [(ngModel)]="eligibilityData.email" name="viewEmail" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="button" (click)="elgibilityViewCloseButtonClicked()" class="btn btn-primary" >Close</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+
+            <!-- Eligibility Merge                               -->  
+            <!-- <div id="eligibilityMergeCard">
+                <div class="row" *ngIf="showEligibilityMerge">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="title">Eligibility Merge</h5>
+                            </div>
+                            <div class="card-body">
+                                <form name="eligibilityRequest-form">
+                                    <div class="row">
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Data Element</label>
+                                             </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <label>Elgibility Response</label>
+                                             </div>
+                                        </div>
+                                        <div class="col-md-1 pr-1">
+                                            <div class="form-group" >
+                                                <label>Merge</label>
+                                             </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <label>Current Patient Data</label>
+                                             </div>
+                                        </div>
+                                    </div>
+                                    <h5>Patient Data</h5>
+                                    <div class="row">
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>First Name</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="eligibilityData.firstName" name="mergeFirstName" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 pr-1">
+                                            <div class="form-group" *ngIf="eligibilityData.firstName != patientData.firstName">
+                                                <input [(ngModel)]="eligibilityCheckData.firstName" type="checkbox" name="checkFirstName">
+                                                Merge
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="patientData.firstName" name="patientFirstName" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Last Name</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="eligibilityData.lastName" name="mergeLastName" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 pr-1">
+                                            <div class="form-group" *ngIf="eligibilityData.lastName != patientData.lastName">
+                                                <input [(ngModel)]="eligibilityCheckData.lastName" type="checkbox" name="checkLastName">
+                                                Merge
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="patientData.lastName" name="patientLastName" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Middle Name</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="eligibilityData.middleName" name="mergeMiddleName" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 pr-1">
+                                            <div class="form-group" *ngIf="eligibilityData.middleName != patientData.middleName">
+                                                <input [(ngModel)]="eligibilityCheckData.middleName" type="checkbox" name="checkMiddleName">
+                                                Merge
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="patientData.middleName" name="patientMiddleName" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Prefix</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="eligibilityData.prefix" name="mergePrefix" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 pr-1">
+                                            <div class="form-group" *ngIf="eligibilityData.prefix != patientData.prefix">
+                                                <input [(ngModel)]="eligibilityCheckData.prefix" type="checkbox" name="checkPrefix">
+                                                Merge
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="patientData.prefix" name="patientPrefix" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Suffix</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="eligibilityData.suffix" name="mergeSuffix" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 pr-1">
+                                            <div class="form-group" *ngIf="eligibilityData.suffix != patientData.suffix">
+                                                <input [(ngModel)]="eligibilityCheckData.suffix" type="checkbox" name="checkSuffix">
+                                                Merge
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="patientData.suffix" name="patientSuffix" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>DOB</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="eligibilityData.dob" name="mergeDOB" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 pr-1">
+                                            <div class="form-group" *ngIf="eligibilityData.dob != patientData.dob">
+                                                <input [(ngModel)]="eligibilityCheckData.dob" type="checkbox" name="checkDob">
+                                                Merge
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="patientData.dob" name="patientPrefix" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Sex</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="eligibilityData.gender" name="mergeGender" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 pr-1">
+                                            <div class="form-group" *ngIf="eligibilityData.gender != patientData.gender">
+                                                <input [(ngModel)]="eligibilityCheckData.gender" type="checkbox" name="checkGender">
+                                                Merge
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="patientData.gender" name="patientGEnder" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Ethnicity</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="eligibilityData.ethnicity" name="mergeEthnicity" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 pr-1">
+                                            <div class="form-group" *ngIf="eligibilityData.ethnicity != patientData.ethnicity">
+                                                <input [(ngModel)]="eligibilityCheckData.ethnicity" type="checkbox" name="checkEthnicity">
+                                                Merge
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="patientData.ethnicity" name="patientEthnicity" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>SSN</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="eligibilityData.ssn" name="mergeSSN" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 pr-1">
+                                            <div class="form-group" *ngIf="eligibilityData.ssn != patientData.ssn">
+                                                <input [(ngModel)]="eligibilityCheckData.ssn" type="checkbox" name="checkSSN">
+                                                Merge
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="patientData.ssn" name="patientSSN" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Drivers License</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="eligibilityData.driversLicense" name="mergeDriversLicense" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 pr-1">
+                                            <div class="form-group" *ngIf="eligibilityData.driversLicense != patientData.driversLicense">
+                                                <input [(ngModel)]="eligibilityCheckData.driversLicense" type="checkbox" name="checkDriversLicense">
+                                                Merge
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="patientData.driversLicense" name="patientDriversLicense" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Drivers License State</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="eligibilityData.driversLicenseState" name="mergeDriversLicenseState" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 pr-1">
+                                            <div class="form-group" *ngIf="eligibilityData.driversLicenseState != patientData.driversLicenseState">
+                                                <input [(ngModel)]="eligibilityCheckData.driversLicenseState" type="checkbox" name="checkDriversLicenseState">
+                                                Merge
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="patientData.driversLicenseState" name="patientDriversLicenseState" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <h5>Insurance Information</h5>
+                                    <div class="row">
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Payer</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="eligibilityData.payer" name="mergePayer" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 pr-1">
+                                            <div class="form-group" *ngIf="eligibilityData.payer != insuranceData.insurance">
+                                                <input [(ngModel)]="eligibilityCheckData.payer" type="checkbox" name="checkPayer">
+                                                Merge
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="insuranceData.insurance" name="patientPayer" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Member ID</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="eligibilityData.memberId" name="mergeMemberId" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 pr-1">
+                                            <div class="form-group" *ngIf="eligibilityData.memberId != insuranceData.memberId">
+                                                <input [(ngModel)]="eligibilityCheckData.memberId" type="checkbox" name="checkMemberId">
+                                                Merge
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="insuranceData.memberId" name="patientMemberId" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Effective Date</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="eligibilityData.effectiveDate" name="mergeEffectiveDate" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 pr-1">
+                                            <div class="form-group" *ngIf="eligibilityData.effectiveDate != insuranceData.effectiveDate">
+                                                <input [(ngModel)]="eligibilityCheckData.effectiveDate" type="checkbox" name="checkEffectiveDate">
+                                                Merge
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="insuranceData.effectiveDate" name="patientEffectiveDate" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>End Date</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="eligibilityData.endDate" name="mergeEndDate" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 pr-1">
+                                            <div class="form-group" *ngIf="eligibilityData.endDate != insuranceData.expireDate">
+                                                <input [(ngModel)]="eligibilityCheckData.endDate" type="checkbox" name="checkEndDate">
+                                                Merge
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="insuranceData.expireDate" name="patientEndDate" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Group No</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="eligibilityData.groupNo" name="mergeGroupNo" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 pr-1">
+                                            <div class="form-group" *ngIf="eligibilityData.groupNo != insuranceData.groupNo">
+                                                <input [(ngModel)]="eligibilityCheckData.groupNo" type="checkbox" name="checkGroupNo">
+                                                Merge
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="insuranceData.groupNo" name="patientGroupNo" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <h5>Address</h5>
+                                    <div class="row">
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Address Line 1</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="eligibilityData.street1" name="mergeStreet1" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 pr-1">
+                                            <div class="form-group" *ngIf="eligibilityData.street1!= patientData.address.street1">
+                                                <input [(ngModel)]="eligibilityCheckData.street1" type="checkbox" name="checkStreet1">
+                                                Merge
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="patientData.address.street1" name="patientStreet1" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Address Line 2</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="eligibilityData.street2" name="mergeStreet2" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 pr-1">
+                                            <div class="form-group" *ngIf="eligibilityData.street2!= patientData.address.street2">
+                                                <input [(ngModel)]="eligibilityCheckData.street2" type="checkbox" name="checkStreet2">
+                                                Merge
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="patientData.address.street2" name="patientStreet2" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>City</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="eligibilityData.city" name="mergeCity" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 pr-1">
+                                            <div class="form-group" *ngIf="eligibilityData.city != patientData.address.city">
+                                                <input [(ngModel)]="eligibilityCheckData.city" type="checkbox" name="checkCity">
+                                                Merge
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="patientData.address.city" name="patientCity" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>State</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="eligibilityData.state" name="mergeState" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 pr-1">
+                                            <div class="form-group" *ngIf="eligibilityData.state != patientData.address.state">
+                                                <input [(ngModel)]="eligibilityCheckData.state" type="checkbox" name="checkState">
+                                                Merge
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="patientData.address.state" name="patientState" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Zip Code</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="eligibilityData.postalCode" name="mergePostalCode" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 pr-1">
+                                            <div class="form-group" *ngIf="eligibilityData.postalCode != patientData.address.postalCode">
+                                                <input [(ngModel)]="eligibilityCheckData.postalCode" type="checkbox" name="checkPostalCode">
+                                                Merge
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="patientData.address.postalCode" name="patientPostalCode" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <h5>Contact</h5>
+                                    <div class="row">
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Phone</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="eligibilityData.phone" name="mergePhone" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 pr-1">
+                                            <div class="form-group" *ngIf="eligibilityData.phone != patientData.phone">
+                                                <input [(ngModel)]="eligibilityCheckData.phone" type="checkbox" name="checkPhone">
+                                                Merge
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="patientData.phone" name="patientPhone" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Work Phone</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="eligibilityData.phoneWork" name="mergePhoneWork" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 pr-1">
+                                            <div class="form-group" *ngIf="eligibilityData.phoneWork != patientData.phoneWork">
+                                                <input [(ngModel)]="eligibilityCheckData.phoneWork" type="checkbox" name="checkPhoneWork">
+                                                Merge
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="patientData.phoneWork" name="patientPhoneWork" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3 pr-1">
+                                            <div class="form-group" >
+                                                <label>Email</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="eligibilityData.email" name="mergeEmail" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 pr-1">
+                                            <div class="form-group" *ngIf="eligibilityData.email != patientData.email">
+                                                <input [(ngModel)]="eligibilityCheckData.email" type="checkbox" name="checkEmail">
+                                                Merge
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <input [(ngModel)]="patientData.email" name="patientEmail" type="text" class="form-control" disabled>                  
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="button" (click)="elgibilityMergeMergeButtonClicked()" class="btn btn-primary" >Merge To Patient</button>
+                                    <button type="button" (click)="elgibilityMergeCloseButtonClicked()" class="btn btn-primary" >Close</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+        </div>
+        <div class="col-md-9" *ngIf="customerBillingTypeId <3 && !showDetails">
+            <div class="row" *ngIf="showInsuranceList">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <h5 class="title">Insurance information not collected for this customer</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9" *ngIf="alreadyProcessToday && !showDetails">
+
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-md-10">
+                                <h5 class="title">This lab type has already been processed for this collection date.</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9" *ngIf="showDetails">
+            <!-- Details -->
+            <div id="detailCard">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h4 class="title">Details</h4>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="button" (click)="orderPdfClicked(true)" class="btn btn-primary" >Print PDF</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-2 pr-1">
+                                <label>Account</label>
+                            </div>
+                            <div class="col-md-4 pr-1">
+                                <label style="color:blue;">{{detailData.customer}}</label>
+                            </div>
+                            <div class="col-md-2 pr-1">
+                                <label>Location</label>
+                            </div>
+                            <div class="col-md-4 pr-1">
+                                <label style="color:blue;">{{detailData.location}}</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2 pr-1">
+                                <label>Physician</label>
+                            </div>
+                            <div class="col-md-4 pr-1">
+                                <label style="color:blue;">{{detailData.user_Physician}}</label>
+                            </div>
+                            <div class="col-md-2 pr-1">
+                                <label>Created By</label>
+                            </div>
+                            <div class="col-md-4 pr-1">
+                                <label style="color:blue;">{{detailData.userCreatedName}}</label>
+                            </div>
+                        </div>
+                        <br />
+    
+                        <div class="row">
+                            <div class="col-md-2 pr-1">
+                                <label style="font-weight: bold;">Patient</label>
+                            </div>
+                            <div class="col-md-4 pr-1">
+                                <label style="color:blue;">{{detailData.firstName}} {{detailData.lastName}}</label>
+                            </div>
+                            <div class="col-md-2 pr-1">
+                                <label style="font-weight: bold;">DOB</label>
+                            </div>
+                            <div class="col-md-4 pr-1">
+                                <label style="color:blue;">{{detailData.dob  | date:'MM/dd/yyyy'}}</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2 pr-1">
+                                <label>Address</label>
+                            </div>
+                            <div class="col-md-4 pr-1">
+                                <label style="color:blue;">{{patientData.address.street1}} {{patientData.address.street2}}</label>
+                            </div>
+                            <div class="col-md-2 pr-1">
+                                <label>Sex</label>
+                            </div>
+                            <div class="col-md-4 pr-1">
+                                <label style="color:blue;">{{patientData.gender}}</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2 pr-1">
+                            </div>
+                            <div class="col-md-4 pr-1">
+                                <label style="color:blue;">{{patientData.address.city}}, {{patientData.address.state}} {{patientData.address.postalCode}}</label>
+                            </div>
+                            <div class="col-md-2 pr-1">
+                                <label>SSN</label>
+                            </div>
+                            <div class="col-md-4 pr-1">
+                                <label style="color:blue;">{{patientData.ssn}}</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2 pr-1">
+                                <label>Phone</label>
+                            </div>
+                            <div class="col-md-4 pr-1">
+                                <label style="color:blue;">{{patientData.phone}}</label>
+                            </div>
+                            <div class="col-md-2 pr-1">
+                                <label>MR #</label>
+                            </div>
+                            <div class="col-md-4 pr-1">
+                                <label style="color:blue;">{{patientData.medicalId}}</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2 pr-1">
+                                <label>Email</label>
+                            </div>
+                            <div class="col-md-4 pr-1">
+                                <label style="color:blue;">{{patientData.email}}</label>
+                            </div>
+    
+                        </div>
+
+   
+                        <br />
+    
+    
+                        <div class="row">
+                            <div class="col-md-2 pr-1">
+                                <label>Lab Type</label>
+                            </div>
+                            <div class="col-md-4 pr-1">
+                                <label style="color:blue;">{{detailData.specimens[0].labType}}</label>
+                            </div>
+                            <div class="col-md-2 pr-1">
+                                <label>Lab Status</label>
+                            </div>
+                            <div class="col-md-4 pr-1">
+                                <label style="color:blue;">{{detailData.specimens[0].labStatus}}</label>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-2 pr-1">
+                                <label>Tests</label>
+                            </div>
+                            <div class="col-md-10 pr-1">
+                                <label style="color:blue;">{{tests}}</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2 pr-1">
+                                <label>Diagnosis</label>
+                            </div>
+                            <div class="col-md-10 pr-1">
+                                <label style="color:blue;">{{diagnosis}}</label>
+                            </div>
+                        </div>
+                        <div class="row" *ngIf="medications!=''">
+                            <div class="col-md-2 pr-1">
+                                <label>Medications</label>
+                            </div>
+                            <div class="col-md-3 pr-1">
+                                <label style="color:blue;">{{medications1}}</label>
+                            </div>
+                            <div class="col-md-3 pr-1">
+                                <label style="color:blue;">{{medications2}}</label>
+                            </div>
+                            <div class="col-md-3 pr-1">
+                                <label style="color:blue;">{{medications3}}</label>
+                            </div>
+                        </div>
+                        <div class="row" *ngIf="allergies!=''">
+                            <div class="col-md-2 pr-1">
+                                <label>Allergies</label>
+                            </div>
+                            <div class="col-md-10 pr-1">
+                                <label style="color:blue;">{{allergies}}</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2 pr-1">
+                                <label>Physician Sig.</label>
+                            </div>
+                            <div class="col-md-4 pr-1">
+                                <label style="color:blue;">{{physicianSig}}</label>
+                            </div>
+                            <div class="col-md-2 pr-1">
+                                <label>Patient Sig.</label>
+                            </div>
+                            <div class="col-md-4 pr-1">
+                                <label style="color:blue;">{{patientSig}}</label>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-2 pr-1"></div>
+                            <div class="col-md-4 pr-1">
+                                <div class="form-group" *ngIf="physicianSig=='None'" >
+                                    <label class="dark-label">
+                                        <input type="checkbox" name="physicianHardcopy" [(ngModel)]="physicianHardcopy"  (change)="labInfoChanged()">
+                                        Physician Signature on Hardcopy
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-2 pr-1"></div>
+                            <div class="col-md-4 pr-1">
+                                <div class="form-group" *ngIf="patientSig=='None'">
+                                    <label class="dark-label">
+                                        <input type="checkbox" name="patientHardcopy" [(ngModel)]="patientHardcopy"  (change)="labInfoChanged()">
+                                        Patient Signature on Hardcopy
+                                    </label>
+                                </div>
+                            </div>
+
+                        </div>
+    
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hold -->
+    <div id="holdCard">
+        <div class="row" *ngIf="showHold">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="title">Hold (Specimen: {{labOrderData.specimenBarcode}})</h5>
+                    </div>
+                    <div class="card-body">
+                        <form name="note-form">
+                            <div class="row">
+                                <div class="col-md-4  pr-1">
+                                    <div class="form-group" >
+                                        <label>Hold Reason</label>
+                                        <select class="form-control required" id="holdList" name="holdList" [(ngModel)]="holdReason">
+                                            <option *ngFor="let option of holdList" [value]="option.id">
+                                                {{option.description}}
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-8  pr-1">
+                                    <div class="form-group" >
+                                        <label>Comment</label>
+                                        <input [(ngModel)]="holdComment" maxlength="256" name="holdComment" type="text" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="button" *ngIf="holdReason > 0" (click)="holdProcessButtonClicked()" class="btn btn-primary" >Hold</button>
+                            <button type="button" (click)="backToLabOrderButtonClicked()" class="btn btn-primary" >Back</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> 
+
+    <!-- Reject -->
+    <div id="holdCard">
+        <div class="row" *ngIf="showReject">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="title">Reject (Specimen: {{labOrderData.specimenBarcode}})</h5>
+                    </div>
+                    <div class="card-body">
+                        <form name="note-form">
+                            <div class="row">
+                                <div class="col-md-4  pr-1">
+                                    <div class="form-group" >
+                                        <label>Reject Reason</label>
+                                        <select class="form-control required" id="rejectList" name="rejectList" [(ngModel)]="rejectReason">
+                                            <option *ngFor="let option of rejectList" [value]="option.id">
+                                                {{option.description}}
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-8  pr-1">
+                                    <div class="form-group" >
+                                        <label>Comment</label>
+                                        <input [(ngModel)]="rejectComment" maxlength="256" name="rejectComment" type="text" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- <button type="button" *ngIf="rejectReason > 0" (click)="rejectionLetterClicked()" class="btn btn-primary" >Rejection Letter</button> -->
+                            <button type="button" *ngIf="rejectReason > 0" (click)="rejectProcessButtonClicked()" class="btn btn-primary" >Reject</button>
+                            <button type="button" (click)="backToLabOrderButtonClicked()" class="btn btn-primary" >Back</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> 
+    
+    <!-- Attachment list                                  -->
+    <div id="attachmentListCard">
+        <div class="row" *ngIf="showAttachmentList">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h5 class="title">Attachments (Specimen: {{labOrderData.specimenBarcode}})</h5>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="button" (click)="addAttachmentButtonClicked()" class="btn btn-primary" >Add</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Items   -->
+                        <div class="row">
+                            <div class="table-responsive">
+                                <table class="table table-striped" datatable >
+                                    <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
+                                    <thead class=" text-primary">
+                                        <th>Attachment Type</th>
+                                        <th>Description</th>
+                                        <th>Date Created</th>
+                                    </thead>
+
+                                    <tr *ngFor="let item of attachmentListData">
+                                        <td>{{item.attachmentType}}</td>
+                                        <td>{{item.description}}</td>
+                                        <td>{{item.dateCreated}}</td>
+                                        <td><button type="button" (click)="selectAttachmentButtonClicked(item.labOrderAttachmentId)" class="btn btn-primary" >Select</button></td>                       
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>    
+                </div>
+            </div>
+            <!-- buttons -->
+            <button type="button" *ngIf="!showHold && !showReject" (click)="attachmentContinueClicked()" class="btn btn-primary" >Continue</button>
+            <button type="button" *ngIf="!showHold && !showReject" (click)="backToLabOrderButtonClicked()" class="btn btn-primary" >Back</button>
+        </div>
+    </div>
+
+    <!-- Attachment Edit                                  -->  
+    <div id="attachmentEditCard">
+        <div class="row" *ngIf="showAttachmentEdit">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="title">Attachment (Specimen: {{labOrderData.specimenBarcode}})</h5>
+                    </div>
+                    <div class="card-body">
+                        <form name="attachment-form">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="row">
+                                        <div class="col-md-12  pr-1">
+                                            <div class="form-group" >
+                                                <label>Attachment Type</label>
+                                                <select class="form-control required" id="attachmentType" name="attachmentType" [(ngModel)]="attachmentData.loAttachmentTypeId" [disabled]="attachmentDisabled" (change)="attachmentChanged()">
+                                                    <option *ngFor="let option of attachmentTypeList" [value]="option.id">
+                                                        {{option.description}}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12 pr-1">
+                                            <div class="form-group" >
+                                                <label>Description</label>
+                                                <textarea rows = "4" [(ngModel)]="attachmentData.description"  name="attachmentDescription" maxlength="256" type="text" class="form-control" [disabled]="attachmentDisabled" (change)="attachmentChanged()"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Import File -->
+                                    <div class="row" *ngIf="!attachmentDisabled && !fileScanned">
+                                        <div class="col-md-6 pr-1">
+                                            <input id="importButton" type="file" (change)="readFile($event)" 
+                                            class="upload input-common" required />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4" *ngIf="!attachmentDisabled">
+                                    <!-- Video Container -->
+                                    <div class="video-container" *ngIf="!error">
+                                        <video [class.show]="!isCaptured" #video id="video" [width]="picWidth" [height]="picHeight"
+                                            autoplay></video>
+                                        <canvas [class.show]="isCaptured" [class.hide]="true" #canvas id="canvas" [width]="picWidth"
+		                                    [height]="picHeight"></canvas>
+                                    </div>
+                                    <!-- Snapshot Container  -->
+                                    <div class="snap-container">
+                                        <button class="btn btn-primary" *ngIf="!cameraOn && !fileUploaded" (click)="setupDevices()">Start Camera</button>
+                                        <button class="btn btn-primary" *ngIf="cameraOn" (click)="stopDevice()">Stop Camera</button>
+                                        <button class="btn btn-primary" *ngIf="cameraOn" (click)="capture()">Snap Photo</button>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-4" *ngIf="!attachmentDisabled">
+                                    <!-- Image List -->
+                                    <ul class="list-unstyled">
+                                        <li *ngFor="let src of captures; let idx = index" (click)="setPhoto(idx)">
+                                            <img [src]="src" height="150" />
+                                          </li>
+                                    </ul>
+                                </div>
+                                <!-- Display document -->
+                                <div class="col-md-8" *ngIf="attachmentDisabled">
+                                    <!-- <label>Document here</label>
+                                    <pdf-viewer [src]="attachmentDoc"
+                                            [original-size]="false">
+                                        </pdf-viewer> -->
+                                    <!-- <tx-document-viewer
+                                        width = "600px"
+                                        height = "800px"
+                                        basePath = "c:\temp\"
+                                        documentData = "SGVsbG8gdGhlcmU="
+                                        dock = "Window"
+                                        [toolbarDocked] = "true"
+                                        documentPath = "Toxicology Fields.docx"
+                                        [isSelectionActivated] = "true" 
+                                        [showThumbnailPane] = "true">
+                                    </tx-document-viewer> -->
+                                    <!-- <iframe src="https://view.officeapps.live.com/op/embed.aspx?src=c:\temp\Toxicology Fields.docx"></iframe> -->
+                                   <!-- <ngx-doc-viewer [url]="attachmentDoc" viewer="url" style="width:100%;height:200vh;"></ngx-doc-viewer>   -->
+                                </div>
+                            </div>
+                            <button type="button" *ngIf="!attachmentDisabled && attachmentSave" (click)="saveContinueAttachmentButtonClicked()" class="btn btn-primary" >Save & Add Another</button>
+                            <button type="button" *ngIf="!attachmentDisabled && attachmentSave" (click)="saveAttachmentButtonClicked()" class="btn btn-primary" >Save & Close</button>
+                            <button type="button" (click)="cancelAttachmentButtonClicked()" class="btn btn-primary" >Cancel</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <!-- <label>Document here</label> -->
+                                    <!-- <pdf-viewer [src]="attachmentDoc"
+                                            [original-size]="false">
+                                        </pdf-viewer> -->
+            <!-- <ngx-doc-viewer [url]="DemoDoc" 
+                [viewer]="viewer" 
+                style="width:100%;height:100vh;"></ngx-doc-viewer>     -->
+        </div>
+    </div> 
+
+    <!-- Confirmation -->
+    <div class="row" *ngIf="showConfirmation">
+        <!-- Left Side of Screen -->
+        <div class="col-md-4">
+            <!-- Accessioning Information                -->
+            <div class="row" >
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                        <h5 class="title">Confirmation</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12 pr-1">
+                                    <label>Accessioned Time:</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 pr-1">
+                                    <h5>{{accessionedTime}}</h5>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 pr-1">
+                                    <label>Received:</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 pr-1">
+                                    <h5>{{receivedDate}}</h5>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 pr-1">
+                                    <label>Test Type:</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 pr-1">
+                                    <h5>{{labOrderData.labType}} {{toxScreen}}</h5>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 pr-1">
+                                    <label>Patient:</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 pr-1">
+                                    <h5>{{patientData.lastName}}, {{patientData.firstName}}</h5>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 pr-1">
+                                    <label>Customer:</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 pr-1">
+                                    <h5>{{labOrderData.customer}}</h5>
+                                </div>
+                            </div>
+
+
+                            <!-- buttons -->
+                            <button type="button" (click)="processButtonClicked()" class="btn btn-primary" >Process</button>
+                            <button type="button" (click)="backToLabOrderButtonClicked()" class="btn btn-primary" >Back</button>
+                            <button type="button" (click)="addAttachmentButtonClicked()" class="btn btn-primary" >Add Attachments</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <!-- Right Side of Screen -->
+        
+    </div>
+
+</div>

@@ -1,0 +1,34 @@
+<!-- Page Name       : Account-Incident-Modal       -->
+<!-- Date Created    : 03/30/2023                   -->
+<!-- Written By      : Stephen Farkas               -->
+<!-- Description     : Account Incident Modal       -->
+<!-- MM/DD/YYYY xxx  Description                    -->
+<!-- ------------------------------------------------------------------------------->
+<div class="modal-header">
+    <h4 class="modal-title">Account Incident</h4>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+        <div class="col-md-6 pr-1">
+            <div class="form-group" >
+                <label>Incident Type</label>
+                <select class="form-control" id="auditIncidentTypeId" name="auditIncidentTypeId" [(ngModel)]="reviewData.auditIncidentTypeId" >
+                    <option *ngFor="let option of incidentList" [value]="option.id">
+                    {{option.description}}
+                    </option>
+                </select>
+            </div>
+        </div>
+        <div class="col-md-4 pr-1">
+            <div class="form-group" >
+                <label>Incident Date</label>
+                <input [(ngModel)]="reviewData.incidentDate" name="incidentDate" type="date" class="form-control" >
+            </div>
+        </div>
+    </div>  
+  </div>
+  <div class="modal-footer">
+    <button type="button" (click)="closeModalButtonClicked()" class="btn btn-primary" >Close</button>
+  </div>
+  
+  

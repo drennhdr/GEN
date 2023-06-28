@@ -1,0 +1,222 @@
+<!-- Page Name       : User                     -->
+<!-- Date Created    : 11/15/2022               -->
+<!-- Written By      : Stephen Farkas           -->
+<!-- Description     : Use Entry / Edit         -->
+<!-- MM/DD/YYYY xxx  Description                -->
+<!--                                            -->
+<!-- ----------------------------------------------------------------------------- -->
+<div class="panel-header panel-header-sm">
+</div>
+<div class="main-content">
+    <div  id="topOfScreen"></div>
+    <!-- Search                   -->
+    <div class="row" *ngIf="showSearch" id="userSeearchCard">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-md-9 pr-1">
+                            <h5 class="title">User Search</h5>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <button type="button" (click)="clearSearchButtonClicked()" class="btn btn-primary" >Clear Search Criteria</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                <form name="search-form">
+                    <div class="row">
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>First Name</label>
+                                <input [(ngModel)]="searchFirstName" maxlength="100" name="searchName" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Last Name</label>
+                                <input [(ngModel)]="searchLastName" maxlength="100" name="searchName" type="text" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" (click)="searchButtonClicked()" class="btn btn-primary" >Search</button>
+                    <button type="button" (click)="addButtonClicked()" class="btn btn-primary" >Add</button>
+                </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Items Returned From Search                                  -->
+    <div class="row" *ngIf="showSearchList" id="userSerchListCard">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Users</h4>
+                    <p class="category">Select a user</p>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                    <table class="table table-striped" datatable >
+                  
+                        <thead class=" text-primary">
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>User Type</th>
+                            <th>Enabled</th>
+                            <th>Actions</th>
+                        </thead>
+                        <tbody>
+                        <tr *ngFor="let item of userSearchData">
+                            <td>{{item.firstName}}</td>
+                            <td>{{item.lastName}}</td>
+                            <td>{{item.userType}}</td>
+                            <td>{{item.enabledYN}}</td>
+                            <td><button type="button" (click)="selectButtonClicked(item.userId)" class="btn btn-primary" >Select</button></td>                    
+                        </tr>
+                        </tbody>
+                    </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Show errors                -->
+    <div class="row" *ngIf="showError" >
+        <div class="col-md-12">
+            <!-- Errors -->
+            <div class="card">
+                <div class="card-header">
+                <h5 class="title">Error Message</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <textarea rows="3" cols="80" class= "form-control alert-login">{{errorMessage}}</textarea>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- User Edit                                  -->  
+    <div id="userEditCard">
+        <div class="row" *ngIf="showUser">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="title">User</h5>
+                    </div>
+                    <div class="card-body">
+                        <form name="user-form">
+                            <div class="row">
+                                <div class="col-md-3  pr-1">
+                                    <div class="form-group" >
+                                        <label>First Name</label>
+                                        <input [(ngModel)]="userData.firstName" maxlength="10" name="firstName" type="text" [ngClass]="userData.firstName == '' ? 'form-control required' : 'form-control completed'" (change)="userChanged()" placeholder="First Name required">
+                                    </div>
+                                </div>
+                                <div class="col-md-3  pr-1">
+                                    <div class="form-group" >
+                                        <label>Last Name</label>
+                                        <input [(ngModel)]="userData.lastName" maxlength="20" name="lastName" type="text" [ngClass]="userData.lastName == '' ? 'form-control required' : 'form-control completed'" (change)="userChanged()" placeholder="Last Name required">
+                                    </div>
+                                </div>
+                                <div class="col-md-6  pr-1">
+                                    <div class="form-group" >
+                                        <label>Email</label>
+                                        <input [(ngModel)]="userData.email" maxlength="60" name="userEmail" type="text" [ngClass]="userData.email == '' ? 'form-control required' : 'form-control completed'" (change)="userChanged()" placeholder="Email required">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 pr-1">
+                                    <div class="form-group" >
+                                        <label>Work Phone</label>
+                                        <input [(ngModel)]="userData.phoneWork" maxlength="20" name="userWorkPhone" type="text" class="form-control" (change)="userChanged()">
+                                    </div>
+                                </div>
+                                <div class="col-md-3 pr-1">
+                                    <div class="form-group">
+                                        <label>Work Phone Ext.</label>
+                                        <input [(ngModel)]="userData.phonWorkExt" maxlength="10" name="userWorkPhoneExt" type="text" class="form-control" (change)="userChanged()">
+                                    </div>
+                                </div>
+                                <div class="col-md-3 pr-1">
+                                    <div class="form-group" >
+                                        <label>Cell Phone</label>
+                                        <input [(ngModel)]="userData.phoneCell" maxlength="20" name="userCellPhone" type="text" class="form-control" (change)="userChanged()">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 pr-1">
+                                    <div class="form-group">
+                                        <label>User Type</label>
+                                        <select class="form-control" id="userType" name="userType" [(ngModel)]="userData.userTypeId"  (change)="userChanged()">
+                                            <option *ngFor="let option of userTypeList" [value]="option.id">
+                                            {{option.description}}
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3  pr-1">
+                                    <div class="form-group" >
+                                        <label>Labs</label>
+                                        <select multiple class="form-control" name="userLab" id="userLab" [(ngModel)]="labSelected" (change)="userChanged()">
+                                            <option *ngFor="let option of this.labList" [value]="option.labId">
+                                            {{option.labName}}
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Credentials  -->
+                            <h5>Credentials</h5>
+                            <div class="row">
+                                <!-- <div class="col-md-3 pr-1">
+                                    <div class="form-group" >
+                                        <label>Login</label>
+                                        <input [(ngModel)]="userData.userName" maxlength="20" name="userName" type="text" class="form-control" (change)="userChanged()">
+                                    </div>
+                                </div> -->
+                                <div class="col-md-3 pr-1">
+                                    <div class="form-group">
+                                        <label>Disabled</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="userDisabled" name="userDisabled" [(ngModel)]="userData.disabled" (change)="userChanged()">
+                                            <label class="custom-control-label" for="userDisabled"></label>
+                                        </div>
+                                    </div>
+                                </div>      
+                                <div class="col-md-3 pr-1">
+                                    <div class="form-group">
+                                        <label>Required Password Change</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="userChangePwd" name="userChangePwd" [(ngModel)]="userData.changePwd" (change)="userChanged()">
+                                            <label class="custom-control-label" for="userChangePwd"></label>
+                                        </div>
+                                    </div>
+                                </div>    
+                                <!-- <div class="col-md-3 pr-1">
+                                    <button type="button" (click)="resetPasswordButtonClicked()" class="btn btn-primary" >Reset Password</button>
+                                </div>                      -->
+                            </div>
+
+
+
+                            <button type="button" *ngIf="accessLevel != 2 && userSave" (click)="saveUserButtonClicked()" class="btn btn-primary" >Save</button>
+                            <button type="button" (click)="cancelUserButtonClicked()" class="btn btn-primary" >Cancel</button>
+                            <button type="button" *ngIf="accessLevel != 2 && userData.userId > 0" (click)="resetUserPasswordButtonClicked()" class="btn btn-primary" >Reset Password</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

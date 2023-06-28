@@ -1,0 +1,22 @@
+<!-- Page Name       : Popup-Modal                  -->
+<!-- Date Created    : 03/31/2023                   -->
+<!-- Written By      : Stephen Farkas               -->
+<!-- Description     : Popup Modal                  -->
+<!-- MM/DD/YYYY xxx  Description                    -->
+<!-- ------------------------------------------------------------------------------->
+<div class="modal-header">
+    <h4 class="modal-title">Message</h4>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <div class="col-md-12 pr-1">
+            <div class="form-group" >
+                <textarea rows = "6" [(ngModel)]="message"  name="note" type="text" [disabled]="true" class="form-control"></textarea>
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <button type="button" (click)="closeClicked()" class="btn btn-primary" >Close</button>
+        </div>
+    </div>
+</div>

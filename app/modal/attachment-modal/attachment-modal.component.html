@@ -1,0 +1,146 @@
+<!-- Page Name       : Attachment-Modal             -->
+<!-- Date Created    : 09/19/2022                   -->
+<!-- Written By      : Stephen Farkas               -->
+<!-- Description     : Lab Order Attachment Modal   -->
+<!-- MM/DD/YYYY xxx  Description                    -->
+<!-- ------------------------------------------------------------------------------->
+<div class="modal-header">
+    <h4 class="modal-title">Attachments</h4>
+  </div>
+  <div class="modal-body">
+    <div *ngIf="!addAttachment">
+      <div class="row">
+        <div class="col-md-8">
+          <h4>Lab Order Attachments</h4>
+        </div>
+        <div class="col-md-4">
+          <button type="button" (click)="addAttachmentButtonClicked('L')" class="btn btn-primary" >Add</button>
+        </div>
+      </div>
+      <div *ngIf="labOrderAttachment != null">
+        <div class="table-responsive">
+          <table class="table table-striped" datatable >
+            <thead class=" text-primary">
+              <th>Attachment Type</th>
+              <th>Description</th>
+              <th>Date Created</th>
+              <th>Action</th>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of labOrderAttachment">
+                <td>{{item.attachmentType}}</td>
+                <td>{{item.description}}</td>
+                <td>{{item.dateCreated}}</td>
+                <td><button type="button" (click)="selectLabAttachmentButtonClicked(item.labOrderAttachmentId)" class="btn btn-primary" >View</button></td>                       
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div *ngIf="labOrderAttachment == null">
+        <label>No attachments</label>
+      </div>
+      <div class="row">
+        <div class="col-md-8">
+          <h4>Patient Attachments</h4>
+        </div>
+        <div class="col-md-4">
+          <button type="button" (click)="addAttachmentButtonClicked('P')" class="btn btn-primary" >Add</button>
+        </div>
+      </div>
+      
+      <div *ngIf="patientAttachment != null">
+        <div class="table-responsive">
+          <table class="table table-striped" datatable >
+            <thead class=" text-primary">
+              <th>Attachment Type</th>
+              <th>Description</th>
+              <th>Date Created</th>
+              <th>Action</th>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of patientAttachment">
+                <td>{{item.attachmentType}}</td>
+                <td>{{item.description}}</td>
+                <td>{{item.dateCreated}}</td>
+                <td><button type="button" (click)="selectPatientAttachmentButtonClicked(item.patientAttachmentId)" class="btn btn-primary" >View</button></td>                       
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div *ngIf="patientAttachment == null">
+          <label>No patient attachments</label>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="addAttachment">
+      <form name="attachment-form">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="row">
+                    <div class="col-md-12  pr-1">
+                        <div class="form-group" >
+                            <label>Attachment Type</label>
+                            <select class="form-control required" id="attachmentType" name="attachmentType" [(ngModel)]="attachmentTypeId" [disabled]="attachmentDisabled" (change)="attachmentChanged()">
+                                <option *ngFor="let option of attachmentTypeList" [value]="option.id">
+                                    {{option.description}}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 pr-1">
+                        <div class="form-group" >
+                            <label>Description</label>
+                            <textarea rows = "4" [(ngModel)]="attachmentDescription"  name="attachmentDescription" maxlength="256" type="text" class="form-control required" placeholder="Description required" [disabled]="attachmentDisabled" (change)="attachmentChanged()"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Import File -->
+                <div class="row" *ngIf="!attachmentDisabled && !fileScanned">
+                    <div class="col-md-6 pr-1">
+                        <input id="importButton" type="file" (change)="readFile($event)" 
+                        class="upload input-common" required />
+                    </div>
+                </div>
+                <div class="row" *ngIf="!attachmentDisabled">
+                  <!-- Video Container -->
+                  <div class="video-container" *ngIf="!error">
+                    <video [class.show]="!isCaptured" #video id="video" [width]="480" [height]="640"
+                        autoplay></video>
+                  </div>
+                  <div [hidden]="true">
+                    <canvas [class.show]="isCaptured" [class.hide]="true" #canvas id="canvas" [width]="picWidth"
+                        [height]="picHeight" ></canvas>
+                  </div>
+                </div>
+                <!-- Snapshot Container  -->
+                <div class="snap-container">
+                  <button class="btn btn-primary" *ngIf="!cameraOn && !fileUploaded" (click)="setupDevices()">Start Camera</button>
+                  <button class="btn btn-primary" *ngIf="cameraOn" (click)="stopDevice()">Stop Camera</button>
+                  <button class="btn btn-primary" *ngIf="cameraOn" (click)="capture()">Snap Photo</button>
+              </div>
+            </div>
+
+            <div class="col-md-4" *ngIf="!attachmentDisabled">
+                <!-- Image List -->
+                <ul class="list-unstyled">
+                    <li *ngFor="let src of captures; let idx = index" (click)="setPhoto(idx)">
+                        <img [src]="src" height="100" />
+                        </li>
+                </ul>
+            </div>
+
+        </div>
+        <button type="button" *ngIf="!attachmentDisabled && attachmentSave" (click)="saveAttachmentButtonClicked()" class="btn btn-primary" >Save</button>
+        <button type="button" (click)="cancelAttachmentButtonClicked()" class="btn btn-primary" >Cancel</button>
+    </form>
+    </div>
+  </div>
+  <div class="modal-footer" *ngIf="!addAttachment">
+    <button type="button" (click)="closeModalButtonClicked()" class="btn btn-primary" >Close</button>
+  </div>
+  
+  

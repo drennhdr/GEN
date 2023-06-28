@@ -1,0 +1,23 @@
+<!-- Page Name       : Note-Modal                -->
+<!-- Date Created    : 10/14/2022                   -->
+<!-- Written By      : Stephen Farkas               -->
+<!-- Description     : Note Modal                -->
+<!-- MM/DD/YYYY xxx  Description                    -->
+<!-- ------------------------------------------------------------------------------->
+<div class="modal-header">
+    <h4 class="modal-title">Enter Note</h4>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <div class="col-md-12 pr-1">
+            <div class="form-group" >
+                <textarea rows = "6" [(ngModel)]="note"  name="note" type="text" class="form-control"></textarea>
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <button type="button" (click)="saveButtonClicked()" class="btn btn-primary" >Save</button>
+            <button type="button" (click)="cancelButtonClicked()" class="btn btn-primary" >Cancel</button>
+        </div>
+    </div>
+</div>

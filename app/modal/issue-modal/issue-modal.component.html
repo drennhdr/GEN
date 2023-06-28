@@ -1,0 +1,52 @@
+<!-- Page Name       : Issue-Modal                  -->
+<!-- Date Created    : 09/19/2022                   -->
+<!-- Written By      : Stephen Farkas               -->
+<!-- Description     : Lab Order Issue/Warning Modal-->
+<!-- MM/DD/YYYY xxx  Description                    -->
+<!-- ------------------------------------------------------------------------------->
+<div class="modal-header">
+  <h4 class="modal-title">Issues</h4>
+</div>
+<div class="modal-body">
+
+  <div class="table-responsive">
+    <table class="table table-striped" datatable >
+      <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
+      <thead class=" text-primary">
+        <th>Level</th>
+        <th>Policy</th>
+        <th>Summary</th>
+      </thead>
+      <tbody>       
+        <tr *ngFor="let item of labOrderIssue">
+          <td *ngIf="item.level == 0"><button type="button" class="btn btn-warning button">Warning</button></td>
+          <td *ngIf="item.level == 1"><button type="button" class="btn btn-danger button">Demographic Hold</button></td>
+          <td>{{item.policy}}</td>
+          <td>{{item.issue}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="row" *ngIf="releaseHold != ''">
+    <h5>Demographics Hold Released</h5>
+    <div class="col-md-12 pr-1">
+      <div class="form-group" >
+          <textarea rows = "6" [(ngModel)]="releaseHold"  name="note2" type="text" class="form-control"></textarea>
+      </div>
+    </div>
+   </div>
+  <div class="row" *ngIf="demographicsHold">
+    <h5>Demographics Hold</h5>
+    <div class="col-md-12 pr-1">
+      <div class="form-group" >
+        <label>Release Reason</label>
+          <textarea rows = "6" [(ngModel)]="note"  name="note" type="text" class="form-control" (change)="userChanged()"></textarea>
+      </div>
+    </div>
+    <button type="button" (click)="ReleaseHoldButtonClicked()" class="btn btn-primary" [disabled]="!noteEntered">Release Hold</button>
+  </div>
+</div>
+<div class="modal-footer">
+  <button type="button" (click)="closeModalButtonClicked()" class="btn btn-primary" >Close</button>
+</div>
+

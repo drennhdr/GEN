@@ -1,0 +1,121 @@
+<!-- Page Name       : Inbox                    -->
+<!-- Date Created    : 10/20/2022               -->
+<!-- Written By      : Stephen Farkas           -->
+<!-- Description     : Inbox                    -->
+<!-- MM/DD/YYYY xxx  Description                -->
+<!-- ----------------------------------------------------------------------------- -->
+<div class="panel-header panel-header-sm">
+</div>
+<div class="main-content">
+
+    <div  id="topOfScreen"></div>
+
+    <!-- Show errors                -->
+    <div class="row" *ngIf="showError" >
+        <div class="col-md-12">
+            <!-- Errors -->
+            <div class="card">
+                <div class="card-header">
+                <h5 class="title">Error Message</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <textarea rows="3" cols="80" class= "form-control alert-login">{{errorMessage}}</textarea>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row" *ngIf="showInbox">
+        <div class="col-md-6">
+            <!-- Inbox List                                  -->
+            <div class="row" id="InboxCard">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title">Inbox</h4>
+                            <p class="category">Select an item</p>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                            <table class="table table-striped" datatable >
+                                <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
+                                <thead class=" text-primary">
+                                    <th>Specimen</th>
+                                    <th>Subject</th>
+                                </thead>
+                                <tbody>
+                                <tr *ngFor="let item of inboxListData">
+                                    <td>{{item.specimenBarcode}}</td>
+                                    <td>{{item.subject}}</td>
+                                    <td><button type="button" (click)="selectButtonClicked(item.inboxId)" class="btn btn-primary" >Select</button></td>
+                                </tr>
+                                
+                                </tbody>
+                            </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <!-- Message -->
+            <div class="row" id="MessageCard">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="title">Item Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12 pr-1">
+                                    <div class="form-group" >
+                                        <label>Clinic/Practice Name</label>
+                                        <input [(ngModel)]="inboxData.customer" name="customerName" type="text" class="form-control"  [disabled]=true>                  
+                                    </div>
+                                </div>
+                                <div class="col-md-12 pr-1">
+                                    <div class="form-group">
+                                        <label>Location Name</label>
+                                        <input [(ngModel)]="inboxData.location" name="locationName" type="text" class="form-control"  [disabled]=true>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 pr-1">
+                                    <div class="form-group">
+                                        <label>Patient Name</label>
+                                        <input [(ngModel)]="inboxData.patient" name="patientName" type="text" class="form-control"  [disabled]=true>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 pr-1">
+                                    <div class="form-group">
+                                        <label>Specimen Barcode</label>
+                                        <input [(ngModel)]="inboxData.specimenBarcode" name="specimenBarcode" type="text" class="form-control"  [disabled]=true>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 pr-1">
+                                    <div class="form-group">
+                                        <label>Subject</label>
+                                        <input [(ngModel)]="inboxData.subject" name="subject" type="text" class="form-control"  [disabled]=true>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 pr-1">
+                                    <div class="form-group">
+                                        <label>Message</label>
+                                        <textarea rows = "4" [(ngModel)]="inboxData.iMessage" name="message" type="text" class="form-control"  [disabled]=true></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 pr-1" *ngIf="buttonOn">
+                                    <button type="button" (click)="patientButtonClicked()" class="btn btn-primary" >Patient</button>
+                                    <button type="button" (click)="orderButtonClicked()" class="btn btn-primary" >Order</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

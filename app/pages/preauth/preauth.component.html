@@ -1,0 +1,230 @@
+<!-- Page Name       : PreAuth                  -->
+<!-- Date Created    : 03/21/2023               -->
+<!-- Written By      : Stephen Farkas           -->
+<!-- Description     : PreAuth Entry / Edit     -->
+<!-- MM/DD/YYYY xxx  Description                -->
+<!--                                            -->
+<!-- ----------------------------------------------------------------------------- -->
+<div class="panel-header panel-header-sm">
+</div>
+<div class="main-content">
+    <div  id="topOfScreen"></div>
+
+    <!-- List of PreAuths                                 -->
+    <div class="row" *ngIf="showSearchList" id="labSerchListCard">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-md-9  pr-1">
+                            <h4 class="card-title">Items Requiring PreAutorization</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                    <table class="table table-striped" datatable >
+                        <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
+                        <thead class=" text-primary">
+                            <th>Name</th>
+                            <th>Collection Date</th>
+                            <th>Specimen</th>
+                            <th>Action</th>
+                        </thead>
+                        <tbody>
+                        <tr *ngFor="let item of preAuthSearchData">
+                            <td>{{item.patientName}}</td>
+                            <td>{{item.collectionDate}}</td>
+                            <td>{{item.specimenBarcode}}</td>
+                            <td><button type="button" (click)="selectButtonClicked(item.patientId)" class="btn btn-primary" >Select</button></td>                    
+                        </tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Show errors                -->
+    <div class="row" *ngIf="showError" >
+        <div class="col-md-12">
+            <!-- Errors -->
+            <div class="card">
+                <div class="card-header">
+                <h5 class="title">Error Message</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <textarea rows="3" cols="80" class= "form-control alert-login">{{errorMessage}}</textarea>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    
+    <!-- Show the preauth details                -->
+    <div class="row" *ngIf="showPreAuth" >
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-md-11">
+                            <h5 class="title">Patient Information</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label >First Name</label>
+                                <input [(ngModel)]="patientData.firstName" maxlength="20" name="firstName" type="text" class="form-control" [disabled]=true>                  
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Last Name</label>
+                                <input [(ngModel)]="patientData.lastName" maxlength="20" name="lastName" type="text" class="form-control" [disabled]=true>                  
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>DOB</label>
+                                <input [(ngModel)]="patientData.dob" name="DOB" type="date" class="form-control" [disabled]=true>                  
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6  pr-1">
+                            <div class="form-group" >
+                                <label>Street Address</label>
+                                <input [(ngModel)]="patientData.address.street1" maxlength="50" name="street1" type="text" class="form-control" [disabled]=true>
+                            </div>
+                        </div>
+                        <div class="col-md-3  pr-1">
+                            <div class="form-group">
+                                <label>Apartment</label>
+                                <input [(ngModel)]="patientData.address.street2" maxlength="30" name="street2" type="text" class="form-control" [disabled]=true>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2 pr-1">
+                            <div class="form-group">
+                                <label>Zip Code</label>
+                                <input [(ngModel)]="patientData.address.postalCode" maxlength="10" name="postal" type="text" class="form-control" [disabled]=true>
+                            </div>
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <div class="form-group" (change)="patientChanged()">
+                                <label>City</label>
+                                <input [(ngModel)]="patientData.address.city" maxlength="30" name="city" type="text" class="form-control"  [disabled]=true>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>County</label>
+                                <input [(ngModel)]="patientData.address.county" maxlength="40" name="county" type="text" class="form-control" [disabled]=true>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>State</label>
+                                <input [(ngModel)]="patientData.address.state" maxlength="20" name="state" type="text" class="form-control" [disabled]=true>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 pr-1">
+                            <div class="form-group">
+                                <label>Payor</label>
+                                <input [(ngModel)]="insuranceData.insurance" maxlength="100" name="insurance" type="text" class="form-control" [disabled]=true>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Active</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="insuranceActive" name="insuranceActive" [(ngModel)]="insuranceData.active" [disabled]=true>
+                                    <label class="custom-control-label" for="insuranceActive"></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>Type</label>
+                                <input [(ngModel)]="insuranceData.insuranceType"  name="insuranceType" type="text" class="form-control" [disabled]=true>
+                            </div>
+                        </div>
+                        <div class="col-md-3  pr-1">
+                            <div class="form-group" >
+                                <label>Member No.</label>
+                                <input [(ngModel)]="insuranceData.memberId" maxlength="30" name="insuranceMember" type="text" class="form-control" [disabled]=true>
+                            </div>
+                        </div>
+                        <div class="col-md-3  pr-1">
+                            <div class="form-group" >
+                                <label>Group No.</label>
+                                <input [(ngModel)]="insuranceData.groupNo" maxlength="30" name="insuranceGroup" type="text" class="form-control"  [disabled]=true>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3  pr-1">
+                            <div class="form-group" >
+                                <label>Effective Date</label>
+                                <input [(ngModel)]="insuranceData.effectiveDate" name="insuranceEffective" type="text" class="form-control" [disabled]=true>
+                            </div>
+                        </div>
+                        <div class="col-md-3  pr-1">
+                            <div class="form-group" >
+                                <label>Expiration Date</label>
+                                <input [(ngModel)]="insuranceData.expireDate" name="insuranceExpire" type="text" class="form-control" [disabled]=true>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Relationship To Insured</label>
+                                <input [(ngModel)]="insuranceData.relationship" name="relationship" type="text" class="form-control" [disabled]=true>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3  pr-1">
+                            <div class="form-group" >
+                                <label>PreAuth Number</label>
+                                <input [(ngModel)]="insuranceData.preAuthNumber" maxlength="30" name="preAuthNumber" type="text" [ngClass]="insuranceData.preAuthNumber == '' ? 'form-control required' : 'form-control completed'"  (change)="insuranceChanged()">
+                            </div>
+                        </div>
+                        <div class="col-md-3  pr-1">
+                            <div class="form-group" >
+                                <label>PreAuth End Date</label>
+                                <input [(ngModel)]="insuranceData.preAuthEndDate" name="preAuthEndDate" type="date" [ngClass]="insuranceData.preAuthEndDate == '1900-01-01' || insuranceData.preAuthEndDate == '' ? 'form-control required' : 'form-control completed'" (change)="insuranceChanged()">
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>PreAuth Maximum</label>
+                                <input [(ngModel)]="insuranceData.preAuthMaximum"  name="preAuthMaximum" type="number" min="0" max="100" class="form-control"  (change)="insuranceChanged()">                  
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-md-3 pr-1">
+                            <button type="button" *ngIf="preAuthSave" (click)="saveButtonClicked()" class="btn btn-primary" >Save</button>
+                            <button type="button" (click)="backButtonClicked()" class="btn btn-primary" >Back</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>

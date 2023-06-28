@@ -1,0 +1,172 @@
+<!-- Page Name       : CustomerFilter           -->
+<!-- Date Created    : 09/09/2022               -->
+<!-- Written By      : Stephen Farkas           -->
+<!-- Description     : Customer Filter          -->
+<!-- MM/DD/YYYY xxx  Description                -->
+<!-- 11/04/2022 SJF  Renamed to Account Filter -->
+<!-- ----------------------------------------------------------------------------- -->
+<div class="panel-header panel-header-sm">
+</div>
+<div class="main-content">
+    <div  id="topOfScreen"></div>
+    <!-- Search                   -->
+    <div class="row" *ngIf="showSearch" id="customerSeearchCard">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-md-9 pr-1">
+                            <h5 class="title">Account Filter</h5>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <button type="button" (click)="clearSearchButtonClicked()" class="btn btn-primary" >Clear Search Criteria</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                <form name="search-form">
+                    <div class="row">
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Name</label>
+                                <input [(ngModel)]="searchName" maxlength="100" name="searchName" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-2 pr-1">
+                            <div class="form-group" >
+                                <label>Facility Code</label>
+                                <input [(ngModel)]="searchCode" maxlength="10" name="searchCode" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-1 pr-1">
+                            <div class="form-group" >
+                                <label>Status</label>
+                                <select class="form-control" id="activeSearch" name="activeSearch" [(ngModel)]="searchActive">
+                                    <option *ngFor="let option of activeSearchList" [value]="option.id">
+                                    {{option.description}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>City</label>
+                                <input [(ngModel)]="searchCity" maxlength="30" name="searchCity" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>State</label>
+                                <input [(ngModel)]="searchState" maxlength="20" name="searchState" type="text" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" *ngIf="UserType!=6 && salesFlag">
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Region</label>
+                                <select class="form-control" id="regionSearch" name="regionSearch" [(ngModel)]="searchRegion">
+                                    <option *ngFor="let option of regionSearchList" [value]="option.id">
+                                    {{option.description}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>AM</label>
+                                <select class="form-control" id="amSearch" name="amSearch" [(ngModel)]="searchAM" [disabled]="salesFlag">
+                                    <option *ngFor="let option of amSearchList" [value]="option.id">
+                                    {{option.description}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>TM</label>
+                                <select class="form-control" id="tmSearch" name="tmSearch" [(ngModel)]="searchTM" [disabled]="salesFlag">
+                                    <option *ngFor="let option of tmSearchList" [value]="option.id">
+                                    {{option.description}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>RM</label>
+                                <select class="form-control" id="rmSearch" name="rmSearch" [(ngModel)]="searchRM" [disabled]="salesFlag">
+                                    <option *ngFor="let option of rmSearchList" [value]="option.id">
+                                    {{option.description}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" (click)="searchButtonClicked()" class="btn btn-primary" >Search</button>
+                    <button type="button" (click)="clearButtonClicked()" class="btn btn-primary" >Clear</button>
+                </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Items Returned From Search                                  -->
+    <div class="row" *ngIf="showSearchList" id="customerSerchListCard">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Accounts</h4>
+                    <p class="category">Select an account</p>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                    <table class="table table-striped" datatable >
+                        <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
+                        <thead class=" text-primary">
+                            <th>Name</th>
+                            <th>Code</th>
+                            <th>Phone</th>
+                            <th>Address</th>
+                            <th>Area</th>
+                            <th>Notes</th>
+                        </thead>
+                        <tbody>
+                        <tr *ngFor="let item of customerSearchData">
+                            <td><a style="color:blue" (click)="selectButtonClicked(item.customerId)">{{item.name}}</a></td>
+                            <td>{{item.facilityCode}}</td>
+                            <td>{{item.phone}}</td>
+                            <td>{{item.street1}}</td>
+                            <td>{{item.area}}</td>
+                            <td>{{item.notes}}</td>
+                            <td><button type="button" (click)="selectButtonClicked(item.customerId)" class="btn btn-primary" >Select</button></td>                    
+                        </tr>
+                        
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Show errors                -->
+    <div class="row" *ngIf="showError" >
+        <div class="col-md-12">
+            <!-- Errors -->
+            <div class="card">
+                <div class="card-header">
+                <h5 class="title">Error Message</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <textarea rows="3" cols="80" class= "form-control alert-login">{{errorMessage}}</textarea>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+

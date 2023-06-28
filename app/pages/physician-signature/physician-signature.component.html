@@ -1,0 +1,43 @@
+<!-- Page Name       : Physician Signature          -->
+<!-- Date Created    : 09/22/2022                   -->
+<!-- Written By      : Stephen Farkas               -->
+<!-- Description     : Physician Signature          -->
+<!-- MM/DD/YYYY xxx  Description                    -->
+<!-- ----------------------------------------------------------------------------- -->
+<div class="panel-header panel-header-sm">
+</div>
+<div class="main-content">
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="title">Physician Signature</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row" *ngIf="!topazInstalled">
+                        <div class="col-md-12" *ngIf="signatureImg ==''">
+                            <canvas width="400" height="100" #canvas (touchstart)="startDrawing($event)" (touchmove)="moved($event)"></canvas>
+                            <label>{{errorMessage}}</label>
+                            <button type="button" (click)="clearPad()" class="btn btn-primary">Clear</button>
+                            <button type="button" (click)="savePad()" class="btn btn-primary">Save</button>
+                        </div>
+                        <div class="col-md-12" *ngIf="signatureImg !=''"> 
+                            <div class="signature-image" *ngIf="signatureImg">
+                                <img src='{{ signatureImg }}' />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" *ngIf="topazInstalled">
+                        <div class="col-md-12"> 
+                            <!-- <img width="500" height="100" src="{{tp2Signature}}" /> -->
+                            <img width="500" height="100" [src]='topazSignature' />
+                            <button type="button" *ngIf="topazSignature==''" (click)="StartSign()" class="btn btn-primary">Sig Pad</button>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>

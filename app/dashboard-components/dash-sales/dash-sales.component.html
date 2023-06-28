@@ -1,0 +1,96 @@
+<div class="row" id="labOrderSearchCard">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-md-9 pr-1">
+                        <h5 class="title">Select Option</h5>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+              <form name="search-form">
+                  <div class="row">
+                      <div class="col-md-12 pr-1">
+                          <button type="button" (click)="buttonWeek()" class="btn btn-primary" >12 Week</button>
+                          <button type="button" (click)="buttonYear()" class="btn btn-primary" >Year</button>
+                      </div>  
+                  </div>
+              </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row" id="salesChart">
+    <div class="col-md-12">
+        <div class="card card-chart">
+            <div class="card-header">
+              <h5 class="card-title" *ngIf="monthly">Samples Counts</h5>
+              <h5 class="card-title" *ngIf="!monthly">Samples Counts</h5>
+            </div>
+            <div class="card-body">
+              <div class="chart-area">
+                <canvas baseChart id="chart"
+                            [datasets]="chartData"
+                            [labels]="chartLabels"
+                            [colors]="chartColors"
+                            [options]="chartOptions"
+                            [chartType]="chartType"
+                            (chartHover)="chartHovered($event)"
+                            (chartClick)="chartClicked($event)"></canvas>
+              </div>
+            </div>
+            <div class="card-footer">
+              <div class="stats">
+                <p></p>
+                <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
+                <p></p>
+              </div>
+            </div>
+          </div>
+    </div>
+</div>
+<div class="row" id="accessionedListCard">
+  <div class="col-md-12">
+      <div class="card">
+          <div class="card-header">
+              <div class="row">
+                  <div class="col-md-9 pr-1">
+                      <h5 class="title">Totals</h5>
+                  </div>
+              </div>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-striped" datatable >
+                <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
+                <thead class="text-primary">
+                  <th>Period</th>
+                  <th>Account</th>
+                  <th>Tox Urine</th>
+                  <th>Tox Oral</th>
+                  <th>RPP</th>
+                  <th>UTI/STI</th>
+                  <th>GPP</th>
+                </thead>
+                <tbody *ngIf="salesData!=null">
+                  <tr *ngFor="let item of salesData">
+                    <!-- <td *ngIf="monthly">{{item.year}}/{{item.week}}</td> -->
+                    <td *ngIf="monthly">{{item.sunday}}</td>
+                    <td *ngIf="!monthly">{{item.month}}/01/{{item.year}}</td>
+                    <!-- <td>@Convert.ToDateTime(item.accessionedDate).ToString("MM/dd/yyyy")</td> -->
+                    <!-- <td>{{item.accessionedDate.Value.ToString("mm/dd/yyyy")}}</td> -->
+                    <td>{{item.customer}}</td>
+                    <td>{{item.toxUrine}}</td>
+                    <td>{{item.toxOral}}</td>
+                    <td>{{item.rpp}}</td>
+                    <td>{{item.uti}}</td>
+                    <td>{{item.gpp}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+      </div>
+  </div>
+</div>

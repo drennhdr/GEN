@@ -1,0 +1,32 @@
+<!-- Page Name       : Customer-Modal               -->
+<!-- Date Created    : 2/15/2023                    -->
+<!-- Written By      : Stephen Farkas               -->
+<!-- Description     : Customer Modal               -->
+<!-- MM/DD/YYYY xxx  Description                    -->
+<!-- ------------------------------------------------------------------------------->
+<div class="modal-header">
+    <h4 class="modal-title">Select a new location</h4>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <div class="col-md-6 pr-1">
+
+            <div class="form-group">
+                <label>Location</label>
+                <select class="form-control" id="locationId" name="locationId" [(ngModel)]="locationId" (change)="locationChanged()" >
+                <option *ngFor="let option of locationList" [value]="option.locationId">
+                    {{option.locationName}}
+                </option>
+                </select>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <button type="button" (click)="closeModalButtonClicked()" class="btn btn-primary" >Close</button>
+        </div>
+        
+    </div>
+</div>

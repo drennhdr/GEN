@@ -1,0 +1,44 @@
+<!-- Page Name       : Status-Modal                  -->
+<!-- Date Created    : 12/22/2022                   -->
+<!-- Written By      : Stephen Farkas               -->
+<!-- Description     : Lab Order Status Modal-->
+<!-- MM/DD/YYYY xxx  Description                    -->
+<!-- ------------------------------------------------------------------------------->
+<div class="modal-header">
+    <h4 class="modal-title">Change Status</h4>
+  </div>
+  <div class="modal-body">
+  
+    <div class="table-responsive">
+      <table class="table table-striped" datatable >
+        <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
+        <thead class=" text-primary">
+          <th>Status</th>
+          <th>Date</th>
+          <th>User</th>
+        </thead>
+        <tbody>       
+          <tr *ngFor="let item of labOrderStatus.statusChanges">
+            <td>{{item.status}}</td>
+            <td>{{item.statusDate + ' UTC' | date: 'MM/dd/yyyy hh:mm a' : local}}</td>
+            <td>{{item.user}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 pr-1">
+            <div class="form-group" >
+                <label>Internal Notes</label>
+                <textarea rows = "6" [(ngModel)]="labOrderStatus.Comment"  name="note" type="text" [disabled]="true" class="form-control"></textarea>
+            </div>
+        </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" (click)="cancelButtonClicked()" class="btn btn-primary" >Cancel</button>
+    <!-- <button type="button" (click)="closeModalButtonClicked()" class="btn btn-primary" >Close</button> -->
+  </div>
+  
+  

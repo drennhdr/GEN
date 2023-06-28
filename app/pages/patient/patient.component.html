@@ -1,0 +1,1292 @@
+<!-- Page Name       : Patient                  -->
+<!-- Date Created    : 08/05/2022               -->
+<!-- Written By      : Stephen Farkas           -->
+<!-- Description     : Patient Entry / Edit     -->
+<!-- MM/DD/YYYY xxx  Description                -->
+<!-- 02/22/2023 SJF Added Parol Officer UserType = 14 -->
+<!-- ----------------------------------------------------------------------------- -->
+<div class="panel-header panel-header-sm">
+</div>
+<div class="main-content">
+
+    <div  id="topOfScreen"></div>
+
+    <!-- Search                   -->
+    <div class="row" *ngIf="showSearch" id="patientSearchCard">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+
+                    <div class="row">
+                        <div class="col-md-9 pr-1">
+                            <h5 class="title">Patient Search {{customerFilter}} {{locationName}}</h5>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <button type="button" (click)="clearSearchButtonClicked()" class="btn btn-primary" >Clear Search Criteria</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                <form name="search-form">
+                    <div class="row">
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>First Name</label>
+                                <input [(ngModel)]="searchFirstName" maxlength="20" name="searchFirstName" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Last Name</label>
+                                <input [(ngModel)]="searchLastName" maxlength="20" name="searchLastName" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>DOB</label>
+                                <input [(ngModel)]="searchDOB" name="searchDOB" type="date" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Sex</label>
+                                <select class="form-control" id="searchGender" name="searchGender" [(ngModel)]="searchGenderId">
+                                    <option *ngFor="let option of genderSearchList" [value]="option.id">
+                                    {{option.description}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Medical Record #</label>
+                                <input [(ngModel)]="searchMedicalRecordId" maxlength="18" name="searchMR" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Active</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="searchActive" name="searchActive" [(ngModel)]="searchActive">
+                                    <label class="custom-control-label" for="searchActive"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 pr-1" *ngIf="userType!=14">
+                            <div class="form-group" >
+                                <label>Include Patients</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="searchPatient" name="searchPatient" [(ngModel)]="searchIsPatient">
+                                    <label class="custom-control-label" for="searchPatient"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 pr-1" *ngIf="userType!=14">
+                            <div class="form-group" >
+                                <label>Include Employees</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="searchEmployee" name="searchEmployee" [(ngModel)]="searchIsEmployee">
+                                    <label class="custom-control-label" for="searchEmployee"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 pr-1" *ngIf="userType!=14">
+                            <div class="form-group" >
+                                <label>Priority Patient</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="searchPriority" name="searchPriority" [(ngModel)]="searchPriority">
+                                    <label class="custom-control-label" for="searchPriority"></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" (click)="searchButtonClicked()" class="btn btn-primary" >Search</button>
+                    <button type="button" *ngIf="customerId > 0" (click)="addButtonClicked()" class="btn btn-primary" >Add</button>
+                </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Items Returned From Search                                  -->
+    <div class="row" *ngIf="showSearchList" id="customerCard">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Patient</h4>
+                    <p class="category">Select a patient</p>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                    <table class="table table-striped" datatable >
+                        <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
+                        <thead class=" text-primary">
+                            <th>Name</th>
+                            <th>DOB</th>
+                            <th>Sex</th>
+                            <th>Medical ID</th>
+                            <th>Phone</th>
+                            <th *ngIf="customerId == 0">Facility Code</th>
+                            <th>Actions</th>
+                        </thead>
+                        <tbody>
+                        <tr *ngFor="let item of patientSearchData">
+                            <td><a style="color:blue" (click)="selectButtonClicked(item.patientId)">{{item.name}}</a></td>
+                            <td>{{item.dob}}</td>
+                            <td>{{item.gender}}</td>
+                            <td>{{item.medicalRecordId}}</td>
+                            <td>{{item.phone}}</td>
+                            <td *ngIf="customerId == 0">{{item.facilityCode}}</td>
+                            <td><button type="button" (click)="selectButtonClicked(item.patientId)" class="btn btn-primary" >Select</button></td>                    
+                            <td *ngIf="userType != 14"><button type="button" (click)="addOrderButtonClicked(item.patientId)" class="btn btn-primary" >Create Lab Order</button></td>
+                        </tr>
+                        
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Show the customer Field                -->
+    <div class="row" *ngIf="showCustomerField" >
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="title">Customer</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Customer Name</label>
+                                <!-- <input [(ngModel)]="patientData.firstName" maxlength="20" name="firstName" type="text" class="form-control required" placeholder="First Name required" (change)="patientChanged()">                   -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Show the patient details                -->
+    <div class="row" *ngIf="showPatient" >
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-md-11">
+                            <h5 class="title">Patient Information</h5>
+                        </div>
+                        <div class="col-md-1" *ngIf="customerLogin">
+                            <button type="button" style="height: 40px; width: 48px; padding: 0; margin: 0;" *ngIf="!showPatientDetail" (click)="expandPatientButtonClicked()" class="btn btn-primary" ><img src="../../../assets/icons/Expand.png" /></button>
+                            <button type="button" style="height: 40px; width: 48px; padding: 0; margin: 0;" *ngIf="showPatientDetail" (click)="compactPatientButtonClicked()" class="btn btn-primary" ><img src="../../../assets/icons/Collapse.png" /></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label *ngIf="userType != 6 && !patientData.firstNameMissing">First Name</label>
+                                <label *ngIf="userType == 6 || patientData.firstNameMissing">    
+                                    First Name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <input type="checkbox" name="firstNameMissing" [(ngModel)]="patientData.firstNameMissing" [disabled]="patientData.dobMissing" (change)="firstNameCkChanged()">
+                                    Missing
+                                </label>
+                                <input [(ngModel)]="patientData.firstName" maxlength="20" name="firstName" type="text" [ngClass]="patientData.firstName == '' ? 'form-control required' : 'form-control completed'" placeholder="First Name required" [disabled]="userType == 14" (change)="firstNameChanged()">                  
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label *ngIf="userType != 6 && !patientData.lastNameMissing">Last Name</label>
+                                <label *ngIf="userType == 6 || patientData.lastNameMissing">
+                                    Last Name &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <input type="checkbox" name="lastNameMissing" [(ngModel)]="patientData.lastNameMissing" [disabled]="patientData.dobMissing" (change)="lastNameCkChanged()">
+                                    Missing
+                                </label>
+                                <input [(ngModel)]="patientData.lastName" maxlength="20" name="lastName" type="text" [ngClass]="patientData.lastName == '' ? 'form-control required' : 'form-control completed'" placeholder="Last name required at least 2 characters" [disabled]="userType == 14" (change)="lastNameChanged()">                  
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label  *ngIf="userType != 6 && !patientData.dobMissing">DOB</label>
+                                <label *ngIf="userType == 6 || patientData.dobMissing">
+                                    DOB &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <input type="checkbox" name="DOBMissing" [(ngModel)]="patientData.dobMissing"  [disabled]="patientData.lastNameMissing || patientData.firstNameMissing" (change)="dobCkChanged()">
+                                    Missing
+                                </label>
+                                <input [(ngModel)]="patientData.dob" name="DOB" type="date" [ngClass]="patientData.dob == undefined || patientData.dob == '' ? 'form-control required' : 'form-control completed'" [disabled]="userType == 14" (change)="dobChanged()">                  
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>Sex</label>
+                                <select class="form-control" id="gender" name="genderId" [(ngModel)]="patientData.genderId" [disabled]="userType == 14" (change)="patientChanged()">
+                                    <option *ngFor="let option of genderList" [value]="option.id">
+                                    {{option.description}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" *ngIf="DateError!=''">
+                        <div class="col-md-6 pr-1">
+
+                        </div>
+                        <div class="col-md-6 pr-1">
+                            <label style="color:red">{{dateErrorMessage}}</label>
+                        </div>
+                    </div>
+                    <div class="row" *ngIf="showPatientDetail">
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Prefix</label>
+                                <input [(ngModel)]="patientData.prefix" maxlength="10" name="prerfix" type="text" class="form-control" [disabled]="userType == 14" (change)="patientChanged()">                  
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Middle Name</label>
+                                <input [(ngModel)]="patientData.middleName" maxlength="20" name="middleName" type="text" class="form-control" [disabled]="userType == 14" (change)="patientChanged()">                  
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Suffix</label>
+                                <input [(ngModel)]="patientData.suffix" maxlength="10" name="suffix" type="text" class="form-control" [disabled]="userType == 14" (change)="patientChanged()">                  
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Active</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="active" name="active" [(ngModel)]="patientData.active" [disabled]="userType == 14"  (change)="patientChanged()">
+                                    <label class="custom-control-label" for="active"></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>  
+                    <div class="row" *ngIf="showPatientDetail">
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>Ethnicity</label>
+                                <select class="form-control" id="ethnicity" name="ethnicity" [(ngModel)]="patientData.ethnicityId" [disabled]="userType == 14" (change)="patientChanged()">
+                                <option *ngFor="let option of ethnicityList" [value]="option.id">
+                                    {{option.description}}
+                                </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Medical Record #</label>
+                                <input *ngIf="requireMR" [(ngModel)]="patientData.medicalRecordId" maxlength="10" name="medicalRecordId" type="text" class="form-control required" [disabled]="userType == 14" (change)="patientChanged()">
+                                <input *ngIf="!requireMR" [(ngModel)]="patientData.medicalRecordId" maxlength="10" name="medicalRecordId" type="text" class="form-control" [disabled]="userType == 14" (change)="patientChanged()">                  
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Is Employee</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="isEmployee" name="isEmployee" [(ngModel)]="patientData.isEmployee" [disabled]="userType == 14" (change)="patientChanged()">
+                                    <label class="custom-control-label" for="isEmployee"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Priority Patient</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="priority" name="priority" [(ngModel)]="patientData.priority" [disabled]="userType == 14" (change)="patientChanged()">
+                                    <label class="custom-control-label" for="priority"></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" *ngIf="showAddressFromCustomer">
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>Copy Address From Location</label>
+                                <select class="form-control" id="country" name="country" [(ngModel)]="locationCode">
+                                <option *ngFor="let option of locationList" [value]="option.id">
+                                    {{option.description}}
+                                </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <button type="button" (click)="useAddressButtonClicked()" class="btn btn-primary" >Use This Address</button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>Country</label>
+                                <select class="form-control" id="country" name="country" [(ngModel)]="patientData.address.countryCode" [disabled]="userType == 14" (change)="patientChanged()">
+                                <option *ngFor="let option of countryList" [value]="option.id">
+                                    {{option.description}}
+                                </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6  pr-1">
+                            <div class="form-group" >
+                                <label *ngIf="userType != 6 && !patientData.phoneMissing">Street Address</label>
+                                <label *ngIf="userType == 6 || userType == 7 || userType == 8 || patientData.addressMissing">    
+                                    Street Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <input type="checkbox" name="addressMissing" [(ngModel)]="patientData.addressMissing" (change)="addressCkChanged()">
+                                    Missing
+                                </label>
+                                <input [(ngModel)]="patientData.address.street1" maxlength="50" name="street1" type="text" [ngClass]="patientData.address.street1 == '' ? 'form-control required' : 'form-control completed'" placeholder="Street required" [disabled]="userType == 14" (change)="addressChanged()">
+                            </div>
+                        </div>
+                        <div class="col-md-3  pr-1">
+                            <div class="form-group">
+                                <label>Address 2</label>
+                                <input [(ngModel)]="patientData.address.street2" maxlength="30" name="street2" type="text" class="form-control" [disabled]="userType == 14" (change)="patientChanged()">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2 pr-1">
+                            <div class="form-group">
+                                <label>Zip Code</label>
+                                <input [(ngModel)]="patientData.address.postalCode" maxlength="10" name="postal" type="text" [ngClass]="patientData.address.postalCode == '' ? 'form-control required' : 'form-control completed'" placeholder="Zip Code required" [disabled]="userType == 14" (keyup)="zipKeypress($event)">
+                            </div>
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <div class="form-group" (change)="patientChanged()">
+                                <label>City</label>
+                                <input [(ngModel)]="patientData.address.city" maxlength="30" name="city" type="text" [ngClass]="patientData.address.city == '' ? 'form-control required' : 'form-control completed'" placeholder="City required" [disabled]="userType == 14" (change)="patientChanged()">
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>County</label>
+                                <input [(ngModel)]="patientData.address.county" maxlength="40" name="county" type="text" class="form-control" [disabled]="userType == 14" (change)="patientChanged()">
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>State</label>
+                                <input [(ngModel)]="patientData.address.state" maxlength="20" name="state" type="text" class="form-control" [disabled]="userType == 14" (change)="patientChanged()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5>Contact</h5>
+                    <div class="row">
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label *ngIf="userType != 6 && !patientData.phoneMissing">Home Phone</label>
+                                <label *ngIf="userType == 6 || userType == 7 || userType == 8 || patientData.phoneMissing">    
+                                    Home Phone&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <input type="checkbox" name="phoneMissing" [(ngModel)]="patientData.phoneMissing" (change)="patientChanged()">
+                                    Missing
+                                </label>
+                                <input [(ngModel)]="patientData.phone" maxlength="15" name="phone" type="text" [ngClass]="patientData.phone == '' ? 'form-control required' : 'form-control completed'" placeholder="Phone required" [disabled]="userType == 14" (change)="patientChanged()">
+                            </div>
+                        </div>
+                        <div class="row" *ngIf="showAddressFromCustomer">
+                            <div class="col-md-1 pr-1">
+                                <button type="button" (click)="usePhoneButtonClicked()" class="btn btn-primary" >Use Account Phone#</button>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Cell Phone</label>
+                                <input [(ngModel)]="patientData.phoneCell" maxlength="15" name="phoneCell" type="text" class="form-control" [disabled]="userType == 14" (change)="patientChanged()">
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Work Phone</label>
+                                <input [(ngModel)]="patientData.phoneWork" maxlength="15" name="phoneWork" type="text" class="form-control" [disabled]="userType == 14" (change)="patientChanged()">
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Email</label>
+                                <input [(ngModel)]="patientData.email" maxlength="60" name="email" type="text" class="form-control" [disabled]="userType == 14" (change)="patientChanged()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5 *ngIf="showPatientDetail">Identification</h5>
+                    <div class="row" *ngIf="showPatientDetail">
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>SSN</label>
+                                <input [(ngModel)]="patientData.ssn" maxlength="9" name="SSN" type="text" class="form-control" [disabled]="userType == 14" (change)="patientChanged()">
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Driver's License #</label>
+                                <input [(ngModel)]="patientData.driversLicense" maxlength="20" name="driversLicense" type="text" class="form-control" [disabled]="userType == 14" (change)="patientChanged()">
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>Driver's License State</label>
+                                <select class="form-control" id="driversLicenseState" name="driversLicenseState" [(ngModel)]="patientData.driversLicenseState" [disabled]="userType == 14" (change)="patientChanged()">
+                                <option *ngFor="let option of stateList" [value]="option.id">
+                                    {{option.description}}
+                                </option>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- <div class="col-md-3 pr-1" *ngIf="parolOfficer && (this.userType == 1 || this.userType == 7 || this.userType == 8 || this.userType == 13)">
+                            <div class="form-group" >
+                                <label>Parol Officer</label>
+                                <select class="form-control" id="parolOfficer" name="parolOfficer" [(ngModel)]="patientData.userId_ParolOfficer" (change)="patientChanged()">
+                                <option *ngFor="let option of poList" [value]="option.id">
+                                    {{option.description}}
+                                </option>
+                                </select>
+                            </div>
+                        </div> -->
+                    </div>
+
+                    <h5 *ngIf="userType != 14">Payment</h5>
+                    <div class="row" *ngIf="userType != 14">
+                        <div class="col-md-3 pr-1" *ngIf="allowSelfPay">
+                            <div class="form-group" >
+                                <label>Self Pay</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="selfPay" name="selfPay" [(ngModel)]="patientData.selfPay" (change)="patientChanged()">
+                                    <label class="custom-control-label" for="selfPay"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Bill to Practice</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="contractPay" name="contractPay" [(ngModel)]="patientData.contractPay" [disabled] ="customerBillingTypeId != 2 && customerBillingTypeId != 3" (change)="patientChanged()">
+                                    <label class="custom-control-label" for="contractPay"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Hardship</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="hardship" name="hardship" [(ngModel)]="patientData.hardship" [disabled]="userType != 7 && userType != 8" (change)="patientChanged()">
+                                    <label class="custom-control-label" for="hardship"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Scholarship</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="scholarship" name="selscholarshipfPay" [(ngModel)]="patientData.scholarship" [disabled]="userType != 7 && userType != 8" (change)="patientChanged()">
+                                    <label class="custom-control-label" for="scholarship"></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 pr-1">
+                            <button type="button" *ngIf="patientSave" (click)="saveButtonClicked()" class="btn btn-primary" >{{patientSaveButton}}</button>
+                            <button type="button" (click)="backButtonClicked()" class="btn btn-primary" >Back</button>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <label *ngIf="patientSave && patientId > 0">    
+                                <button type="button" (click)="saveAndCreateButtonClicked()" class="btn btn-primary" >Save & Create Order</button>
+                            </label>
+                            <label *ngIf="!patientSave && patientId > 0 && !linked  && userType != 14">    
+                                <button type="button" (click)="createButtonClicked()" class="btn btn-primary" >Create Order</button>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Show errors                -->
+    <div class="row" *ngIf="showError" >
+        <div class="col-md-12">
+            <!-- Errors -->
+            <div class="card">
+                <div class="card-header">
+                <h5 class="title">Error Message</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <textarea rows="3" cols="80" class= "form-control alert-login">{{errorMessage}}</textarea>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Insurance list                                  -->
+    <div id="insuranceListCard">
+        <div class="row" *ngIf="showInsuranceList && customerBillingTypeId > 2" >
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row" *ngIf="!customerLogin">
+                            <div class="col-md-8">
+                                <h5 class="title" >Insurances</h5>
+                            </div>
+                            <div class="col-md-3" >
+                                <button type="button" (click)="addInsuranceButtonClicked()" class="btn btn-primary" >Add</button>
+                            </div>
+                        </div>                        
+                        <div class="row" *ngIf="!showInsuranceListDetail && customerLogin" (click)="expandInsuranceButtonClicked()">
+                            <div class="col-md-11" >
+                                <h5 class="title">Insurances</h5>
+                            </div>
+                            <div class="col-md-1" >
+                                <button type="button"  style="height: 40px; width: 48px; padding: 0; margin: 0;" (click)="expandInsuranceButtonClicked()" class="btn btn-primary" ><img src="../../../assets/icons/Expand.png" /></button>
+                            </div>
+                        </div>
+                        <div class="row" *ngIf="showInsuranceListDetail  && customerLogin" (click)="compactInsuranceButtonClicked()">
+                            <div class="col-md-8">
+                                <h5 class="title">Insurances</h5>
+                            </div>
+                            <div class="col-md-3" >
+                                <button type="button" (click)="addInsuranceButtonClicked()" class="btn btn-primary" >Add</button>
+                            </div>
+                            <div class="col-md-1" >
+                                <button type="button"  style="height: 40px; width: 48px; padding: 0; margin: 0;" (click)="compactInsuranceButtonClicked()" class="btn btn-primary" ><img src="../../../assets/icons/Collapse.png" /></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body" *ngIf="showInsuranceListDetail">
+                        <!-- Items   -->
+                        <div class="row">
+                            <div class="table-responsive">
+                                <table class="table table-striped" datatable >
+                                    <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
+                                    <thead class=" text-primary">
+                                        <th>Payor</th>
+                                        <th>Member ID</th>
+                                        <th>Group Number</th>
+                                        <th>Effective Date</th>
+                                        <th>Expiration Date</th>
+                                        <th>Sequence</th>
+                                        <th>Actions</th>
+                                    </thead>
+
+                                    <tr *ngFor="let item of patientData.insurances">
+                                        <td>{{item.insurance}}</td>
+                                        <td>{{item.memberId}}</td>
+                                        <td>{{item.groupNo}}</td>
+                                        <td>{{item.effectiveDate}}</td>
+                                        <td>{{item.expireDate}}</td>
+                                        <td>{{item.sequence}}</td>
+                                        <td><button type="button" (click)="selectInsuranceButtonClicked(item.patientInsuranceId)" class="btn btn-primary" >Select</button></td>                    
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Insurance Edit                                  -->  
+    <div id="insuranceEditCard">
+        <div class="row" *ngIf="showInsuranceEdit && customerBillingTypeId > 2">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="title">Insurance</h5>
+                    </div>
+                    <div class="card-body">
+                        <form name="insurance-form">
+                            <div class="row" *ngIf="!PayorSelected">
+                                <div class="col-md-6 pr-1">
+                                    <div class="form-group" >
+                                        <label>Select a payor</label>
+                                        <input maxlength="30" name="searchPayor" type="text" class="form-control required" (keyup)="payorKeypress($event)">
+                                        <select multiple class="form-control" name="payorList" id="payorList" #selectList (change)="payorClicked(selectList.value)">
+                                            <option *ngFor="let option of insuranceSearchList" [value]="option.id" >
+                                            {{option.description}}
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                            <div class="row" *ngIf="PayorSelected">
+                                <div class="col-md-6 pr-1">
+                                    <div class="form-group">
+                                        <label>Payor</label>
+                                        <select class="form-control completed" id="insurancePayor" name="insurancePayor" [(ngModel)]="insuranceData.insuranceId" disabled="true">
+                                        <option *ngFor="let option of insuranceList" [value]="option.id">
+                                            {{option.description}}
+                                        </option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 pr-1" *ngIf="insuranceData.patinetInsuranceId==0">
+                                    <button type="button" (click)="resetPayorButtonClicked()" class="btn btn-primary" >Reset</button>
+                                </div>
+                                <div class="col-md-3 pr-1">
+                                    <div class="form-group" >
+                                        <label>Active</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="insuranceActive" name="insuranceActive" [(ngModel)]="insuranceData.active" (change)="insuranceChanged()">
+                                            <label class="custom-control-label" for="insuranceActive"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" *ngIf="insuranceData.insuranceId==0">
+                                <div class="col-md-6  pr-1">
+                                    <div class="form-group" >
+                                        <label>Payor Name</label>
+                                        <input [(ngModel)]="insuranceData.insuranceName" maxlength="50" name="insuranceName" type="text" class="form-control required"  (change)="insuranceChanged()">
+                                    </div>
+                                </div>
+                                <div class="col=md-3 pr-1" *ngIf="userType == 1 || this.userType == 8">
+                                    <button type="button" (click)="convertInsuranceButtonClicked()" class="btn btn-primary" >Convert</button>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <!-- <div class="col-md-6 pr-1">
+                                    <div class="form-group">
+                                        <label>Type</label>
+                                        <select [ngClass]="insuranceData.insuranceTypeId < 1 ? 'form-control required' : 'form-control completed'" id="insuranceType" name="insuranceType" [(ngModel)]="insuranceData.insuranceTypeId" (change)="insuranceChanged()">
+                                            <option *ngFor="let option of insuranceTypeList" [value]="option.id">
+                                                {{option.description}}
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div> -->
+                                <div class="col-md-3  pr-1">
+                                    <div class="form-group" >
+                                        <label>Member No.</label>
+                                        <input [(ngModel)]="insuranceData.memberId" maxlength="30" name="insuranceMember" type="text" [ngClass]="insuranceData.memberId == '' ? 'form-control required' : 'form-control completed'" placeholder="Member No required" (change)="insuranceChanged()">
+                                    </div>
+                                </div>
+                                <div class="col-md-3  pr-1">
+                                    <div class="form-group" >
+                                        <label>Group No.</label>
+                                        <input [(ngModel)]="insuranceData.groupNo" maxlength="30" name="insuranceGroup" type="text" class="form-control"  (change)="insuranceChanged()">
+                                    </div>
+                                </div>
+                                <div class="col-md-3 pr-1">
+                                    <div class="form-group" >
+                                        <label>Workmans Comp</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="workmansComp" name="workmansComp" [(ngModel)]="workmansComp" (change)="insuranceChanged()">
+                                            <label class="custom-control-label" for="workmansComp"></label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3  pr-1">
+                                    <div class="form-group" >
+                                        <label>Effective Date</label>
+                                        <input [(ngModel)]="insuranceData.effectiveDate" name="insuranceEffective" type="date" class="form-control" (change)="insuranceChanged()">
+                                    </div>
+                                </div>
+                                <div class="col-md-3  pr-1">
+                                    <div class="form-group" >
+                                        <label>Expiration Date</label>
+                                        <input [(ngModel)]="insuranceData.expireDate" name="insuranceExpire" type="date" class="form-control" (change)="insuranceChanged()">
+                                    </div>
+                                </div>
+                                <div class="col-md-3 pr-1">
+                                    <div class="form-group" >
+                                        <label>Relationship To Insured</label>
+                                        <select class="form-control" id="insuranceRelation" name="insuranceRelation" [(ngModel)]="insuranceData.relationshipId" (change)="insuranceChanged()">
+                                            <option *ngFor="let option of relationshipList" [value]="option.id">
+                                                {{option.description}}
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 pr-1">
+                                    <div class="form-group" >
+                                        <label>Sequence</label>
+                                        <select class="form-control" id="insuranceSequence" name="insuranceSequence" [(ngModel)]="insuranceData.sequence" (change)="insuranceChanged()">
+                                            <option *ngFor="let option of sequenceList" [value]="option.id">
+                                                {{option.description}}
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" *ngIf="entityId==0">
+                                <div class="col-md-3 pr-1">
+                                    <div class="form-group" >
+                                        <label>PreAuth Required</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="preAuthRequried" name="preAuthRequried" [(ngModel)]="insuranceData.preAuthRequired" (change)="insuranceChanged()" [disabled]=true>
+                                            <label class="custom-control-label" for="preAuthRequried"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3  pr-1">
+                                    <div class="form-group" >
+                                        <label>PreAuth Number</label>
+                                        <input [(ngModel)]="insuranceData.preAuthNumber" maxlength="30" name="preAuthNumber" type="text" class="form-control"  (change)="insuranceChanged()" [disabled]=true>
+                                    </div>
+                                </div>
+                                <div class="col-md-3  pr-1">
+                                    <div class="form-group" >
+                                        <label>PreAuth End Date</label>
+                                        <input [(ngModel)]="insuranceData.preAuthEndDate" name="preAuthEndDate" type="date" class="form-control" (change)="insuranceChanged()" [disabled]=true>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 pr-1">
+                                    <div class="form-group" >
+                                        <label>PreAuth Maximum</label>
+                                        <input [(ngModel)]="insuranceData.preAuthMaximum"  name="preAuthMaximum" type="number" min="0" max="100" class="form-control"  (change)="insuranceChanged()" [disabled]=true>                  
+                                    </div>
+                                </div>
+                            </div>
+                          
+                            <button type="button" *ngIf="insuranceSave" (click)="saveInsuranceButtonClicked(true)" class="btn btn-primary" >Save</button>
+                            <button type="button" (click)="cancelInsuranceButtonClicked()" class="btn btn-primary" >Cancel</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Medications -->
+    <div class="row" *ngIf="showMeds" id="medicationsCard">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-md-11" *ngIf="!customerLogin">
+                            <h5 class="title">Medications</h5>
+                        </div>
+                        <div class="col-md-11" *ngIf="customerLogin && !showMedsDetail" (click)="expandMedicationButtonClicked()">
+                            <h5 class="title">Medications</h5>
+                        </div>
+                        <div class="col-md-11" *ngIf="customerLogin && showMedsDetail" (click)="compactMedicationButtonClicked()">
+                            <h5 class="title">Medications</h5>
+                        </div>
+                        <div class="col-md-1" *ngIf="customerLogin" >
+                            <button type="button" style="height: 40px; width: 48px; padding: 0; margin: 0;" *ngIf="!showMedsDetail" (click)="expandMedicationButtonClicked()" class="btn btn-primary" ><img src="../../../assets/icons/Expand.png" /></button>
+                            <button type="button" style="height: 40px; width: 48px; padding: 0; margin: 0;" *ngIf="showMedsDetail" (click)="compactMedicationButtonClicked()" class="btn btn-primary" ><img src="../../../assets/icons/Collapse.png" /></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body" *ngIf="showMedsDetail">
+                <form name="medication-form">
+                    <div class="row">
+                        <div class="col-md-4  pr-1" *ngIf="!orderDisabled">
+                            <div class="form-group" >
+                                <label>Select a medication</label>
+                                <input maxlength="20" name="searchMedication" type="text" class="form-control" (keyup)="medicationKeypress($event)">
+                                <select multiple class="form-control" name="medicationList" id="medicationList" #selectList (change)="newMedicationClick(selectList.value)">
+                                    <option *ngFor="let option of medicationSearchList" [value]="option.medicationId" >
+                                    {{option.description}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4  pr-1" *ngIf="!orderDisabled">
+                            <div class="form-group" >
+                                <label>Current patient medications<br /></label>
+                                <select multiple class="form-control" name="currentMedications" id="currentMedications" #selectList2 (change)="currentMedicationClick(selectList2.value)">
+                                    <option *ngFor="let option of medicationCurrentList" [value]="option.medicationId" >
+                                    {{option.description}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ICD-10 Code -->
+    <div class="row" *ngIf="showICD10" id="icd10Card">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-md-11" *ngIf="!customerLogin">
+                            <h5 class="title">Diagnosis</h5>
+                        </div>
+                        <div class="col-md-11" *ngIf="customerLogin && !showICD10Detail" (click)="expandIcdButtonClicked()">
+                            <h5 class="title">Diagnosis</h5>
+                        </div>
+                        <div class="col-md-11" *ngIf="customerLogin && showICD10Detail" (click)="compactIcdButtonClicked()">
+                            <h5 class="title">Diagnosis</h5>
+                        </div>
+                        <div class="col-md-1" *ngIf="customerLogin">
+                            <button type="button" style="height: 40px; width: 48px; padding: 0; margin: 0;" *ngIf="!showICD10Detail" (click)="expandIcdButtonClicked()" class="btn btn-primary" ><img src="../../../assets/icons/Expand.png" /></button>
+                            <button type="button" style="height: 40px; width: 48px; padding: 0; margin: 0;" *ngIf="showICD10Detail" (click)="compactIcdButtonClicked()" class="btn btn-primary" ><img src="../../../assets/icons/Collapse.png" /></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body" *ngIf="showICD10Detail">
+                    <form name="icd-form">
+                        <div class="row">
+                            <div class="col-md-4  pr-1" *ngIf="!orderDisabled">
+                                <div class="form-group" >
+                                    <label>Select an ICD-10 Code</label>
+                                    <input maxlength="20" name="searchIcd" type="text" class="form-control" (keyup)="icdKeypress($event)">
+                                    <select multiple class="form-control" name="icdList" id="icdList" #selectListI1 (change)="newIcdClick(selectListI1.value)">
+                                        <option *ngFor="let option of icdSearchList" [value]="option.icD10Code" >
+                                        {{option.description}}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4  pr-1" *ngIf="!orderDisabled">
+                                <div class="form-group" >
+                                    <label>Current patient ICD-10 Codes</label>
+                                    <select multiple class="form-control" name="currentIcd" id="currentIcd" #selectListI2 (change)="currentIcdClick(selectListI2.value)">
+                                        <option *ngFor="let option of icdCurrentList" [value]="option.icD10Code" >
+                                        {{option.description}}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Allergies -->
+    <div class="row" *ngIf="showAllergies" id="allergiesCard">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-md-11" *ngIf="!customerLogin">
+                            <h5 class="title">Allergies</h5>
+                        </div>
+                        <div class="col-md-11" *ngIf="customerLogin && !showAllergiesDetail" (click)="expandAllergyButtonClicked()">
+                            <h5 class="title">Allergies</h5>
+                        </div>
+                        <div class="col-md-11" *ngIf="customerLogin && showAllergiesDetail" (click)="compactAllergyButtonClicked()">
+                            <h5 class="title">Allergies</h5>
+                        </div>
+                        <div class="col-md-1" *ngIf="customerLogin">
+                            <button type="button" style="height: 40px; width: 48px; padding: 0; margin: 0;" *ngIf="!showAllergiesDetail" (click)="expandAllergyButtonClicked()" class="btn btn-primary" ><img src="../../../assets/icons/Expand.png" /></button>
+                            <button type="button" style="height: 40px; width: 48px; padding: 0; margin: 0;" *ngIf="showAllergiesDetail" (click)="compactAllergyButtonClicked()" class="btn btn-primary" ><img src="../../../assets/icons/Collapse.png" /></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body" *ngIf="showAllergiesDetail">
+                    <form name="allergy-form">
+                        <div class="row">
+                            <div class="col-md-4  pr-1" *ngIf="!orderDisabled">
+                                <div class="form-group" >
+                                    <label>Select an allergy</label>
+                                    <input maxlength="20" name="searchAllergy" type="text" class="form-control" (keyup)="allergyKeypress($event)" [disabled]="patientData.noAllergy">
+                                    <select multiple class="form-control" name="allergyList" id="allergyList" #selectListA (change)="newAllergyClick(selectListA.value)">
+                                        <option *ngFor="let option of allergySearchList" [value]="option.allergyId" >
+                                        {{option.description}}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4  pr-1" *ngIf="!orderDisabled">
+                                <div class="form-group" >
+                                    <label>Current patient allergies<br /></label>
+                                    <select multiple class="form-control" name="currentAllergies" id="currentAllergies" #selectListA2 (change)="currentAllergyClick(selectListA2.value)">
+                                        <option *ngFor="let option of allergyCurrentList" [value]="option.allergyId" >
+                                        {{option.description}}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attachment list                                  -->
+    <div id="attachmentListCard">
+        <div class="row" *ngIf="showAttachmentList">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row" *ngIf="!customerLogin">
+                            <div class="col-md-8">
+                                <h5 class="title">Attachments</h5>
+                            </div>
+                            
+                            <div class="col-md-3" >
+                                <button type="button" (click)="addAttachmentButtonClicked()" class="btn btn-primary" >Add</button>
+                            </div>
+                        </div>  
+                        
+                   
+                        <div class="row" *ngIf="!showAttachmentListDetail && customerLogin" (click)="expandAttachmentButtonClicked()">
+                            <div class="col-md-11" >
+                                <h5 class="title">Attachments</h5>
+                            </div>
+                            <div class="col-md-1" >
+                                <button type="button"  style="height: 40px; width: 48px; padding: 0; margin: 0;" (click)="expandAttachmentButtonClicked()" class="btn btn-primary" ><img src="../../../assets/icons/Expand.png" /></button>
+                            </div>
+                        </div>
+                        <div class="row" *ngIf="showAttachmentListDetail  && customerLogin" (click)="compactAttachmentButtonClicked()">
+                            <div class="col-md-8">
+                                <h5 class="title">Attachments</h5>
+                            </div>
+                            <div class="col-md-3" >
+                                <button type="button" (click)="addAttachmentButtonClicked()" class="btn btn-primary" >Add</button>
+                            </div>
+                            <div class="col-md-1" >
+                                <button type="button"  style="height: 40px; width: 48px; padding: 0; margin: 0;" (click)="compactAttachmentButtonClicked()" class="btn btn-primary" ><img src="../../../assets/icons/Collapse.png" /></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body" *ngIf="showAttachmentListDetail">
+                        <!-- Items   -->
+                        <div class="row">
+                            <div class="table-responsive">
+                                <table class="table table-striped" datatable >
+                                    <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
+                                    <thead class=" text-primary">
+                                        <th>Attachment Type</th>
+                                        <th>Description</th>
+                                        <th>Date Created</th>
+                                        <th>Actions</th>
+                                    </thead>
+
+                                    <tr *ngFor="let item of patientData.attachments">
+                                        <td>{{item.attachmentType}}</td>
+                                        <td>{{item.description}}</td>
+                                        <td>{{item.dateCreated}}</td>
+                                        <td>
+                                            <button type="button" (click)="selectAttachmentButtonClicked(item.patientAttachmentId)" class="btn btn-primary" >View</button> &nbsp;
+                                            <button type="button" *ngIf="userType == 6 || userType == 7 || userType == 8" (click)="deleteAttachmentButtonClicked(item.patientAttachmentId)" class="btn btn-primary" >Delete</button>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attachment Edit                                  -->  
+    <div id="attachmentEditCard">
+        <div class="row" *ngIf="showAttachmentEdit">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="title">Attachment</h5>
+                    </div>
+                    <div class="card-body">
+                        <form name="attachment-form">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="row">
+                                        <div class="col-md-12  pr-1">
+                                            <div class="form-group" >
+                                                <label>Attachment Type</label>
+                                                <select [ngClass]="attachmentData.attachmentTypeId == 0 ? 'form-control required' : 'form-control completed'" id="attachmentType" name="attachmentType" [(ngModel)]="attachmentData.attachmentTypeId" [disabled]="attachmentDisabled" (change)="attachmentChanged()">
+                                                    <option *ngFor="let option of attachmentTypeList" [value]="option.id">
+                                                        {{option.description}}
+                                                    </option>
+                                                    </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12 pr-1">
+                                            <div class="form-group" >
+                                                <label>Description</label>
+                                                <textarea rows = "4" class="form-control" [(ngModel)]="attachmentData.description"  name="attachmentDescription" maxlength="256" type="text" [disabled]="attachmentDisabled" (change)="attachmentChanged()"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Import File -->
+                                    <div class="row" *ngIf="!attachmentDisabled && !fileScanned">
+                                        <div class="col-md-12 pr-1">
+                                            <input id="importButton" type="file" (change)="readFile($event)" 
+                                            class="upload input-common" required />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4" *ngIf="!attachmentDisabled">
+                                    <!-- Video Container -->
+                                    <div class="video-container" *ngIf="!error">
+                                        <video [class.show]="!isCaptured" #video id="video" [width]="picWidth" [height]="picHeight"
+                                 
+                                            autoplay></video>
+                                        <canvas [class.show]="isCaptured" [class.hide]="true" #canvas id="canvas" [width]="picWidth"
+		                                    [height]="picHeight"></canvas>
+                                    </div>
+                                    <!-- Snapshot Container  -->
+                                    <div class="snap-container">
+                                        <button class="btn btn-primary" *ngIf="!cameraOn && !fileUploaded" (click)="setupDevices()">Start Camera</button>
+                                        <button class="btn btn-primary" *ngIf="cameraOn" (click)="stopDevice()">Stop Camera</button>
+                                        <button class="btn btn-primary" *ngIf="cameraOn" (click)="capture()">Snap Photo</button>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-4" *ngIf="!attachmentDisabled">
+                                    <!-- Image List -->
+                                    <ul class="list-unstyled">
+                                        <li *ngFor="let src of captures; let idx = index" (click)="setPhoto(idx)">
+                                            <img [src]="src" height="150" />
+                                          </li>
+                                    </ul>
+                                </div>
+                                
+                            </div>
+
+                            <button type="button" *ngIf="!attachmentDisabled && attachmentSave" (click)="saveAttachmentButtonClicked()" class="btn btn-primary" >Save</button>
+                            <button type="button" (click)="cancelAttachmentButtonClicked()" class="btn btn-primary" >Cancel</button>
+                        </form>
+                    </div>
+                </div>
+               
+            </div>
+        </div>
+    </div>  
+
+    <!-- Note list                                  -->
+    <div id="noteListCard">
+        <div class="row" *ngIf="showNoteList" >
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row" *ngIf="!customerLogin">
+                            <div class="col-md-8">
+                                <h5 class="title">Notes</h5>
+                            </div>
+                            <div class="col-md-3" >
+                                <button type="button" (click)="addNoteButtonClicked()" class="btn btn-primary" >Add</button>
+                            </div>
+                        </div>        
+                        
+                        <div class="row" *ngIf="!showNoteListDetail && customerLogin" (click)="expandNoteButtonClicked()">
+                            <div class="col-md-11" >
+                                <h5 class="title">Notes</h5>
+                            </div>
+                            <div class="col-md-1" >
+                                <button type="button"  style="height: 40px; width: 48px; padding: 0; margin: 0;" (click)="expandNoteButtonClicked()" class="btn btn-primary" ><img src="../../../assets/icons/Expand.png" /></button>
+                            </div>
+                        </div>
+                        <div class="row" *ngIf="showNoteListDetail  && customerLogin" (click)="compactNoteButtonClicked()">
+                            <div class="col-md-8">
+                                <h5 class="title">Notes</h5>
+                            </div>
+                            <div class="col-md-3" >
+                                <button type="button" (click)="addNoteButtonClicked()" class="btn btn-primary" >Add</button>
+                            </div>
+                            <div class="col-md-1" >
+                                <button type="button"  style="height: 40px; width: 48px; padding: 0; margin: 0;" (click)="compactNoteButtonClicked()" class="btn btn-primary" ><img src="../../../assets/icons/Collapse.png" /></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body" *ngIf="showNoteListDetail">
+                        <!-- Items   -->
+                        <div class="row">
+                            <div class="table-responsive">
+                                <table class="table table-striped" datatable >
+                                    <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
+                                    <thead class=" text-primary">
+                                        <th>Subject</th>
+                                        <th>Date Created</th>
+                                        <!-- <th>Created By</th> -->
+                                        <th>Actions</th>
+                                    </thead>
+
+                                    <tr *ngFor="let item of patientData.notes">
+                                        <td>{{item.subject}}</td>
+                                        <td>{{item.dateTime}}</td>
+                                        <!-- <td>{{item.}}</td> -->
+                                        <td><button type="button" (click)="selectNoteButtonClicked(item.patientNoteId)" class="btn btn-primary" >Select</button></td>                    
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Note Edit                                  -->  
+    <div id="noteEditCard">
+        <div class="row" *ngIf="showNoteEdit">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="title">Note</h5>
+                    </div>
+                    <div class="card-body">
+                        <form name="note-form">
+                            <div class="row">
+                                <div class="col-md-6  pr-1">
+                                    <div class="form-group" >
+                                        <label>Subject</label>
+                                        <input [(ngModel)]="noteData.subject" maxlength="100" name="noteSubject" type="text" [ngClass]="noteData.subject == '' ? 'form-control required' : 'form-control completed'" placeholder="Subject required" [disabled]="noteDisabled" (change)="noteChanged()">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8 pr-1">
+                                    <div class="form-group" >
+                                        <label>Note</label>
+                                        <textarea rows = "4" [(ngModel)]="noteData.note"  name="noteNote" type="text" class="form-control required" placeholder="Note required" [disabled]="noteDisabled" (change)="noteChanged()"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button type="button" *ngIf="!noteDisabled && noteSave" (click)="saveNoteButtonClicked()" class="btn btn-primary" >Save</button>
+                            <button type="button" (click)="cancelNoteButtonClicked()" class="btn btn-primary" >Cancel</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>  
+
+    <!-- Lab Orders                                  -->
+    <div class="row" *ngIf="showLabList" id="labOrderSearchListCard">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-md-9 pr-1">
+                            <h4 class="card-title">Lab Orders</h4>
+                            <p class="category">Select a lab order</p>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <label *ngIf="patientSave && patientId > 0 && userType != 14">    
+                                <button type="button" (click)="saveAndCreateButtonClicked()" class="btn btn-primary" >Save & Create Order</button>
+                            </label>
+                            <label *ngIf="!patientSave && patientId > 0 && !linked && userType != 14">    
+                                <button type="button" (click)="createButtonClicked()" class="btn btn-primary" >Create Order</button>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                    <table class="table table-striped" datatable >
+                        <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
+                        <thead class=" text-primary">
+                            <th><a (click)="sortBy('specimenBarcode')">Specimen ID</a></th>
+                            <th><a (click)="sortBy('labType')">Test Type</a></th>
+                            <th><a (click)="sortBy('collectionDate')">Collected</a></th>
+                            <th><a (click)="sortBy('accessionedDate')">Accessioned</a></th>
+                            <th><a (click)="sortBy('resultedDate')">Resulted</a></th>
+                            <th><a (click)="sortBy('status')">Status</a></th>
+                            <th>Location</th>
+                            <th>Order Info</th>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of labListData">
+                                <td>{{item.specimenBarcode}}</td>
+                                <td>{{item.labType}}</td>
+                                <!-- <td>{{item.collectionDate  + ' UTC' | date: 'MM/dd/yyyy hh:mm a' : local}}</td>
+                                <td>{{item.accessionedDate  + ' UTC' | date: 'MM/dd/yyyy hh:mm a' : local}}</td>
+                                <td>{{item.resultedDate + ' UTC' | date: 'MM/dd/yyyy hh:mm a' : local}}</td> -->
+                                <td>{{item.collectionDate}}</td>
+                                <td>{{item.accessionedDate}}</td>
+                                <td>{{item.resultedDate}}</td>
+                                <td>{{item.status}}</td>
+                                <td>{{item.location}}</td>
+                                <!-- <td>
+                                    <button href="#" class="btn btn-neutral btn-icon btn-sm"  placement="bottom" ngbTooltip="Order Request Pdf" (click)="orderPdfClicked(item.labOrderId)">
+                                        <i class="now-ui-icons files_paper"></i>
+                                    </button>
+                                    <button href="#" class="btn btn-neutral btn-icon btn-sm"  placement="bottom" ngbTooltip="Order Result Pdf" (click)="resultPdfClicked(item.labOrderId)">
+                                        <i class="now-ui-icons files_paper"></i>
+                                    </button>
+                                </td> -->
+                                <td>
+                                    <div class="btn-group dropdown" ngbDropdown placement="bottom-left">
+                                        <button class="btn btn-secondary dropup-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ngbDropdownToggle>
+                                            Actions
+                                        </button>
+                                        <div class="dropdown-menu" ngbDropdownMenu aria-labelledby="dropdownMenuButton">
+                                            <a class="dropdown-item" (click)="orderPdfClicked(item.labOrderId)">Request Pdf</a>
+                                            <a class="dropdown-item" *ngIf="item.labStatusId==50" (click)="resultPdfClicked(item.labOrderSpecimenId)">Result Pdf</a>
+                                            <a class="dropdown-item" (click)="printBarcodeFromMenu(item.labOrderId)">Print Label</a>
+                                        </div>
+                                    </div>
+                                </td>
+                                </tr>
+                        
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Demographics Change                                  -->
+    <div class="row" *ngIf="showOrderDemographicsList" id="orderDemographicsListCard">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Lab Orders with Demographics Difference</h4>
+                    <p class="category">Select a lab orders to update</p>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8 pr-1">
+                            <div class="form-group" >
+                                <label>Note</label>
+                                <textarea rows = "4" [(ngModel)]="demographicsNote"  name="changeNote" type="text" class="form-control required" placeholder="Note required" (change)="demographicsUpdateChanged()"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-striped" datatable >
+                            <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
+                            <thead class=" text-primary">
+                                <th><input type="checkbox" (change)="onAllDemographicChange($event.target.checked)"> Select</th>
+                                <th>Specimen ID</th>
+                                <th>Status</th>
+                                <th>Test Type</th>
+                                <th>Collected</th>
+                                <th>Issue</th>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of orderDemographicsListData">
+                                    <td>
+                                        <label class="dark-label">
+                                            <input type="checkbox" [(ngModel)]="item.checked" (change)="onLabCheckChange(item.labOrderId,item.Description, $event.target.checked)">
+                                        </label>
+                                    </td>
+                                    <td>{{item.specimenBarcode}}</td>
+                                    <td>{{item.status}}</td>
+                                    <td>{{item.labType}}</td>
+                                    <td>{{item.collectionDate}}</td>
+                                    <td>{{item.description}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <button type="button" *ngIf="demographicsSave" (click)="labUpdateDemographicsButtonClicked()" class="btn btn-primary" >Update Demographics</button>
+                    <button type="button" (click)="backButtonClicked()" class="btn btn-primary" >Back</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

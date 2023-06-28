@@ -1,0 +1,187 @@
+<!-- Page Name       : Insurance                -->
+<!-- Date Created    : 02/04/2023               -->
+<!-- Written By      : Stephen Farkas           -->
+<!-- Description     : Insurance Entry / Edit   -->
+<!-- MM/DD/YYYY xxx  Description                -->
+<!-- ----------------------------------------------------------------------------- -->
+<div class="panel-header panel-header-sm">
+</div>
+<div class="main-content">
+    <div  id="topOfScreen"></div>
+    <!-- Search                   -->
+    <div class="row" *ngIf="showSearch"  id="insuranceSeearchCard">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-md-9 pr-1">
+                            <h5 class="title">Insurance Search</h5>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <button type="button" (click)="clearSearchButtonClicked()" class="btn btn-primary" >Clear Search Criteria</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                <form name="search-form">
+                    <div class="row">
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Name</label>
+                                <input [(ngModel)]="searchName" maxlength="100" name="searchName" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>State</label>
+                                <input [(ngModel)]="searchState" maxlength="20" name="searchState" type="text" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" (click)="searchButtonClicked()" class="btn btn-primary" >Search</button>
+                    <button type="button" (click)="addButtonClicked()" class="btn btn-primary"  >Add</button>
+                </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Items Returned From Search                                  -->
+    <div class="row" *ngIf="showSearchList" id="insuranceSerchListCard">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Insurance List</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                    <table class="table table-striped" datatable >
+                        <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
+                        <thead class=" text-primary">
+                            <th>Name</th>
+                            <th>Address</th>
+                            <th>State</th>
+                        </thead>
+                        <tbody>
+                        <tr *ngFor="let item of insuranceSearchData">
+                            <td>{{item.name}}</td>
+                            <td>{{item.street1}}</td>
+                            <td>{{item.state}}</td>
+                            <td><button type="button" (click)="selectButtonClicked(item.insuranceId)" class="btn btn-primary" >Select</button></td>                    
+                        </tr>
+                        
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Show the insurance details                -->
+    <div class="row" *ngIf="showInsurance" >
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="title">Insurance Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8  pr-1">
+                            <div class="form-group" >
+                                <label>Name</label>
+                                <input [(ngModel)]="insuranceData.name" maxlength="50" name="insuranceName" type="text" [ngClass]="insuranceData.name == '' ? 'form-control required' : 'form-control completed'" (change)="insuranceChanged()">
+                            </div>
+                        </div>
+                        <div class="col-md-2 pr-1">
+                            <div class="form-group" >
+                                <label>Active</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="insuranceActive" name="insuranceActive" [(ngModel)]="insuranceData.active" (change)="insuranceChanged()">
+                                    <label class="custom-control-label" for="insuranceActive"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 pr-1">
+                            <div class="form-group" >
+                                <label>Preauth Required</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="preauth" name="preauth" [(ngModel)]="insuranceData.preauthRequired" (change)="insuranceChanged()">
+                                    <label class="custom-control-label" for="preauth"></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-8 pr-1">
+                            <div class="form-group" >
+                                <label>Website</label>
+                                <input [(ngModel)]="insuranceData.website" maxlength="60" name="insuranceWebasite" type="text" class="form-control" (change)="insuranceChanged()">
+                            </div>
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <div class="form-group" >
+                                <label>Phone</label>
+                                <input [(ngModel)]="insuranceData.phone" maxlength="15" name="insurancePhone" type="text" [ngClass]="insuranceData.phone == '' ? 'form-control required' : 'form-control completed'" (change)="insuranceChanged()">
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <div class="row">
+                        <div class="col-md-8 pr-1">
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input [(ngModel)]="insuranceData.email" maxlength="60" name="insuranceEmail" type="text" class="form-control" (change)="insuranceChanged()">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-8  pr-1">
+                            <div class="form-group" >
+                                <label>Address 1</label>
+                                <input [(ngModel)]="insuranceData.street1" maxlength="50" name="insuranceStreet1" type="text" [ngClass]="insuranceData.street1 == '' ? 'form-control required' : 'form-control completed'" (change)="insuranceChanged()" placeholder="Street required">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-8  pr-1">
+                            <div class="form-group">
+                                <label>Address 2</label>
+                                <input [(ngModel)]="insuranceData.street2" maxlength="30" name="insuranceStreet2" type="text" class="form-control" (change)="insuranceChanged()">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 pr-1">
+                            <div class="form-group">
+                                <label>Zip Code</label>
+                                <input [(ngModel)]="insuranceData.postalCode" maxlength="10" name="insurancePostal" type="text" [ngClass]="insuranceData.postalCode == '' ? 'form-control required' : 'form-control completed'" (change)="insuranceChanged()" placeholder="Zip Code required" (keyup)="zipKeypress($event)">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 pr-1">
+                            <div class="form-group" >
+                                <label>City</label>
+                                <input [(ngModel)]="insuranceData.city" maxlength="30" name="insuranceCity" type="text" [ngClass]="insuranceData.city == '' ? 'form-control required' : 'form-control completed'" placeholder="City required" (change)="insuranceChanged()">
+                            </div>
+                        </div>
+                        <div class="col-md-4 pr-1">
+                            <div class="form-group">
+                                <label>State</label>
+                                <input [(ngModel)]="insuranceData.state" maxlength="20" name="insuranceState" type="text" [ngClass]="insuranceData.state == '' ? 'form-control required' : 'form-control completed'" placeholder="State required" (change)="insuranceChanged()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-3 pr-1">
+                            <button type="button" (click)="backButtonClicked()" class="btn btn-primary" >Back</button>
+                            <button type="button" *ngIf="saveInsurance" (click)="saveButtonClicked()" class="btn btn-primary">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

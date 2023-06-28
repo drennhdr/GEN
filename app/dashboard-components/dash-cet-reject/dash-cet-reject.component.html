@@ -1,0 +1,64 @@
+  <!-- Summary Buttons                   -->
+  <div class="row">
+    <div class="col-md-12">
+        <div class="card" id="rejectSummary">
+            <div class="card-header">
+                <h5 class="title">CET Rejects</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-1 pr-1"></div>
+                    <div class="col-md-2 pr-1">
+                        <button type="button" style="width:100%; background-color:#3952A4;" class="btn btn-primary" >
+                          <!-- <img src="./assets/icons/Created.png" style="float: left; height: 40px; width: 40px;"> -->
+                          {{curMonthName}}<br>{{rejectData.currentReject}}
+                        </button>
+                    </div>
+                    <div class="col-md-1 pr-1"></div>
+                    <div class="col-md-2 pr-1">
+                        <button type="button" style="width:100%; background-color:#3952A4;" class="btn btn-primary" >
+                          <!-- <img src="./assets/icons/Created.png" style="float: left; height: 40px; width: 40px;"> -->
+                          {{lastMonthName}}<br>{{rejectData.lastMonthReject}}
+                        </button>
+                    </div>
+                    <div class="col-md-1 pr-1"></div>
+                    <div class="col-md-2 pr-1">
+                        <button type="button" style="width:100%; background-color:#3952A4;" class="btn btn-primary" >
+                          <!-- <img src="./assets/icons/Created.png" style="float: left; height: 40px; width: 40px;"> -->
+                          {{secondMonthName}}<br>{{rejectData.secondMonthReject}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" id="rejectChart">
+            <div class="col-md-12">
+                <div class="card card-chart">
+                    <div class="card-header">
+                      <h5 class="card-title">Last 30 Days</h5>
+                    </div>
+                    <div class="card-body">
+                      <div class="chart-area">
+                        <canvas baseChart id="chart"
+                                    [datasets]="chartData"
+                                    [labels]="chartLabels"
+                                    [colors]="chartColors"
+                                    [options]="chartOptions"
+                                    [chartType]="chartType"
+                                    (chartHover)="chartHovered($event)"
+                                    (chartClick)="chartClicked($event)"></canvas>
+                      </div>
+                    </div>
+                    <div class="card-footer">
+                      <div class="stats">
+                        <p></p>
+                        <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
+                        <p></p>
+                      </div>
+                    </div>
+                  </div>
+            </div>
+        </div>
+    </div>
+</div>

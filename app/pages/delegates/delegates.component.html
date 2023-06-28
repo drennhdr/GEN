@@ -1,0 +1,58 @@
+<!-- Page Name       : User                     -->
+<!-- Date Created    : 11/15/2022               -->
+<!-- Written By      : Stephen Farkas           -->
+<!-- Description     : Customer Entry / Edit    -->
+<!-- MM/DD/YYYY xxx  Description                -->
+<!--                                            -->
+<!-- ----------------------------------------------------------------------------- -->
+<div class="panel-header panel-header-sm">
+</div>
+<div class="main-content">
+    <div  id="topOfScreen"></div>
+
+        <!-- User Edit                                  -->  
+        <div id="userEditCard">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="title">Delegate Selection</h5>
+                        </div>
+                        <div class="card-body">
+                            <form name="delegate-form">
+                                <div class="row">
+                                    <div class="col-md-3  pr-1">
+                                        <div class="form-group" >
+                                            <label>Delegates</label>
+                                            <select multiple class="form-control" name="delegates" id="delegates" [(ngModel)]="delegateSelected" [disabled]="saved" >
+                                                <option *ngFor="let option of this.userList" [value]="option.userId">
+                                                {{option.firstName}} {{option.lastName}}
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 pr-1">
+                                        <div class="form-group" >
+                                            <label class="dark-label">
+                                                <input type="checkbox" name="attested" [(ngModel)]="attested" [disabled]="saved">
+                                                By selecting a Provider Delegate, you are authorizing your employees to (i) update specimen and order/requisition issues, (ii) make changes to practice information, (iii) resolve billing issues, and (iv) create, edit and submit orders for patients on your behalf. Orders submitted by provider delegates must be under your direction and supervision. Orders submitted by a provider delegate will be treated as submitted on your behalf and your electronic signature will be inserted on each individual requisition form.  It is your responsibility to closely monitor the submission of each order/requisition. Additionally, you are also responsible to manage who is authorized as your provider delegate on the Genesis Reference Laboratories portal. 
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="button" *ngIf="(attested && !saved)" (click)="saveButtonClicked()" class="btn btn-primary" >Save</button>
+                                <button type="button" *ngIf="(!saved)" (click)="cancelButtonClicked()" class="btn btn-primary" >Cancel</button>
+
+                                <div class="form-group">
+                                    <textarea rows="3" cols="80" class= "form-control alert-login">{{errorMessage}}</textarea>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+</div>

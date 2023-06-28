@@ -1,0 +1,95 @@
+<!-- Page Name       : Insurance-Modal              -->
+<!-- Date Created    : 02/01/2023                   -->
+<!-- Written By      : Stephen Farkas               -->
+<!-- Description     : Insuarnace Modal             -->
+<!-- MM/DD/YYYY xxx  Description                    -->
+<!-- ------------------------------------------------------------------------------->
+<div class="modal-header">
+    <h4 class="modal-title">Enter Note</h4>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <div class="col-md-8  pr-1">
+            <div class="form-group" >
+                <label>Name</label>
+                <input [(ngModel)]="insuranceData.name" maxlength="50" name="insuranceName" type="text" class="form-control required" (change)="insuranceChanged()">
+            </div>
+        </div>
+        <div class="col-md-2 pr-1">
+            <div class="form-group" >
+                <label>Active</label>
+                <div class="custom-control custom-switch">
+                    <input type="checkbox" class="custom-control-input" id="insuranceActive" name="insuranceActive" [(ngModel)]="insuranceData.active" (change)="insuranceChanged()">
+                    <label class="custom-control-label" for="insuranceActive"></label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-8 pr-1">
+            <div class="form-group" >
+                <label>Website</label>
+                <input [(ngModel)]="insuranceData.website" maxlength="60" name="insuranceWebasite" type="text" class="form-control" (change)="insuranceChanged()">
+            </div>
+        </div>
+        <div class="col-md-4 pr-1">
+            <div class="form-group" >
+                <label>Phone</label>
+                <input [(ngModel)]="insuranceData.phone" maxlength="15" name="insurancePhone" type="text" class="form-control required" (change)="insuranceChanged()">
+            </div>
+        </div>
+        
+    </div>
+    <div class="row">
+        <div class="col-md-8 pr-1">
+            <div class="form-group">
+                <label>Email</label>
+                <input [(ngModel)]="insuranceData.email" maxlength="60" name="insuranceEmail" type="text" class="form-control" (change)="insuranceChanged()">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-8  pr-1">
+            <div class="form-group" >
+                <label>Address 1</label>
+                <input [(ngModel)]="insuranceData.street1" maxlength="50" name="insuranceStreet1" type="text" class="form-control required" (change)="insuranceChanged()" placeholder="Street required">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-8  pr-1">
+            <div class="form-group">
+                <label>Address 2</label>
+                <input [(ngModel)]="insuranceData.street2" maxlength="30" name="insuranceStreet2" type="text" class="form-control" (change)="insuranceChanged()">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4 pr-1">
+            <div class="form-group">
+                <label>Zip Code</label>
+                <input [(ngModel)]="insuranceData.postalCode" maxlength="10" name="insurancePostal" type="text" class="form-control required" (change)="insuranceChanged()" placeholder="Zip Code required" (keyup)="zipKeypress($event)">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 pr-1">
+            <div class="form-group" >
+                <label>City</label>
+                <input [(ngModel)]="insuranceData.city" maxlength="30" name="insuranceCity" type="text" class="form-control required" placeholder="City required" (change)="insuranceChanged()">
+            </div>
+        </div>
+        <div class="col-md-4 pr-1">
+            <div class="form-group">
+                <label>State</label>
+                <input [(ngModel)]="insuranceData.state" maxlength="20" name="insuranceState" type="text" class="form-control" (change)="insuranceChanged()">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <button type="button" *ngIf="saveInsurance" (click)="saveButtonClicked()" class="btn btn-primary" >Save</button>
+            <button type="button" (click)="cancelButtonClicked()" class="btn btn-primary" >Cancel</button>
+        </div>
+    </div>
+</div>

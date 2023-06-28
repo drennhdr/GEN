@@ -1,0 +1,23 @@
+<!-- Page Name       : Message-Modal                -->
+<!-- Date Created    : 02/13/2023                   -->
+<!-- Written By      : Stephen Farkas               -->
+<!-- Description     : Message Modal                -->
+<!-- MM/DD/YYYY xxx  Description                    -->
+<!-- ------------------------------------------------------------------------------->
+<div class="modal-header">
+    <h4 class="modal-title">Message</h4>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <div class="col-md-12 pr-1">
+            <div class="form-group" >
+                <textarea rows = "6" [(ngModel)]="message"  name="note" type="text" [disabled]="true" class="form-control"></textarea>
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <button type="button" (click)="yesClicked()" class="btn btn-primary" >{{button1}}</button>
+            <button type="button" (click)="noClicked()" class="btn btn-primary" >{{button2}}</button>
+        </div>
+    </div>
+</div>
