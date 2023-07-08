@@ -10,6 +10,7 @@
 //04/06/2023 SJF Added DataShareService & check for data change on cancel/exit
 //04/10/2023 SJF Added DeleteAttachment
 //05/01/2023 SJF  Changed to new oral tox method
+//07/06/2023 SJF Added upload physician signature
 //-----------------------------------------------------------------------------
 // Data Passing
 //-----------------------------------------------------------------------------
@@ -34,6 +35,7 @@ import { CustomerAttachmentModel, CustomerAttachmentListItemModel} from '../../m
 import { CustomerNoteListModel, CustomerNoteListItemModel, CustomerNoteModel} from '../../models/CustomerNoteModel';
 import { UserModel, UserListItemModel, UserListModel, UserLocationModel } from '../../models/UserModel';
 import { CodeItemModel } from '../../models/CodeModel';
+import { UserSignatureModel } from '../../models/UserSignatureModel';
 import { Observable, ReplaySubject } from 'rxjs';
 import { Router } from '@angular/router';
 import { DataShareService } from '../../services/data-share.service';
@@ -56,6 +58,7 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
   locationData: any;
   userData: any;
   attachmentData: any;
+  physicianSignatureData: any;
   noteData: any;
   preferenceData: any;
   showError: boolean;
@@ -170,6 +173,8 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
   oralGabapentinoids: any;
   oralDissociative: any;
   oralOpioidAgonists: any;
+
+  signatureMessage: string;
 
   // Camera Variables
   picWidth = 600; //480;
@@ -457,9 +462,8 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
     // Initialze data to a blank record
     this.customerData = new CustomerModel();
     this.customerData.contractId = 0;
-    this.customerData.locations = new LocationModel();
-    this.customerData.locations.Address = new AddressModel();
-
+    this.customerData.locations = new Array<LocationListItemModel>();
+    
     // Set screen handling variables
     this.showSearch = false;
     this.showSearchList = false;
@@ -715,8 +719,6 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
     .subscribe(
     data => {
       if (data.valid) {
-
-        console.log("location",data);
         // Update list
         if (this.locationData.locationId == 0){
           // This is a new location
@@ -726,7 +728,12 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
           item.area = this.locationData.address.city + ' ' + this.locationData.address.state;
           item.phone = this.locationData.phone;
           item.email = this.locationData.email;
+
+          if (this.customerData.locations == null){
+            this.customerData.locations = new Array<LocationListItemModel>();
+          }
           this.customerData.locations.push(item);
+          
         }
         else {
           // Find in list and change
@@ -796,6 +803,7 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
 
   selectUserButtonClicked(userId: number){
     // Call the user service to get the data for the selected user
+    this.physicianSignatureData = new UserSignatureModel();
     this.userService.get( userId)
             .pipe(first())
             .subscribe(
@@ -823,6 +831,7 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
                 this.hideSummaryItems();
 
                 this.showUserEdit = true;
+                this.signatureMessage = "";
 
                 // Position screen
                 var elmnt = document.getElementById("topOfScreen");
@@ -842,6 +851,7 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
   }
 
   addUserButtonClicked(){
+    this.physicianSignatureData = new UserSignatureModel()
     this.userData = new UserModel();
     this.userData.customerId = this.customerId;
     this.userData.userId = 0;
@@ -1097,7 +1107,9 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
       this.stopDevice();
     }
 
+    console.log("FileUpload",this.fileUploaded);
     if (!this.fileUploaded){
+      console.log("Scanned");
       // Scanned image
       const doc = new jsPDF();
       var width = doc.internal.pageSize.getWidth();
@@ -1119,6 +1131,9 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
 
       this.attachmentData.fileAsBase64 = b64.replace("data:application/pdf;filename=generated.pdf;base64,", "");
     }
+
+    console.log("B64",this.attachmentData.fileAsBase64);
+
 
     this.customerService.saveCustomerAttachment( this.attachmentData)
           .pipe(first())
@@ -1209,10 +1224,7 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
     }
     else
     {
-      //console.log("Targe",target);
       var temp = target.files[0].name;
-      var posn = temp.indexOf(".",1);
-      //this.attachmentData.fileType = temp.substring(posn + 1, temp.length);
 
       this.attachmentData.fileType = event.target.files[0].type;
       //console.log("File Type:",fileType)
@@ -1221,6 +1233,8 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
         this.attachmentChanged();
       });
 
+      this.fileUploaded = true;
+      console.log("File",this.attachmentData.fileAsBase64);
 
     }
   }
@@ -1233,7 +1247,47 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
     return result;
   }
 
+  readSignatureFile(event: any){
+    const target: DataTransfer = <DataTransfer>(event.target);
+    if (target.files.length !== 1) {
+      throw new Error('Cannot get multiple files');
+    }
+    else
+    {
+      var temp = target.files[0].name;
+ 
+      this.physicianSignatureData.userSignatureId = 0;
+      this.physicianSignatureData.userId = this.userData.userId;
+      this.physicianSignatureData.dateCreated = formatDate(new Date() , 'MM-dd-yyyy HH:mm', 'en');
+      this.physicianSignatureData.fileType = event.target.files[0].type;
 
+      this.convertFile(event.target.files[0]).subscribe(base64 => {
+        this.physicianSignatureData.fileAsBase64 = base64;
+      });
+
+
+    }
+  }
+
+  saveSignatureClicked(){
+    // Save the image to the server
+
+    this.userService.saveSignature( this.physicianSignatureData )
+          .pipe(first())
+          .subscribe(
+          data => {
+            if (data.valid) {
+              this.signatureMessage = "Your signature has been updated."
+            }
+            else{
+              this.errorMessage = data.message;
+            }
+          },
+          error => {
+            this.errorMessage = error;
+          });
+
+  }
   // Notes
 
   selectNoteButtonClicked(noteId: number){

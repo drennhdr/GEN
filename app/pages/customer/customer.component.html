@@ -1101,46 +1101,78 @@
                             <!-- Physician  -->
                             <h5>Physician</h5>
                             <div class="row">
-                                <div class="col-md-3  pr-1">
-                                    <div class="form-group" >
-                                        <label>Physician</label>
-                                        <div class="custom-control custom-switch">
-                                            <input type="checkbox" class="custom-control-input" name="userPhysician" id="userPhysician" [(ngModel)]="userData.physician" (change)="userChanged()" [disabled]="accessLevel == 2">
-                                            <label class="custom-control-label" for="userPhysician"></label>
+                                <div class="col-md-6  pr-1">
+                                    <div class="row">
+                                        <div class="col-md-12  pr-1">
+                                            <div class="form-group" >
+                                                <label>Physician</label>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" class="custom-control-input" name="userPhysician" id="userPhysician" [(ngModel)]="userData.physician" (change)="userChanged()" [disabled]="accessLevel == 2">
+                                                    <label class="custom-control-label" for="userPhysician"></label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 pr-1">
+                                            <div class="form-group" >
+                                                <label>Prefix</label>
+                                                <input [(ngModel)]="userData.prefix" maxlength="10" name="userPrefix" type="text" class="form-control" (change)="userChanged()" [disabled]="accessLevel == 2">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 pr-1">
+                                            <div class="form-group">
+                                                <label>Suffix</label>
+                                                <input [(ngModel)]="userData.suffix" maxlength="10" name="userSuffix" type="text" class="form-control" (change)="userChanged()" [disabled]="accessLevel == 2">
+                                            </div>
+                                        </div>                            
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 pr-1">
+                                            <div class="form-group" >
+                                                <label>NPI</label>
+                                                <input [(ngModel)]="userData.npi" maxlength="20" name="userNPI" type="text" class="form-control" [ngClass]="userData.physician == true ? 'form-control required' : 'form-control'" (change)="userChanged()" [disabled]="accessLevel == 2">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 pr-1">
+                                            <div class="form-group">
+                                                <label>Pecos Enrolled</label>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" class="custom-control-input" id="pecosEnrolled" name="pecosEnrolled" [(ngModel)]="userData.pecosEnrolled" (change)="userChanged()" [disabled]="accessLevel == 2">
+                                                    <label class="custom-control-label" for="pecosEnrolled"></label>
+                                                </div>
+                                            </div>
+                                        </div>                            
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 pr-1" *ngIf="accessLevel == 1 && userData.physician && userData.userSignatureId == 0 && userData.userId > 0 && signatureMessage == ''">
+                                    <div class="row">
+                                        <div class="col-md-12  pr-1">
+                                            <label>Upload Physician Signature (must be a png)</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12  pr-1">
+                                            <!-- Import File -->
+                                            <input id="importSignatureButton" type="file" (change)="readSignatureFile($event)" 
+                                            class="upload input-common" required />
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12  pr-1">
+                                            <button type="button" *ngIf="physicianSignatureData.fileType=='image/png'" (click)="saveSignatureClicked()" class="btn btn-primary" >Save</button>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-3 pr-1">
-                                    <div class="form-group" >
-                                        <label>Prefix</label>
-                                        <input [(ngModel)]="userData.prefix" maxlength="10" name="userPrefix" type="text" class="form-control" (change)="userChanged()" [disabled]="accessLevel == 2">
-                                    </div>
-                                </div>
-                                <div class="col-md-3 pr-1">
-                                    <div class="form-group">
-                                        <label>Suffix</label>
-                                        <input [(ngModel)]="userData.suffix" maxlength="10" name="userSuffix" type="text" class="form-control" (change)="userChanged()" [disabled]="accessLevel == 2">
-                                    </div>
-                                </div>                            
-                            </div>
-                            <div class="row">
-                                <div class="col-md-3 pr-1">
-                                    <div class="form-group" >
-                                        <label>NPI</label>
-                                        <input [(ngModel)]="userData.npi" maxlength="20" name="userNPI" type="text" class="form-control" [ngClass]="userData.physician == true ? 'form-control required' : 'form-control'" (change)="userChanged()" [disabled]="accessLevel == 2">
-                                    </div>
-                                </div>
-                                <div class="col-md-3 pr-1">
-                                    <div class="form-group">
-                                        <label>Pecos Enrolled</label>
-                                        <div class="custom-control custom-switch">
-                                            <input type="checkbox" class="custom-control-input" id="pecosEnrolled" name="pecosEnrolled" [(ngModel)]="userData.pecosEnrolled" (change)="userChanged()" [disabled]="accessLevel == 2">
-                                            <label class="custom-control-label" for="pecosEnrolled"></label>
+
+                                <div class="col-md-6 pr-1" *ngIf="signatureMessage != ''">
+                                    <div class="row">
+                                        <div class="col-md-12  pr-1">
+                                            <label>{{signatureMessage}}</label>
                                         </div>
                                     </div>
-                                </div>                            
+                                </div>
                             </div>
 
                             <!-- Credentials  -->
