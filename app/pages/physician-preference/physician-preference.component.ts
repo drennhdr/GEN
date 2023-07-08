@@ -385,6 +385,8 @@ export class PhysicianPreferenceComponent implements OnInit {
     const initialState: ModalOptions = {
       initialState: {
         message: "Are you sure that you wish to sunset the order?",
+        button1:"Yes",
+        button2:"No",
       }
     };
     

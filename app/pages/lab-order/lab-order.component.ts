@@ -52,7 +52,6 @@ import { PdfRPPService } from '../../services/pdfRPP.service';
 import { PdfUTISTIService } from '../../services/pdfUTISTI.service';
 import { PdfToxUrineService } from '../../services/pdfToxUrine.Service';
 import { PdfToxOralService } from '../../services/pdfToxOral.service';
-import { PdfOrderListService} from '../../services/pdfOrderList.service';
 //import { DatePipe } from '@angular/common'
 
 import jsPDF from 'jspdf';
@@ -413,7 +412,6 @@ export class LabOrderComponent implements OnInit {
     private pdfToxOralService: PdfToxOralService,
     private dataShareService: DataShareService,
     private insuranceService: InsuranceService,
-    private pdfOrderListService: PdfOrderListService,
     //private datePipe: DatePipe,
   ) { }
 
@@ -488,6 +486,7 @@ export class LabOrderComponent implements OnInit {
     this.userType = Number(sessionStorage.getItem('userType'));
     this.signatureId = Number(sessionStorage.getItem('signatureId'));
     this.locationId = Number(sessionStorage.getItem('locationId'));
+    this.delegates = JSON.parse(sessionStorage.getItem('delegate'));
 
     console.log("Location",this.locationId);
     this.checkList = new Array<CodeItemModel>();
@@ -543,10 +542,19 @@ export class LabOrderComponent implements OnInit {
 
       this.collectionTime = '';
 
+      console.log('DG',this.delegates);
+
       this.delegateSearch = false;
+
       if (this.delegates != null){
-        this.delegateSearch = true;
+        this.delegates.forEach(item => {
+          if (item.userId_Delegate == this.userId){
+            this.delegateSearch = true;
+          }
+        });
       }
+
+      console.log('DGS',this.delegateSearch);
 
       if (this.patientId != 0)
       {
@@ -1854,88 +1862,12 @@ export class LabOrderComponent implements OnInit {
     let data = this.labOrderService.loadRPPData(this.labOrderData.specimens[0].tests )
     this.rppData = data; 
 
-    //if (this.labOrderData.collectionDevice == 3){
     if (this.labOrderData.specimens[0].collectionDeviceId == 3){
       this.rppData.swab = true;
     }
     else{
       this.rppData.saliva = true;
     }
-    // if (this.labOrderData.specimens[0].tests != null){
-    //   this.labOrderData.specimens[0].tests.forEach( (item) =>{
-    //     switch (item.labTestId)
-    //     {
-    //       case 4000:
-    //           this.rppData.fullRespiratory = true;
-    //           break;
-    //       case 4100:
-    //           this.rppData.viralTargets = true;
-    //           this.rppItemData.influenzaA = true;
-    //           this.rppItemData.influenzaB= true;
-    //           this.rppItemData.parainfluenza= true;
-    //           this.rppItemData.adenovirus= true;
-    //           this.rppItemData.bocavirus= true;
-    //           this.rppItemData.coronavirus= true;
-    //           this.rppItemData.rhinovirus= true;
-    //           this.rppItemData.parechovirus= true;
-    //           this.rppItemData.respiratorySyncytial= true;
-    //           this.rppItemData.metapneumovirus= true;
-    //           break;
-    //       case 4200:
-    //           this.rppData.bacterialTargets  = true;
-    //           this.rppItemData.mycoplasmaPneumoniae= true;
-    //           this.rppItemData.chlamydiaPneumoniae= true;
-    //           this.rppItemData.ctreptococcusPneumoniae= true;
-    //           this.rppItemData.klebsiellaPneumoniae= true;
-    //           this.rppItemData.haemophilusInfluenza= true;
-    //           this.rppItemData.legionellaPneumophila= true;
-    //           this.rppItemData.moraxellaCatarrhalis= true;
-    //           this.rppItemData.bordatellaSpecies= true;
-    //           this.rppItemData.staphlococcusAureus= true;
-    //           break;
-    //       case 4300:
-    //           this.rppData.covidOnly = true;
-    //           break;
-    //       case 4400:
-    //           this.rppData.covidThenReflux = true;
-    //           this.rppItemData.covidParainfluenza= true;
-    //           this.rppItemData.covidInfluenzaA= true;
-    //           this.rppItemData.covidInfluenzaB= true;
-    //           this.rppItemData.covidRespiratory= true;
-    //           this.rppItemData.covidRhinovirus= true;
-    //           this.rppItemData.covidStreptococcus= true;
-    //           this.rppItemData.covidChlamydia= true;
-    //           this.rppItemData.covidLegionella= true;
-    //           this.rppItemData.covidHaemophilus= true;
-    //           break;
-    //       case 4500:
-    //           this.rppData.moderateAssessment = true;
-    //           this.rppItemData.covidParainfluenza= true;
-    //           this.rppItemData.covidInfluenzaA= true;
-    //           this.rppItemData.covidInfluenzaB= true;
-    //           this.rppItemData.covidRespiratory= true;
-    //           this.rppItemData.covidRhinovirus= true;
-    //           this.rppItemData.covidStreptococcus= true;
-    //           this.rppItemData.covidChlamydia= true;
-    //           this.rppItemData.covidLegionella= true;
-    //           this.rppItemData.covidHaemophilus= true;
-    //           break;
-    //       case 4600:
-    //           this.rppData.covidPlusModerate = true;
-    //           this.rppItemData.covidParainfluenza= true;
-    //           this.rppItemData.covidInfluenzaA= true;
-    //           this.rppItemData.covidInfluenzaB= true;
-    //           this.rppItemData.covidRespiratory= true;
-    //           this.rppItemData.covidRhinovirus= true;
-    //           this.rppItemData.covidStreptococcus= true;
-    //           this.rppItemData.covidChlamydia= true;
-    //           this.rppItemData.covidLegionella= true;
-    //           this.rppItemData.covidHaemophilus= true;
-    //           break;
-
-    //     }
-    //   });
-    // }
   }
 
   labMessageButtonClicked(){
@@ -3567,13 +3499,16 @@ export class LabOrderComponent implements OnInit {
   }
 
   rppCollectionChanged(value: number){
+    console.log("Value,value");
+    console.log("Swab",this.rppData.swab);
+    console.log("Saliva",this.rppData.saliva);
     if (value == 2 && this.rppData.swab == false){
-      value = 3;
+      value = 1;
     }
-    else if (value == 3 && this.rppData.saliva == false){
+    else if (value == 1 && this.rppData.saliva == false){
       value = 2;
     }
-    if (value == 3){
+    if (value == 1){
       this.rppData.swab = true;
       this.rppData.saliva = false;
     }
@@ -4047,11 +3982,9 @@ export class LabOrderComponent implements OnInit {
 
   loadRPPFromTest(){
     if (this.rppData.swab){
-      //this.labOrderData.collectionDevice = 3;
       this.labOrderData.specimens[0].collectionDeviceId = 3;
     }
     else{
-      //this.labOrderData.collectionDevice = 2;
       this.labOrderData.specimens[0].collectionDeviceId = 2;
     }
     if (this.rppData.fullRespiratory)
@@ -4061,243 +3994,52 @@ export class LabOrderComponent implements OnInit {
         test.labOrderSpecimenId = this.specimenId;
         this.labOrderData.specimens[0].tests.push(test);
     }
-    if (this.rppData.viralTargets)
-    {
-        var test = new LabOrderTestItemModel();
-        test.labTestId = 4100;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test);
-        var test2 = new LabOrderTestItemModel();
-        test2.labTestId = 4101;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test2);
-        var test3 = new LabOrderTestItemModel();
-        test3.labTestId = 4102;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test3);
-        var test4 = new LabOrderTestItemModel();
-        test4.labTestId = 4103;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test4);
-        var test5 = new LabOrderTestItemModel();
-        test5.labTestId = 4104;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test5);
-        var test6 = new LabOrderTestItemModel();
-        test6.labTestId = 4105;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test6);
-        var test7 = new LabOrderTestItemModel();
-        test7.labTestId = 4106;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test7);
-        var test8 = new LabOrderTestItemModel();
-        test8.labTestId = 4107;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test8);
-        var test9 = new LabOrderTestItemModel();
-        test9.labTestId = 4108;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test9);
-        var test10 = new LabOrderTestItemModel();
-        test10.labTestId = 4109;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test10);
-    }
-    if (this.rppData.bacterialTargets)
-    {
-        var test = new LabOrderTestItemModel();
-        test.labTestId = 4200;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test);
-        var test2 = new LabOrderTestItemModel();
-        test2.labTestId = 4201;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test2);
-        var test3 = new LabOrderTestItemModel();
-        test3.labTestId = 4202;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test3);
-        var test4 = new LabOrderTestItemModel();
-        test4.labTestId = 4203;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test4);
-        var test5 = new LabOrderTestItemModel();
-        test5.labTestId = 4204;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test5);
-        var test6 = new LabOrderTestItemModel();
-        test6.labTestId = 4205;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test6);
-        var test7 = new LabOrderTestItemModel();
-        test7.labTestId = 4206;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test7);
-        var test8 = new LabOrderTestItemModel();
-        test8.labTestId = 4207;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test8);
-        var test9 = new LabOrderTestItemModel();
-        test9.labTestId = 4208;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test9);
-        var test10 = new LabOrderTestItemModel();
-        test10.labTestId = 4209;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test10);
-        var test11 = new LabOrderTestItemModel();
-        test11.labTestId = 4210;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test11);
-    }
-    if (this.rppData.covidOnly)
-    {
-        var test = new LabOrderTestItemModel();
-        test.labTestId = 4300;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test);
-    }
-    if (this.rppData.covidThenReflux)
-    {
-        var test = new LabOrderTestItemModel();
-        test.labTestId = 4600;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test);
-        var test1 = new LabOrderTestItemModel();
-        test1.labTestId = 4401;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test1);
-        var test2 = new LabOrderTestItemModel();
-        test2.labTestId = 4402;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test2);
-        var test3 = new LabOrderTestItemModel();
-        test3.labTestId = 4403;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test3);
-        var test4 = new LabOrderTestItemModel();
-        test4.labTestId = 4404;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test4);
-        var test5 = new LabOrderTestItemModel();
-        test5.labTestId = 4405;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test5);
-        var test6 = new LabOrderTestItemModel();
-        test6.labTestId = 4406;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test6);
-        var test7 = new LabOrderTestItemModel();
-        test7.labTestId = 4407;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test7);
-        var test8 = new LabOrderTestItemModel();
-        test8.labTestId = 4408;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test8);
-        var test9 = new LabOrderTestItemModel();
-        test9.labTestId = 4409;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test9);
-        var test10 = new LabOrderTestItemModel();
-        test10.labTestId = 4410;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test10);
-    }
-    if (this.rppData.covidPlusModerate)
-    {
-        var test = new LabOrderTestItemModel();
-        test.labTestId = 4500;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test);
-        var test1 = new LabOrderTestItemModel();
-        test1.labTestId = 4401;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test1);
-        var test2 = new LabOrderTestItemModel();
-        test2.labTestId = 4402;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test2);
-        var test3 = new LabOrderTestItemModel();
-        test3.labTestId = 4403;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test3);
-        var test4 = new LabOrderTestItemModel();
-        test4.labTestId = 4404;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test4);
-        var test5 = new LabOrderTestItemModel();
-        test5.labTestId = 4405;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test5);
-        var test6 = new LabOrderTestItemModel();
-        test6.labTestId = 4406;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test6);
-        var test7 = new LabOrderTestItemModel();
-        test7.labTestId = 4407;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test7);
-        var test8 = new LabOrderTestItemModel();
-        test8.labTestId = 4408;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test8);
-        var test9 = new LabOrderTestItemModel();
-        test9.labTestId = 4409;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test9);
-        var test10 = new LabOrderTestItemModel();
-        test10.labTestId = 4410;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test10);
-    }
-    if (this.rppData.moderateAssessment)
-    {
-        var test = new LabOrderTestItemModel();
-        test.labTestId = 4500;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test);
-        var test1 = new LabOrderTestItemModel();
-        test1.labTestId = 4401;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test1);
-        var test2 = new LabOrderTestItemModel();
-        test2.labTestId = 4402;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test2);
-        var test3 = new LabOrderTestItemModel();
-        test3.labTestId = 4403;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test3);
-        var test4 = new LabOrderTestItemModel();
-        test4.labTestId = 4404;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test4);
-        var test5 = new LabOrderTestItemModel();
-        test5.labTestId = 4405;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test5);
-        var test6 = new LabOrderTestItemModel();
-        test6.labTestId = 4406;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test6);
-        var test7 = new LabOrderTestItemModel();
-        test7.labTestId = 4407;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test7);
-        var test8 = new LabOrderTestItemModel();
-        test8.labTestId = 4408;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test8);
-        var test9 = new LabOrderTestItemModel();
-        test9.labTestId = 4409;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test9);
-        var test10 = new LabOrderTestItemModel();
-        test10.labTestId = 4410;
-        test.labOrderSpecimenId = this.specimenId;
-        this.labOrderData.specimens[0].tests.push(test10);
+    else{
+      if (this.rppData.viralTargets)
+      {
+          var test = new LabOrderTestItemModel();
+          test.labTestId = 4100;
+          test.labOrderSpecimenId = this.specimenId;
+          this.labOrderData.specimens[0].tests.push(test);
+      }
+      if (this.rppData.bacterialTargets)
+      {
+          var test = new LabOrderTestItemModel();
+          test.labTestId = 4200;
+          test.labOrderSpecimenId = this.specimenId;
+          this.labOrderData.specimens[0].tests.push(test);
+      }
+      if (this.rppData.covidOnly)
+      {
+          var test = new LabOrderTestItemModel();
+          test.labTestId = 4300;
+          test.labOrderSpecimenId = this.specimenId;
+          this.labOrderData.specimens[0].tests.push(test);
+      }
+      if (this.rppData.covidThenReflux)
+      {
+          var test = new LabOrderTestItemModel();
+          test.labTestId = 4400;
+          test.labOrderSpecimenId = this.specimenId;
+          this.labOrderData.specimens[0].tests.push(test);
+          var test1 = new LabOrderTestItemModel();
+      }
+      if (this.rppData.covidPlusModerate)
+      {
+          var test = new LabOrderTestItemModel();
+          test.labTestId = 4600;
+          test.labOrderSpecimenId = this.specimenId;
+          this.labOrderData.specimens[0].tests.push(test);
+          var test1 = new LabOrderTestItemModel();
+      }
+      if (this.rppData.moderateAssessment)
+      {
+          var test = new LabOrderTestItemModel();
+          test.labTestId = 4500;
+          test.labOrderSpecimenId = this.specimenId;
+          this.labOrderData.specimens[0].tests.push(test);
+          var test1 = new LabOrderTestItemModel();
+      }
     }
   }
   // Tox Urine
@@ -7124,13 +6866,10 @@ export class LabOrderComponent implements OnInit {
       this.fileUploaded = true;
       this.attachmentData.fileType = event.target.files[0].type;
 
-      //console.log("File Type:",fileType)
       this.convertFile(event.target.files[0]).subscribe(base64 => {
         this.attachmentData.fileAsBase64 = base64;
         this.attachmentChanged();
       });
-
-
     }
   }
 
@@ -7529,10 +7268,6 @@ export class LabOrderComponent implements OnInit {
       sex = "M"
     }
 
-    // console.log(this.labOrderData.specimens[0].collectionDate);
-    // console.log(formatDate(this.labOrderData.specimens[0].collectionDate,'MM/dd/yyyy','en'));
-
-    console.log("Lab Order",this.labOrderData);
     var specimenBarcode = this.labOrderData.specimens[0].specimenBarcode;
     var firstName = this.labOrderData.firstName;
     var lastName = this.labOrderData.lastName;
@@ -7545,9 +7280,11 @@ export class LabOrderComponent implements OnInit {
       collectionDate = "Missing";
     }
     else{
-      collectionDate = formatDate(this.labOrderData.specimens[0].collectionDate,'MM/dd/yyyy','en');
+      collectionDate = formatDate((this.labOrderData.specimens[0].collectionDate + 'Z').toLocaleString(),'MM/dd/yyyy','en');
     }
+
     JSPrintManager.auto_reconnect = true;
+    JSPrintManager.license_url = "https://www.neodynamic.com/licenses/jspm/v5/genuin-health"; 
     JSPrintManager.start();
     JSPrintManager.WS.onStatusChanged = function () {
 
@@ -7876,34 +7613,7 @@ export class LabOrderComponent implements OnInit {
   }
 
   printListButtonClicked() {
-    var doc = this.pdfOrderListService.generateReport(this.searchData, this.corpUser);
-
-
-    this.pdfData.specimenId = this.labOrderData.specimens[0].labOrderSpecimenId;
-
-    this.pdfData.fileType = "application/pdf";
-
-    var b64 = doc.output('datauristring'); // base64 string
-
-    this.pdfData.fileAsBase64 = b64.replace("data:application/pdf;filename=generated.pdf;base64,", "");
-
-    // Show the document
-    const binaryString = window.atob(this.pdfData.fileAsBase64);
-    const len = binaryString.length;
-    const bytes = new Uint8Array(len);
-    for (let i = 0; i < len; ++i) {
-      bytes[i] = binaryString.charCodeAt(i);
-    }
-
-
-    var fileblob = new Blob([bytes], { type: this.pdfData.fileType });
-
-    var url = window.URL.createObjectURL(fileblob); 
-
-    let anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.target = "_blank"
-    anchor.click();
+    
 
 
   }
