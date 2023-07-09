@@ -1605,32 +1605,10 @@ toxOralFullPanel: boolean = false;
     }
     else
     {
-      //console.log("Targe",target);
-      // var temp = target.files[0].name;
-      // var posn = temp.indexOf(".",1);
-      //this.attachmentData.fileType = temp.substring(posn + 1, temp.length);
 
       this.fileUploaded = true;
       this.attachmentData.fileType = event.target.files[0].type;
-      // Convert file to a pdf
-      //var docxConverter = require('docx-pdf');
 
-      // docxConverter(target.files[0].name,'C:/temp/gentemp.pdf',function(err,result){
-      //   if(err){
-      //     console.log(err);
-      //   }
-      //   console.log('result'+result);
-
-      //   const reader = new FileReader());
-      //   reader.read('C:/temp/gentemp.pdf');
-      //   reader.onload = () => {
-      //       console.log(reader.result);
-      //   };
-      // });
-
-
-
-      //console.log("File Type:",fileType)
       this.convertFile(event.target.files[0]).subscribe(base64 => {
         this.attachmentData.fileAsBase64 = base64;
         this.attachmentChanged();
@@ -2121,7 +2099,7 @@ toxOralFullPanel: boolean = false;
     var lastName = this.patientData.lastName;
     var dob = formatDate(this.patientData.dob,'MM/dd/yyyy','en');
     var location = this.labOrderData.facilityCode;
-    var collectionDate = formatDate(this.labOrderData.collectionDate,'MM/dd/yyyy','en');
+    var collectionDate = formatDate((this.labOrderData.collectionDate + 'Z').toLocaleString(),'MM/dd/yyyy','en');
 
     JSPrintManager.auto_reconnect = true;
     JSPrintManager.start();

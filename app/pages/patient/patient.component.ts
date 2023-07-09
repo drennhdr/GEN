@@ -1616,18 +1616,16 @@ export class PatientComponent implements OnInit, AfterViewChecked {
     }
     else
     {
-      //console.log("Targe",target);
       var temp = target.files[0].name;
       var posn = temp.indexOf(".",1);
-      //this.attachmentData.fileType = temp.substring(posn + 1, temp.length);
 
       this.attachmentData.fileType = event.target.files[0].type;
-      //console.log("File Type:",fileType)
+
       this.convertFile(event.target.files[0]).subscribe(base64 => {
         this.attachmentData.fileAsBase64 = base64;
         this.attachmentChanged();
       });
-
+      this.fileUploaded = true;
 
     }
   }
@@ -2643,8 +2641,9 @@ export class PatientComponent implements OnInit, AfterViewChecked {
       collectionDate = "Missing";
     }
     else{
-      collectionDate = formatDate(this.labOrderData.specimens[0].collectionDate,'MM/dd/yyyy','en');
+      collectionDate = formatDate((this.labOrderData.specimens[0].collectionDate + 'Z').toLocaleString(),'MM/dd/yyyy','en');
     }
+
     JSPrintManager.auto_reconnect = true;
     JSPrintManager.start();
     JSPrintManager.WS.onStatusChanged = function () {

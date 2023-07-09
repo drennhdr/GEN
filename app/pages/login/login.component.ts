@@ -26,8 +26,7 @@ export class LoginComponent implements OnInit {
   userError: string;
   resetCodeGenerated: string;
   corpdashboardUrl: string = "/dashboard";
-  warehousedashboardUrl: string = "/dashboard-warehouse";
-  orderStatusUrl: string = "/order-status";
+
   loginText: string = "Login";
   getCodeText: string = "Get Code";
   validateText: string = "Validate";
