@@ -1,0 +1,5 @@
+{
+    "angular.enable-strict-mode-prompt": false,
+    "appService.defaultWebAppToDeploy": "/subscriptions/f927caf0-542c-420b-95ff-6fc0a2c016ac/AppServices/subscriptions/f927caf0-542c-420b-95ff-6fc0a2c016ac/resourceGroups/Portal/providers/Microsoft.Web/sites/genesisportal",
+    "appService.deploySubpath": "dist"
+}

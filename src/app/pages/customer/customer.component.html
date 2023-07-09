@@ -1,0 +1,2231 @@
+<!-- Page Name       : Customer                 -->
+<!-- Date Created    : 08/02/2022               -->
+<!-- Written By      : Stephen Farkas           -->
+<!-- Description     : Customer Entry / Edit    -->
+<!-- MM/DD/YYYY xxx  Description                -->
+<!-- 11/04/2022 SJF  Renamed to Account Information -->
+<!-- ----------------------------------------------------------------------------- -->
+<div class="panel-header panel-header-sm">
+</div>
+<div class="main-content">
+    <div  id="topOfScreen"></div>
+    <!-- Search                   -->
+    <div class="row" *ngIf="showSearch && accessLevel != 3" id="customerSeearchCard">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-md-9 pr-1">
+                            <h5 class="title">Account Search</h5>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <button type="button" (click)="clearSearchButtonClicked()" class="btn btn-primary" >Clear Search Criteria</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                <form name="search-form">
+                    <div class="row">
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Name</label>
+                                <input [(ngModel)]="searchName" maxlength="100" name="searchName" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-2 pr-1">
+                            <div class="form-group" >
+                                <label>Facility Code</label>
+                                <input [(ngModel)]="searchCode" maxlength="10" name="searchCode" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-1 pr-1">
+                            <div class="form-group" >
+                                <label>Status</label>
+                                <select class="form-control" id="activeSearch" name="activeSearch" [(ngModel)]="searchActive">
+                                    <option *ngFor="let option of activeSearchList" [value]="option.id">
+                                    {{option.description}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>City</label>
+                                <input [(ngModel)]="searchCity" maxlength="30" name="searchCity" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>State</label>
+                                <input [(ngModel)]="searchState" maxlength="20" name="searchState" type="text" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Region</label>
+                                <select class="form-control" id="regionSearch" name="regionSearch" [(ngModel)]="searchRegion">
+                                    <option *ngFor="let option of regionSearchList" [value]="option.id">
+                                    {{option.description}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>AM</label>
+                                <select class="form-control" id="amSearch" name="amSearch" [(ngModel)]="searchAM" [disabled]="salesFlag">
+                                    <option *ngFor="let option of amSearchList" [value]="option.id">
+                                    {{option.description}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>TM</label>
+                                <select class="form-control" id="tmSearch" name="tmSearch" [(ngModel)]="searchTM" [disabled]="salesFlag">
+                                    <option *ngFor="let option of tmSearchList" [value]="option.id">
+                                    {{option.description}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>RM</label>
+                                <select class="form-control" id="rmSearch" name="rmSearch" [(ngModel)]="searchRM" [disabled]="salesFlag">
+                                    <option *ngFor="let option of rmSearchList" [value]="option.id">
+                                    {{option.description}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" (click)="searchButtonClicked()" class="btn btn-primary" >Search</button>
+                    <button type="button" (click)="addButtonClicked()" class="btn btn-primary"  [disabled]="salesFlag">Add</button>
+                </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Items Returned From Search                                  -->
+    <div class="row" *ngIf="showSearchList" id="customerSerchListCard">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Accounts</h4>
+                    <p class="category">Select an account</p>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                    <table class="table table-striped" datatable >
+                        <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
+                        <thead class=" text-primary">
+                            <th>Name</th>
+                            <th>Code</th>
+                            <th>Phone</th>
+                            <th>Address</th>
+                            <th>Area</th>
+                            <th>Notes</th>
+                        </thead>
+                        <tbody>
+                        <tr *ngFor="let item of customerSearchData">
+                            <td><a style="color:blue" (click)="selectButtonClicked(item.customerId)">{{item.name}}</a></td>
+                            <td>{{item.facilityCode}}</td>
+                            <td>{{item.phone}}</td>
+                            <td>{{item.street1}}</td>
+                            <td>{{item.area}}</td>
+                            <td>{{item.notes}}</td>
+                            <td><button type="button" (click)="selectButtonClicked(item.customerId)" class="btn btn-primary" >Select</button></td>                    
+                        </tr>
+                        
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Show the customer details                -->
+    <div class="row" *ngIf="showCustomer" >
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="title">Account Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 pr-1">
+                            <div class="form-group" >
+                                <label>Clinic/Practice Name</label>
+                                <input [(ngModel)]="customerData.name" maxlength="100" name="locationName" type="text" [ngClass]="customerData.name == '' ? 'form-control required' : 'form-control completed'" placeholder="Name required" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">                  
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>Facility Code</label>
+                                <input [(ngModel)]="customerData.facilityCode" maxlength="20" name="facilityCode" type="text" class="form-control" [disabled]="true">
+                            </div>
+                        </div>
+                        <div class="col-md-2 pr-1">
+                            <div class="form-group">
+                                <label>Account Type</label>
+                                <select class="form-control" id="accountType" name="accountType" [(ngModel)]="customerData.accountTypeId"  (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                    <option *ngFor="let option of accountTypeList" [value]="option.id">
+                                    {{option.description}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-1 pr-1">
+                            <div class="form-group">
+                                <label>Active</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="active" name="active" [(ngModel)]="customerData.active"  (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                    <label class="custom-control-label" for="active"></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 pr-1">
+                            <div class="form-group">
+                                <label>Contact Name</label>
+                                <input [(ngModel)]="customerData.contactName" maxlength="40" name="contactName" type="test" [ngClass]="customerData.contactName == '' ? 'form-control required' : 'form-control completed'" placeholder="Contact Name required" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>Position</label>
+                                <input [(ngModel)]="customerData.contactPosition" maxlength="20" name="contactPostion" type="text" [ngClass]="customerData.contactPosition == '' ? 'form-control required' : 'form-control completed'" placeholder="Contact Position required" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                            </div>
+                        </div>
+                        <div class="col-md-5 pr-1">
+                            <div class="form-group">
+                                <label>Email Address</label>
+                                <input [(ngModel)]="customerData.contactEmail" maxlength="60" name="contactEmail" type="text" [ngClass]="customerData.contactEmail == '' ? 'form-control required' : 'form-control completed'" placeholder="Enter a valid email" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                            </div>
+                        </div>
+                        
+                    </div>  
+                    <div class="row">   
+                        <div class="col-md-9">
+                            <div class="row">
+                                <div class="col-md-4 pr-1">
+                                    <div class="form-group">
+                                        <label>Billing Type</label>
+                                        <select class="form-control" id="billingType" name="billingType" [(ngModel)]="customerData.customerBillingTypeId" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                        <option *ngFor="let option of billingTypeList" [value]="option.id">
+                                            {{option.description}}
+                                        </option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 pr-1">
+                                    <div class="form-group">
+                                        <label>Require Insurance</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="requireInsurance" name="requireInsurance" [(ngModel)]="customerData.requireInsurance"  (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                            <label class="custom-control-label" for="requireInsurance"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 pr-1">
+                                    <div class="form-group">
+                                        <label>Use Ship Log</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="shipLog" name="shipLog" [(ngModel)]="customerData.shipLog"  (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                            <label class="custom-control-label" for="shipLog"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 pr-1">
+                                    <div class="form-group">
+                                        <label>Share Patients Accross Locations</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="sharePatients" name="sharePatients" [(ngModel)]="customerData.sharePatients"  (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                            <label class="custom-control-label" for="sharePatients"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 pr-1">
+                                    <div class="form-group">
+                                        <label>Allow Self Pay</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="allowSelfPay" name="allowSelfPay" [(ngModel)]="customerData.allowSelfPay"  (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                            <label class="custom-control-label" for="allowSelfPay"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 pr-1">
+                                    <div class="form-group">
+                                        <label>Parole Officer</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="parolOfficer" name="parolOfficer" [(ngModel)]="customerData.parolOfficer"  (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                            <label class="custom-control-label" for="parolOfficer"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3  pr-1">
+                            <div class="form-group" >
+                                <label>LCS</label>
+                                <select multiple class="form-control" name="lcs" id="lcs" [(ngModel)]="lcsSelected" (change)="customerChanged()"  [disabled]="accessLevel == 2">
+                                    <option *ngFor="let option of lcsList" [value]="option.id">
+                                    {{option.description}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>Region</label>
+                                <select class="form-control" id="region" name="region" [(ngModel)]="customerData.regionId" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                    <option *ngFor="let option of regionList" [value]="option.id">
+                                        {{option.description}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>AM</label>
+                                <select class="form-control" id="AM" name="AM" [(ngModel)]="customerData.userId_AM" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                    <option *ngFor="let option of amList" [value]="option.id">
+                                        {{option.description}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>TM</label>
+                                <select class="form-control" id="TM" name="TM" [(ngModel)]="customerData.userId_TM" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                    <option *ngFor="let option of tmList" [value]="option.id">
+                                        {{option.description}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>RM</label>
+                                <select class="form-control" id="RM" name="RM" [(ngModel)]="customerData.userId_RM" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                    <option *ngFor="let option of rmList" [value]="option.id">
+                                        {{option.description}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <h5>Services</h5>
+                    <div class="row">
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>Toxicology Urine</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="ToxUrine" name="ToxUrine" [(ngModel)]="customerData.service_ToxUrine" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                    <label class="custom-control-label" for="ToxUrine"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>Toxicology Urine Lab</label>
+                                <select class="form-control" id="labToxUrine" name="labToxUrine" [(ngModel)]="customerData.lab_ToxUrine" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                <option *ngFor="let option of labToxUrineList" [value]="option.id">
+                                    {{option.description}}
+                                </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>Toxicology Oral</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="ToxOral" name="ToxOral" [(ngModel)]="customerData.service_ToxOral" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                    <label class="custom-control-label" for="ToxOral"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>Toxicology Oral Lab</label>
+                                <select class="form-control" id="labToxOral" name="labToxOral" [(ngModel)]="customerData.lab_ToxOral" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                <option *ngFor="let option of labToxOralList" [value]="option.id">
+                                    {{option.description}}
+                                </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>RPP</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="RPP" name="RPP" [(ngModel)]="customerData.service_RPP" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                    <label class="custom-control-label" for="RPP"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>RPP Lab</label>
+                                <select class="form-control" id="labRPP" name="labRPP" [(ngModel)]="customerData.lab_RPP" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                <option *ngFor="let option of labRPPList" [value]="option.id">
+                                    {{option.description}}
+                                </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>UTI/STI</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="UTI" name="UTI" [(ngModel)]="customerData.service_UTISTI" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                    <label class="custom-control-label" for="UTI"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>UTI/STI Lab</label>
+                                <select class="form-control" id="labUTI" name="labUTI" [(ngModel)]="customerData.lab_UTISTI" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                <option *ngFor="let option of labUTIList" [value]="option.id">
+                                    {{option.description}}
+                                </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>GPP</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="GPP" name="GPP" [(ngModel)]="customerData.service_GPP" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                    <label class="custom-control-label" for="GPP"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>GPP Lab</label>
+                                <select class="form-control" id="labGPP" name="labGPP" [(ngModel)]="customerData.lab_GPP" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                <option *ngFor="let option of labGPPList" [value]="option.id">
+                                    {{option.description}}
+                                </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>Urinalysis</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="Urinalysis" name="Urinalysis" [(ngModel)]="customerData.service_Urinalysis" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                    <label class="custom-control-label" for="Urinalysis"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>Urinalysis Lab</label>
+                                <select class="form-control" id="labUrinalysis" name="labUrinalysis" [(ngModel)]="customerData.lab_Urinalysis" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                <option *ngFor="let option of labUrinalysisList" [value]="option.id">
+                                    {{option.description}}
+                                </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>Hematology</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="Hematology" name="Hematology" [(ngModel)]="customerData.service_Hematology" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                    <label class="custom-control-label" for="Hematology"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>Hematology Lab</label>
+                                <select class="form-control" id="labHematology" name="labHematology" [(ngModel)]="customerData.lab_Hematology" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                <option *ngFor="let option of labHematologyList" [value]="option.id">
+                                    {{option.description}}
+                                </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>Pecos Enrolled</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="PecosEnrolled" name="PecosEnrolled" [(ngModel)]="customerData.pecosEnrolled" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                    <label class="custom-control-label" for="PecosEnrolled"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>Tax ID</label>
+                                <input [(ngModel)]="customerData.taxId" maxlength="10" name="taxId" type="text" class="form-control" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">                  
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <h5>Payor Mix</h5>
+                    <div class="row">
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Commercial</label>
+                                <input [(ngModel)]="customerData.pct_Commercial"  name="payorCommercial" type="number" min="0" max="100" class="form-control"  (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">                  
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>Self Pay</label>
+                                <input [(ngModel)]="customerData.pct_SelfPay" name="payorSelf" type="number" min="0" max="100" class="form-control"  (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Medicare</label>
+                                <input [(ngModel)]="customerData.pct_Medicare" name="payorMedicare" type="number" min="0" max="100" class="form-control"  (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">                  
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>Medicaid</label>
+                                <input [(ngModel)]="customerData.pct_Medicaid" name="payorMedicaid" type="number" min="0" max="100" class="form-control" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 pr-1">
+                            <button type="button" *ngIf="accessLevel != 3" (click)="backButtonClicked()" class="btn btn-primary" >Back</button>
+                            <button type="button" *ngIf="customerSave" (click)="saveButtonClicked()" class="btn btn-primary" [disabled]="accessLevel == 2 || accessLevel == 3">Save</button>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <button type="button" *ngIf="accessLevel == 1 && customerData.userId_Reviewed == 0 && customerData.customerId != 0" (click)="reviewedButtonClicked()" class="btn btn-primary" >Reviewed</button>
+                            <!-- <button  type="button" *ngIf="userType == 6 || userType == 7 || userType == 8" (click)="AccountIncidentButtonClicked()" class="btn btn-primary">Account Incident</button> -->
+                        </div>
+                        <div class="col-md-6 pr-1">
+                            <div class="form-group">
+                                <label>{{customerData.stamp}}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Show errors                -->
+    <div class="row" *ngIf="showError" >
+        <div class="col-md-12">
+            <!-- Errors -->
+            <div class="card">
+                <div class="card-header">
+                <h5 class="title">Error Message</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <textarea rows="3" cols="80" class= "form-control alert-login">{{errorMessage}}</textarea>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Location list                                  -->
+    <div id="locationListCard">
+        <div class="row" *ngIf="showLocationList">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-md-10">
+                                <h5 class="title">Locations</h5>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" *ngIf="accessLevel == 1 || accessLevel == 4" (click)="addLocationButtonClicked()" class="btn btn-primary">Add</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Items   -->
+                        <div class="row">
+                            <div class="table-responsive">
+                                <table class="table table-striped" datatable >
+                                    <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
+                                    <thead class=" text-primary">
+                                        <th>Name</th>
+                                        <th>Area</th>
+                                        <th>Phone</th>
+                                        <th>Email</th>
+                                        <th>Actions</th>
+                                    </thead>
+
+                                    <tr *ngFor="let item of customerData.locations">
+                                        <td>{{item.locationName}}</td>
+                                        <td>{{item.area}}</td>
+                                        <td>{{item.phone}}</td>
+                                        <td>{{item.email}}</td>
+                                        <td><button type="button" (click)="selectLocationButtonClicked(item.locationId)" class="btn btn-primary" >Select</button></td>                    
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Location Edit                                  -->  
+    <div id="locationEditCard">
+        <div class="row" *ngIf="showLocationEdit">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="title">Location</h5>
+                    </div>
+                    <div class="card-body">
+                        <form name="location-form">
+                            <div class="row">
+                                <div class="col-md-6  pr-1">
+                                    <div class="form-group" >
+                                        <label>Location Name</label>
+                                        <input [(ngModel)]="locationData.locationName" maxlength="50" name="locationName" type="text" [ngClass]="locationData.locationName == '' ? 'form-control required' : 'form-control completed'" (change)="locationChanged()" placeholder="Location Name required" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                    </div>
+                                </div>
+                                <div class="col-md-3 pr-1">
+                                    <div class="form-group" >
+                                        <label>Primary Location</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="primaryLocation" name="primaryLocation" (change)="locationChanged()" [(ngModel)]="locationData.primary" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                            <label class="custom-control-label" for="primaryLocation"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- <div class="col-md-3  pr-1">
+                                    <div class="form-group">
+                                        <label>NPI</label>
+                                        <input [(ngModel)]="locationData.npi" maxlength="20" name="locationNPI" type="text" class="form-control" (change)="locationChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                    </div>
+                                </div> -->
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 pr-1">
+                                    <div class="form-group" >
+                                        <label>Phone</label>
+                                        <input [(ngModel)]="locationData.phone" maxlength="15" name="locationPhone" type="text" [ngClass]="locationData.phone == '' ? 'form-control required' : 'form-control completed'" (change)="locationChanged()" placeholder="Phone required" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                    </div>
+                                </div>
+                                <div class="col-md-3 pr-1">
+                                    <div class="form-group" >
+                                        <label>Fax</label>
+                                        <input [(ngModel)]="locationData.fax" maxlength="15" name="locationFax" type="text" class="form-control" (change)="locationChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                    </div>
+                                </div>
+                                <div class="col-md-6 pr-1">
+                                    <div class="form-group">
+                                        <label>Email</label>
+                                        <input [(ngModel)]="locationData.email" maxlength="60" name="locationEmail" type="text" class="form-control" (change)="locationChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3  pr-1">
+                                    <div class="form-group" >
+                                        <label>Specialty</label>
+                                        <select class="form-control" id="locationSpecialty" name="locationSpecialty" [(ngModel)]="locationData.specialtyId" (change)="locationChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                            <option *ngFor="let option of specialtyList" [value]="option.id">
+                                                {{option.description}}
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 pr-1">
+                                    <div class="form-group" >
+                                        <label>Time Zone</label>
+                                        <select class="form-control" id="locationTimeZone" nae="locationTimeZone" [(ngModel)]="locationData.timeZoneId" (change)="locationChanged()"[disabled]="accessLevel == 2 || accessLevel == 3">
+                                            <option *ngFor="let option of timeZoneList" [value]="option.id">
+                                            {{option.description}}
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-7">
+                                    <div class="row">
+                                        <div class="col-md-4  pr-1">
+                                            <div class="form-group" >
+                                                <label>Residential Facility</label>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" class="custom-control-input" id="locationResidential" name="locationResidential" (change)="locationChanged()" [(ngModel)]="locationData.residentialFacility" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                                    <label class="custom-control-label" for="locationResidential"></label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-2  pr-1">
+                                            <div class="form-group" >
+                                                <label>Send Faxes</label>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" class="custom-control-input" name="locationSendFax" id="locationSendFax" (change)="locationChanged()" [(ngModel)]="locationData.sendFax" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                                    <label class="custom-control-label" for="locationSendFax"></label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2  pr-1">
+                                            <div class="form-group" >
+                                                <label>First Page Only</label>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" class="custom-control-input" name="locationResultCoverOnly" id="locationResultCoverOnly" [(ngModel)]="locationData.resultCoverOnly" (change)="locationChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                                    <label class="custom-control-label" for="locationResultCoverOnly"></label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <label>Fax Start Date</label>
+                                                <input [(ngModel)]="locationData.faxStartDate" name="locationFaxStart" id="locationFaxStart" type="date" class="form-control" (change)="locationChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4  pr-1">
+                                            <div class="form-group" >
+                                                <label>Batch Result Faxes</label>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" class="custom-control-input" name="locationFaxBatch" id="locationFaxBatch" [(ngModel)]="locationData.faxBatch" (change)="locationChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                                    <label class="custom-control-label" for="locationFaxBatch"></label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-4  pr-1">
+                                            <div class="form-group" >
+                                                <label>Send Email Notifications</label>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" class="custom-control-input" name="locationSendEmail" id="locationSendEmail" [(ngModel)]="locationData.sendEmail" (change)="locationChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                                    <label class="custom-control-label" for="locationSendEmail"></label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 pr-1">
+                                            <div class="form-group" >
+                                                <label>Preferred Shipping Method</label>
+                                                <select class="form-control" name="locationShipping" id="locationShipping" [(ngModel)]="locationData.shipingMethodId_Preferred" (change)="locationChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                                    <option *ngFor="let option of shippingMethodList" [value]="option.id">
+                                                    {{option.description}}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                                <div class="col-md-3  pr-1">
+                                    <div class="form-group" >
+                                        <label>Clinic Hours</label>
+                                        <div class = row>
+                                            <div class="col-md-4  pr-1">
+                                                <label>Monday</label>
+                                            </div>
+                                            <div class="col-md-6  pr-1">
+                                                <input [(ngModel)]="locationData.clinicHoursMonday" maxlength="20" name="clinicHoursMonday" type="text" class="form-control" (change)="locationChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                            </div>
+                                        </div>
+                                        <div class = row>
+                                            <div class="col-md-4  pr-1">
+                                                <label>Tuesday</label>
+                                            </div>
+                                            <div class="col-md-6  pr-1">
+                                                <input [(ngModel)]="locationData.clinicHoursTuesday" maxlength="20" name="clinicHoursTuesday" type="text" class="form-control" (change)="locationChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                           </div>
+                                        </div>
+                                        <div class = row>
+                                            <div class="col-md-4  pr-1">
+                                                <label>Wednesday</label>
+                                            </div>
+                                            <div class="col-md-6  pr-1">
+                                                <input [(ngModel)]="locationData.clinicHoursWednesday" maxlength="20" name="clinicHoursWednesday" type="text" class="form-control" (change)="locationChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                             </div>
+                                        </div>
+                                        <div class = row>
+                                            <div class="col-md-4  pr-1">
+                                                <label>Thursday</label>
+                                            </div>
+                                            <div class="col-md-6  pr-1">
+                                               <input [(ngModel)]="locationData.clinicHoursThursday" maxlength="20" name="clinicHoursThursday" type="text" class="form-control" (change)="locationChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                           </div>
+                                        </div>
+                                        <div class = row>
+                                            <div class="col-md-4  pr-1">
+                                                <label>Friday</label>
+                                            </div>
+                                            <div class="col-md-6  pr-1">
+                                                <input [(ngModel)]="locationData.clinicHoursFriday" maxlength="20" name="clinicHoursFriday" type="text" class="form-control" (change)="locationChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                           </div>
+                                        </div>
+                                        <div class = row>
+                                            <div class="col-md-4  pr-1">
+                                                <label>Saturday</label>
+                                            </div>
+                                            <div class="col-md-6  pr-1">
+                                                <input [(ngModel)]="locationData.clinicHoursSaturday" maxlength="20" name="clinicHoursSaturday" type="text" class="form-control" (change)="locationChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                            </div>
+                                        </div>
+                                        <!-- <div>
+                                            <div class="form-group form-inline">
+                                                <label>Mon </label>
+                                                <input [(ngModel)]="locationData.clinicHours" maxlength="20" name="locationHours" type="text" class="form-control" (change)="locationChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                            </div>
+                                            <div class="form-group form-inline">
+                                                <label>Tue </label>
+                                                <input [(ngModel)]="locationData.clinicHours" maxlength="20" name="locationHours" type="text" class="form-control" (change)="locationChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                            </div>
+                                            <div class="form-group form-inline">
+                                                <label>Wed </label>
+                                                <input [(ngModel)]="locationData.clinicHours" maxlength="20" name="locationHoursWednesday" type="text" class="form-control" (change)="locationChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                            </div>
+                                            <div class="form-group form-inline">
+                                                <label>Thu</label>
+                                                <input [(ngModel)]="locationData.clinicHours" maxlength="20" name="locationHours" type="text" class="form-control" (change)="locationChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                            </div>
+                                            <div class="form-group form-inline">
+                                                <label>Fri </label>
+                                                <input [(ngModel)]="locationData.clinicHours" maxlength="20" name="locationHoursWednesday" type="text" class="form-control" (change)="locationChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                            </div>
+                                            <div class="form-group form-inline">
+                                                <label>Sat</label>
+                                                <input [(ngModel)]="locationData.clinicHours" maxlength="20" name="locationHours" type="text" class="form-control" (change)="locationChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                            </div>
+                                        </div> -->
+                                    </div>
+                                </div>
+                                <div class="col-md-2  pr-1">
+                                    <div class="form-group" >
+                                        <label>Pickup Days</label>
+                                        <div>
+                                            <div class="custom-control custom-switch">
+                                                <input type="checkbox" class="custom-control-input" name="locationPickupMonday" id="locationPickupMonday" [(ngModel)]="locationData.pickupMonday" (change)="locationChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                                <label class="custom-control-label" for="locationPickupMonday">Monday</label>
+                                            </div>
+                                            <div class="custom-control custom-switch">
+                                                <input type="checkbox" class="custom-control-input" name="locationPickupTuesday" id="locationPickupTuesday" [(ngModel)]="locationData.pickupTuesday" (change)="locationChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                                <label class="custom-control-label" for="locationPickupTuesday">Tuesday</label>
+                                            </div>
+                                            <div class="custom-control custom-switch">
+                                                <input type="checkbox" class="custom-control-input" name="locationPickupWednesday" id="locationPickupWednesday" [(ngModel)]="locationData.pickupWednesday" (change)="locationChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                                <label class="custom-control-label" for="locationPickupWednesday">Wednesday</label>
+                                            </div>
+                                            <div class="custom-control custom-switch">
+                                                <input type="checkbox" class="custom-control-input" name="locationPickupThursday" id="locationPickupThursday" [(ngModel)]="locationData.pickupThursday" (change)="locationChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                                <label class="custom-control-label" for="locationPickupThursday">Thursday</label>
+                                            </div>
+                                            <div class="custom-control custom-switch">
+                                                <input type="checkbox" class="custom-control-input" name="locationPickupFriday" id="locationPickupFriday" [(ngModel)]="locationData.pickupFriday" (change)="locationChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                                <label class="custom-control-label" for="locationPickupFriday">Friday</label>
+                                            </div>
+                                            <div class="custom-control custom-switch">
+                                                <input type="checkbox" class="custom-control-input" name="locationPickupSaturday" id="locationPickupSaturday" [(ngModel)]="locationData.pickupSaturday" (change)="locationChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                                <label class="custom-control-label" for="locationPickupSaturday">Saturday</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Address  -->
+                            <h5>Address</h5>
+                            <div class="row">
+                                <div class="col-md-6  pr-1">
+                                    <div class="form-group" >
+                                        <label>Address 1</label>
+                                        <input [(ngModel)]="locationData.address.street1" maxlength="50" name="locationStreet1" type="text" [ngClass]="locationData.address.street1 == '' ? 'form-control required' : 'form-control completed'" (change)="locationChanged()" placeholder="Street required" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                    </div>
+                                </div>
+                                <div class="col-md-6  pr-1">
+                                    <div class="form-group">
+                                        <label>Address 2</label>
+                                        <input [(ngModel)]="locationData.address.street2" maxlength="30" name="locationStreet2" type="text" class="form-control" (change)="locationChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 pr-1">
+                                    <div class="form-group">
+                                        <label>Zip Code</label>
+                                        <input [(ngModel)]="locationData.address.postalCode" maxlength="10" name="locationPostal" type="text" [ngClass]="locationData.address.postalCode == '' ? 'form-control required' : 'form-control completed'" (change)="locationChanged()" placeholder="Zip Code required" [disabled]="accessLevel == 2 || accessLevel == 3" (keyup)="zipKeypress($event)">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 pr-1">
+                                    <div class="form-group" >
+                                        <label>City</label>
+                                        <input [(ngModel)]="locationData.address.city" maxlength="30" name="locationCity" type="text" [ngClass]="locationData.address.city == '' ? 'form-control required' : 'form-control completed'" placeholder="City required" (change)="locationChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                    </div>
+                                </div>
+                                <div class="col-md-4 pr-1">
+                                    <div class="form-group">
+                                        <label>County</label>
+                                        <input [(ngModel)]="locationData.address.county" maxlength="40" name="locationCounty" type="text" class="form-control" (change)="locationChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                    </div>
+                                </div>
+                                <div class="col-md-4 pr-1">
+                                    <div class="form-group">
+                                        <label>State</label>
+                                        <input [(ngModel)]="locationData.address.state" maxlength="20" name="locationState" type="text" class="form-control" (change)="locationChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Notifications -->
+                            <div *ngIf="accessLevel == 1">
+                                <h5>New Order Schedule Appointment Notification</h5>
+                                <div class="row">
+                                    <div class="col-md-9">
+                                        <div class="row">
+                                            <div class="col-md-4  pr-1">
+                                                <div class="form-group" >
+                                                    <label>Send Email</label>
+                                                    <div class="custom-control custom-switch">
+                                                        <input type="checkbox" class="custom-control-input" id="notificationEmailSend" name="notificationEmailSend" (change)="locationChanged()" [(ngModel)]="locationData.notificationEmailSend">
+                                                        <label class="custom-control-label" for="notificationEmailSend"></label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-8 pr-1">
+                                        <div class="form-group" >
+                                            <label>Email Message</label>
+                                            <textarea rows = "4" [(ngModel)]="locationData.notificationEmail"  name="notificationEmail" type="text" class="form-control" (change)="locationChanged()"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-9">
+                                        <div class="row">
+                                            <div class="col-md-4  pr-1">
+                                                <div class="form-group" >
+                                                    <label>Send Text Message</label>
+                                                    <div class="custom-control custom-switch">
+                                                        <input type="checkbox" class="custom-control-input" id="locationSendText" name="locationSendText" (change)="locationChanged()" [(ngModel)]="locationData.notificationTextSend">
+                                                        <label class="custom-control-label" for="locationSendText"></label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-8 pr-1">
+                                        <div class="form-group" >
+                                            <label>Text Message</label>
+                                            <textarea rows = "4" [(ngModel)]="locationData.notificationText"  name="notificationText" type="text" class="form-control" (change)="locationChanged()"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="button" *ngIf="locationSave && accessLevel == 1 || locationSave && accessLevel == 4" (click)="saveLocationButtonClicked()" class="btn btn-primary" >Save</button>
+                            <button type="button" (click)="cancelLocationButtonClicked()" class="btn btn-primary" >Cancel</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User list                                  -->
+    <div id="userListCard">
+        <div class="row" *ngIf="showUserList">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-md-10">
+                                <h5 class="title">Users</h5>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" *ngIf="accessLevel != 2" (click)="addUserButtonClicked()" class="btn btn-primary" >Add</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Items   -->
+                        <div class="row">
+                            <div class="table-responsive">
+                                <table class="table table-striped" datatable >
+                                    <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
+                                    <thead class=" text-primary">
+                                        <th>First Name</th>
+                                        <th>Last Name</th>
+                                        <th>User Type</th>
+                                        <th>Physician</th>
+                                        <th>Enabled</th>
+                                        <th>Email</th>
+                                        <th>Delegate</th>
+                                        <th>Actions</th>
+                                    </thead>
+
+                                    <tr *ngFor="let item of customerData.users">
+                                        <td>{{item.firstName}}</td>
+                                        <td>{{item.lastName}}</td>
+                                        <td>{{item.userType}}</td>
+                                        <td>{{item.physicianYN}}</td>
+                                        <td>{{item.enabledYN}}</td>
+                                        <td>{{item.email}}</td>
+                                        <td>{{item.delegate}}</td>
+                                        <td><button type="button" (click)="selectUserButtonClicked(item.userId)" class="btn btn-primary" >Select</button></td>                    
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Edit                                  -->  
+    <div id="userEditCard">
+        <div class="row" *ngIf="showUserEdit">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="title">User</h5>
+                    </div>
+                    <div class="card-body">
+                        <form name="user-form">
+                            <div class="row">
+                                <div class="col-md-3  pr-1">
+                                    <div class="form-group" >
+                                        <label>First Name</label>
+                                        <input [(ngModel)]="userData.firstName" maxlength="10" name="firstName" type="text" [ngClass]="userData.firstName == '' ? 'form-control required' : 'form-control completed'" (change)="locationChanged()" placeholder="Location Name required" (change)="userChanged()" placeholder="First Name required" [disabled]="accessLevel == 2">
+                                    </div>
+                                </div>
+                                <div class="col-md-3  pr-1">
+                                    <div class="form-group" >
+                                        <label>Last Name</label>
+                                        <input [(ngModel)]="userData.lastName" maxlength="20" name="lastName" type="text" [ngClass]="userData.lastName == '' ? 'form-control required' : 'form-control completed'" (change)="locationChanged()" placeholder="Location Name required" (change)="userChanged()" placeholder="Last Name required" [disabled]="accessLevel == 2">
+                                    </div>
+                                </div>
+                                <div class="col-md-6  pr-1">
+                                    <div class="form-group" >
+                                        <label>Email</label>
+                                        <input [(ngModel)]="userData.email" maxlength="60" name="userEmail" type="text" [ngClass]="userData.email == '' ? 'form-control required' : 'form-control completed'" (change)="locationChanged()" placeholder="Location Name required" (change)="userChanged()" placeholder="Email required" [disabled]="accessLevel == 2">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 pr-1">
+                                    <div class="form-group" >
+                                        <label>Work Phone</label>
+                                        <input [(ngModel)]="userData.phoneWork" maxlength="20" name="userWorkPhone" type="text" class="form-control" (change)="userChanged()" [disabled]="accessLevel == 2">
+                                    </div>
+                                </div>
+                                <div class="col-md-3 pr-1">
+                                    <div class="form-group">
+                                        <label>Work Phone Ext.</label>
+                                        <input [(ngModel)]="userData.phoneWorkExt" maxlength="10" name="userWorkPhoneExt" type="text" class="form-control" (change)="userChanged()" [disabled]="accessLevel == 2">
+                                    </div>
+                                </div>
+                                <div class="col-md-3 pr-1">
+                                    <div class="form-group" >
+                                        <label>Cell Phone</label>
+                                        <input [(ngModel)]="userData.phoneCell" maxlength="20" name="userCellPhone" type="text" class="form-control" (change)="userChanged()" [disabled]="accessLevel == 2">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3  pr-1">
+                                    <div class="form-group" >
+                                        <label>Locations</label>
+                                        <select multiple class="form-control" name="userLocation" id="userLocation" [(ngModel)]="locationSelected" (change)="userChanged()"  [disabled]="accessLevel == 2">
+                                            <option *ngFor="let option of this.customerData.locations" [value]="option.locationId">
+                                            {{option.locationName}}
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 pr-1">
+                                    <div class="form-group" >
+                                        <label>Site Administrator</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="userSiteAdmin" name="userSiteAdmin" [(ngModel)]="userSiteAdmin" (change)="userChanged()" [disabled]="accessLevel == 2">
+                                            <label class="custom-control-label" for="userSiteAdmin"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 pr-1">
+                                    <div class="form-group">
+                                        <label>View Employee Results</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="viewEmployeeResults" name="viewEmployeeResults" [(ngModel)]="userData.viewEmployeeResults" (change)="userChanged()" [disabled]="accessLevel == 2">
+                                            <label class="custom-control-label" for="viewEmployeeResults"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Physician  -->
+                            <h5>Physician</h5>
+                            <div class="row">
+                                <div class="col-md-6  pr-1">
+                                    <div class="row">
+                                        <div class="col-md-12  pr-1">
+                                            <div class="form-group" >
+                                                <label>Physician</label>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" class="custom-control-input" name="userPhysician" id="userPhysician" [(ngModel)]="userData.physician" (change)="userChanged()" [disabled]="accessLevel == 2">
+                                                    <label class="custom-control-label" for="userPhysician"></label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 pr-1">
+                                            <div class="form-group" >
+                                                <label>Prefix</label>
+                                                <input [(ngModel)]="userData.prefix" maxlength="10" name="userPrefix" type="text" class="form-control" (change)="userChanged()" [disabled]="accessLevel == 2">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 pr-1">
+                                            <div class="form-group">
+                                                <label>Suffix</label>
+                                                <input [(ngModel)]="userData.suffix" maxlength="10" name="userSuffix" type="text" class="form-control" (change)="userChanged()" [disabled]="accessLevel == 2">
+                                            </div>
+                                        </div>                            
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 pr-1">
+                                            <div class="form-group" >
+                                                <label>NPI</label>
+                                                <input [(ngModel)]="userData.npi" maxlength="20" name="userNPI" type="text" class="form-control" [ngClass]="userData.physician == true ? 'form-control required' : 'form-control'" (change)="userChanged()" [disabled]="accessLevel == 2">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 pr-1">
+                                            <div class="form-group">
+                                                <label>Pecos Enrolled</label>
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" class="custom-control-input" id="pecosEnrolled" name="pecosEnrolled" [(ngModel)]="userData.pecosEnrolled" (change)="userChanged()" [disabled]="accessLevel == 2">
+                                                    <label class="custom-control-label" for="pecosEnrolled"></label>
+                                                </div>
+                                            </div>
+                                        </div>                            
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 pr-1" *ngIf="accessLevel == 1 && userData.physician && userData.userSignatureId == 0 && userData.userId > 0 && signatureMessage == ''">
+                                    <div class="row">
+                                        <div class="col-md-12  pr-1">
+                                            <label>Upload Physician Signature (must be a png)</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12  pr-1">
+                                            <!-- Import File -->
+                                            <input id="importSignatureButton" type="file" (change)="readSignatureFile($event)" 
+                                            class="upload input-common" required />
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12  pr-1">
+                                            <button type="button" *ngIf="physicianSignatureData.fileType=='image/png'" (click)="saveSignatureClicked()" class="btn btn-primary" >Save</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 pr-1" *ngIf="signatureMessage != ''">
+                                    <div class="row">
+                                        <div class="col-md-12  pr-1">
+                                            <label>{{signatureMessage}}</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Credentials  -->
+                            <h5>Credentials</h5>
+                            <div class="row">
+                                <!-- <div class="col-md-3 pr-1">
+                                    <div class="form-group" >
+                                        <label>Login</label>
+                                        <input [(ngModel)]="userData.userName" maxlength="20" name="userName" type="text" class="form-control" (change)="userChanged()" [disabled]="accessLevel == 2">
+                                    </div>
+                                </div> -->
+                                <div class="col-md-3 pr-1">
+                                    <div class="form-group">
+                                        <label>Disabled</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="userDisabled" name="userDisabled" [(ngModel)]="userData.disabled" (change)="userChanged()" [disabled]="accessLevel == 2">
+                                            <label class="custom-control-label" for="userDisabled"></label>
+                                        </div>
+                                    </div>
+                                </div>      
+                                <div class="col-md-3 pr-1">
+                                    <div class="form-group">
+                                        <label>Required Password Change</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="userChangePwd" name="userChangePwd" [(ngModel)]="userData.changePwd" (change)="userChanged()" [disabled]="accessLevel == 2">
+                                            <label class="custom-control-label" for="userChangePwd"></label>
+                                        </div>
+                                    </div>
+                                </div>                         
+                            </div>
+
+                            <button type="button" *ngIf="accessLevel != 2 && userSave" (click)="saveUserButtonClicked()" class="btn btn-primary" >Save</button>
+                            <button type="button" (click)="cancelUserButtonClicked()" class="btn btn-primary" >Cancel</button>
+                            <button type="button" *ngIf="accessLevel != 2 && userData.userId != 0" (click)="resetUserPasswordButtonClicked()" class="btn btn-primary" >Reset Password</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attachment list                                  -->
+    <div id="attachmentListCard">
+        <div class="row" *ngIf="showAttachmentList">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-md-10">
+                                <h5 class="title">Attachments</h5>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" *ngIf="accessLevel != 2" (click)="addAttachmentButtonClicked()" class="btn btn-primary" >Add</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Items   -->
+                        <div class="row">
+                            <div class="table-responsive">
+                                <table class="table table-striped" datatable >
+                                    <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
+                                    <thead class=" text-primary">
+                                        <th>Title</th>
+                                        <th>Description</th>
+                                        <th>Date Created</th>
+                                        <th>Actions</th>
+                                    </thead>
+
+                                    <tr *ngFor="let item of customerData.attachments">
+                                        <td>{{item.title}}</td>
+                                        <td>{{item.description}}</td>
+                                        <td>{{item.dateCreated}}</td>
+                                        <td>
+                                            <button type="button" (click)="selectAttachmentButtonClicked(item.customerAttachmentId)" class="btn btn-primary" >Select</button> &nbsp;
+                                            <button type="button" *ngIf=" userType == 7 || userType == 8" (click)="deleteAttachmentButtonClicked(item.customerAttachmentId)" class="btn btn-primary" >Delete</button>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attachment Edit                                  -->  
+    <div id="attachmentEditCard">
+        <div class="row" *ngIf="showAttachmentEdit">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="title">Attachment</h5>
+                    </div>
+                    <div class="card-body">
+                        <form name="attachment-form">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="row">
+                                        <div class="col-md-12  pr-1">
+                                            <div class="form-group" >
+                                                <div class="form-group" >
+                                                    <label>Title</label>
+                                                    <input [(ngModel)]="attachmentData.title" maxlength="100" name="title" type="text" [ngClass]="attachmentData.title == '' ? 'form-control required' : 'form-control completed'" placeholder="required" [disabled]="attachmentDisabled" (change)="attachmentChanged()">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12 pr-1">
+                                            <div class="form-group" >
+                                                <label>Description</label>
+                                                <textarea rows = "4" [(ngModel)]="attachmentData.description"  name="attachmentDescription" maxlength="256" type="text" class="form-control required" placeholder="Description required" [disabled]="attachmentDisabled" (change)="attachmentChanged()"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Import File -->
+                                    <div class="row" *ngIf="!attachmentDisabled && !fileScanned">
+                                        <div class="col-md-6 pr-1">
+                                            <input id="importButton" type="file" (change)="readFile($event)" 
+                                            class="upload input-common" required />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4" *ngIf="!attachmentDisabled">
+                                    <!-- Video Container -->
+                                    <div class="video-container" *ngIf="!error">
+                                        <video [class.show]="!isCaptured" #video id="video" [width]="picWidth" [height]="picHeight"
+                                            autoplay></video>
+                                        <canvas [class.show]="isCaptured" [class.hide]="true" #canvas id="canvas" [width]="picWidth"
+		                                    [height]="picHeight"></canvas>
+                                    </div>
+                                    <!-- Snapshot Container  -->
+                                    <div class="snap-container">
+                                        <button class="btn btn-primary" *ngIf="!cameraOn && !fileUploaded" (click)="setupDevices()">Start Camera</button>
+                                        <button class="btn btn-primary" *ngIf="cameraOn" (click)="stopDevice()">Stop Camera</button>
+                                        <button class="btn btn-primary" *ngIf="cameraOn" (click)="capture()">Snap Photo</button>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-4" *ngIf="!attachmentDisabled">
+                                    <!-- Image List -->
+                                    <ul class="list-unstyled">
+                                        <li *ngFor="let src of captures; let idx = index" (click)="setPhoto(idx)">
+                                            <img [src]="src" height="150" />
+                                          </li>
+                                    </ul>
+                                </div>
+
+                            </div>
+                            <button type="button" *ngIf="!attachmentDisabled && attachmentSave" (click)="saveAttachmentButtonClicked()" class="btn btn-primary" >Save</button>
+                            <button type="button" (click)="cancelAttachmentButtonClicked()" class="btn btn-primary" >Cancel</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>  
+
+    <!-- Note list                                  -->
+    <div id="noteListCard">
+        <div class="row" *ngIf="showNoteList  && accessLevel != 3" >
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-md-10">
+                                <h5 class="title">Notes</h5>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" *ngIf="accessLevel != 2" (click)="addNoteButtonClicked()" class="btn btn-primary" >Add</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Items   -->
+                        <div class="row">
+                            <div class="table-responsive">
+                                <table class="table table-striped" datatable >
+                                    <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
+                                    <thead class=" text-primary">
+                                        <th>Subject</th>
+                                        <th>Date Created</th>
+                                        <th>Actions</th>
+                                    </thead>
+
+                                    <tr *ngFor="let item of customerData.notes">
+                                        <td>{{item.subject}}</td>
+                                        <td>{{item.dateTime}}</td>
+                                        <td><button type="button" (click)="selectNoteButtonClicked(item.customerNoteId)" class="btn btn-primary" >Select</button></td>                    
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Note Edit                                  -->  
+    <div id="noteEditCard">
+        <div class="row" *ngIf="showNoteEdit">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="title">Note</h5>
+                    </div>
+                    <div class="card-body">
+                        <form name="note-form">
+                            <div class="row">
+                                <div class="col-md-6  pr-1">
+                                    <div class="form-group" >
+                                        <label>Subject</label>
+                                        <input [(ngModel)]="noteData.subject" maxlength="100" name="noteSubject" type="text" [ngClass]="noteData.subject == '' ? 'form-control required' : 'form-control completed'" placeholder="Subject required" [disabled]="noteDisabled" (change)="noteChanged()">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8 pr-1">
+                                    <div class="form-group" >
+                                        <label>Note</label>
+                                        <textarea rows = "4" [(ngModel)]="noteData.note"  name="noteNote" type="text" class="form-control required" placeholder="Note required" [disabled]="noteDisabled" (change)="noteChanged()"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button type="button" *ngIf="!noteDisabled && noteSave" (click)="saveNoteButtonClicked()" class="btn btn-primary" >Save</button>
+                            <button type="button" (click)="cancelNoteButtonClicked()" class="btn btn-primary" >Cancel</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Physician Preference list                                  -->
+    <div id="preferenceListCard">
+        <div class="row" *ngIf="showPreferenceList">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-md-10">
+                                <h5 class="title">Physician Preferences</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Items   -->
+                        <div class="row">
+                            <div class="table-responsive">
+                                <table class="table table-striped" datatable >
+                                    <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
+                                    <thead class=" text-primary">
+                                        <th>Physician</th>
+                                        <th>Name</th>
+                                        <th>Lab Type</th>
+                                        <th>Effective Date</th>
+                                        <th>Available For All</th>
+                                        <th>Actions</th>
+                                    </thead>
+
+                                    <tr *ngFor="let item of customerData.preferences">
+                                        <td>{{item.physician}}</td>
+                                        <td>{{item.name}}</td>
+                                        <td>{{item.labType}}</td>
+                                        <td>{{item.effectiveDate}}</td>
+                                        <td>{{item.availableForAllYN}}</td>
+                                        <td><button type="button" (click)="selectPreferenceButtonClicked(item.physicianPreferenceId)" class="btn btn-primary" >Select</button></td>                    
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Show Preference                                -->  
+    <div id="urinePreferenceCard">
+        <div class="row" *ngIf="showToxUrine">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="title">Physician Preference - Tox Urine</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- We want to have six columns  -->
+                            <div class="col md-2">
+                                <div class="form-group" >
+                                    <label style="color:blue;">
+                                        PRESUMPTIVE SCREENS (15 or 13)
+                                    </label>
+                                </div>
+                                <div>
+                                    <label class="small">(Cannot be ordered individually)</label>
+                                </div>
+                                <div style="margin-left:10px;">
+                                    <label>
+                                        Amphetamines<br />
+                                        Barbiturates<br />
+                                        Benzodiazepine<br />
+                                        Buprenorphine<br />
+                                        Cannabinoids (THC)<br />
+                                        Cocaine metabolite<br />
+                                        Ecstasy (MDMA)<br />
+                                        Ethanol<br />
+                                        Fentanyl<br />
+                                        Methadone<br />
+                                        Opiates (morphine/heroin)<br />
+                                        Oxycodone
+                                        PCP<br />
+                                        TCAs<br />
+                                        Tramadol<br />
+                                    </label>
+                                </div>
+
+                                <div>
+                                    <label style="color:blue;">
+                                        <input [(ngModel)]="presumptiveTesting15" type="checkbox" name="presumptiveTestingU15" [disabled]="orderDisabled" (change)="presumtiveChanged15()">
+                                        15 panel screen
+                                    </label>
+                                </div>
+                                <div>
+                                    <label style="color:blue;">
+                                        <input [(ngModel)]="presumptiveTesting13" type="checkbox" name="presumptiveTestingU13" [disabled]="orderDisabled" (change)="presumtiveChanged13()">
+                                        13 panel Screen<br />
+                                        no Ethanol or THC
+                                    </label>
+                                </div>
+                                <div class="form-group" >
+                                    <label style="color:blue;">
+                                        <input [(ngModel)]="dissociative.full" type="checkbox" name="dissociativeU" [disabled]="true">
+                                        DISSOCIATIVE AGENTS
+                                    </label>
+                                </div>
+                                <div class="form-group" style="margin-left:10px;">
+                                    <label>
+                                        <input [(ngModel)]="dissociative.ketamine" type="checkbox" name="dissociativeU1" [disabled]="true">
+                                        Ketamine (m)<br />
+                                        <input [(ngModel)]="dissociative.pcp" type="checkbox" name="dissociativeU2" [disabled]="true">
+                                        3-Chloride-PCP
+                                    </label>
+                                </div>
+                                <div>
+                                    <label style="color:blue;">(m) = testing only a metabolite</label>
+                                </div>
+                            </div>
+    
+                            <div class="col md-2">
+                                <div class="form-group" >
+                                    <label style="color:blue;">
+                                        <input [(ngModel)]="illicit.full" type="checkbox" name="illicitU" [disabled]="true">
+                                        ILLICIT DRUGS
+                                    </label>
+                                </div>
+                                <div class="form-group" style="margin-left:10px;">
+                                    <label>
+                                        <input [(ngModel)]="illicit.amphetamine" type="checkbox" name="illicitU1" [disabled]="true">
+                                        Amphetamine/Lisdexamfetamine<br />
+                                        <input [(ngModel)]="illicit.cocaine" type="checkbox" name="illicitU2" [disabled]="true">
+                                        Cocaine (m)<br />
+                                        <input [(ngModel)]="illicit.heroin" type="checkbox" name="illicitU3" [disabled]="true">
+                                        Heroin (m)<br />
+                                        <input [(ngModel)]="illicit.mdma" type="checkbox" name="illicitU5" [disabled]="true">
+                                        MDMA (ecstasy, molly)<br />
+                                        <input [(ngModel)]="illicit.methamphetamine" type="checkbox" name="illicitU6" [disabled]="true">
+                                        Methamphetamine<br />
+                                        <div style="margin-left:10px;">
+                                            <input [(ngModel)]="illicit.methamphetaminePosative" type="checkbox" name="illicitU6P" [disabled]="true" >
+                                            if positive run test to determine isomer<br />
+                                        </div>
+                                        <input [(ngModel)]="illicit.pcp" type="checkbox" name="illicitU7" [disabled]="true">
+                                        PCP
+                                    </label>
+                                </div>
+    
+                                <div>
+                                    <label style="color:blue;">
+                                        <input [(ngModel)]="cannabinoids.full" type="checkbox" name="cannabinoidU" [disabled]="true">
+                                        NATURAL CANNABINOIDS
+                                    </label>
+                                </div>
+                                <div class="form-group" style="margin-left:10px;">
+                                    <label>
+                                        <input [(ngModel)]="cannabinoids.cbd" type="checkbox" name="cannabinoidsU1" [disabled]="true">
+                                        CBD (m)<br />
+                                        <input [(ngModel)]="cannabinoids.thc" type="checkbox" name="cannabinoidsU2" [disabled]="true">
+                                        THC (m)
+                                    </label>
+                                </div>
+                                <div class="form-group" >
+                                    <label style="color:blue;">
+                                        <input [(ngModel)]="thcSource" type="checkbox" name="thcU" [disabled]="true">
+                                        THC source
+                                    </label>
+                                </div>
+                                <div class="form-group" style="margin-left:10px;">
+                                    <label>
+                                        Measures levels of CBD and THC metabolites to determine if source of THC positive was hemp derived CBD or marijuana.
+                                    </label>
+                                </div>
+                                <div>
+                                    <label style="color:blue;">
+                                        <input [(ngModel)]="cannabinoidsSynth.full" type="checkbox" name="cannabinoidSynthU" [disabled]="true">
+                                        SYNTHETIC CANNABINOIDS
+                                    </label>
+                                </div>
+                                <div class="form-group" style="margin-left:10px;">
+                                    <label>
+                                        <input [(ngModel)]="cannabinoidsSynth.adb" type="checkbox" name="cannabinoidsSynthU3" [disabled]="true">
+                                        ADB-BUTINACA<br />
+                                        <input [(ngModel)]="cannabinoidsSynth.mdmb" type="checkbox" name="cannabinoidsSynthU4" [disabled]="true">
+                                        MDMB-4en-PINACA<br />
+                                        <input [(ngModel)]="cannabinoidsSynth.mdmb5f" type="checkbox" name="cannabinoidsSynthU5" [disabled]="true">
+                                        5F-MDMB-PICA
+                                    </label>
+                                </div>
+   
+                                <div>
+                                    <label style="color:blue;">
+                                        <input [(ngModel)]="alcohol.full" type="checkbox" name="alcoholU" [disabled]="true">
+                                        ALCOHOL and NICOTINE
+                                    </label>
+                                </div>
+                                <div class="form-group" style="margin-left:10px;">
+                                    <label>
+                                        <input [(ngModel)]="alcohol.etg" type="checkbox" name="alcoholU1" [disabled]="true">
+                                        EtG (ethanol metabolite)<br />
+                                        <input [(ngModel)]="alcohol.ets" type="checkbox" name="alcoholU2" [disabled]="true">
+                                        EtS (ethanol metabolite)<br />
+                                        <input [(ngModel)]="alcohol.nicotine" type="checkbox" name="alcoholU3" [disabled]="true">
+                                        Nicotine (m)
+                                    </label>
+                                </div>
+                            </div>
+    
+                            <div class="col md-2">
+                                <div class="form-group" >
+                                    <label style="color:blue;">
+                                        <input [(ngModel)]="opioidAgonists.full" type="checkbox" name="opioidAgonistsU" [disabled]="true">
+                                        OPIOID AGONISTS
+                                    </label>
+                                </div>
+                                <div class="form-group" style="margin-left:10px;">
+                                    <label>
+                                        <input [(ngModel)]="opioidAgonists.buprenorphine" type="checkbox" name="opioidAgonistsU1" [disabled]="true">
+                                        Buprenorphine<br />
+                                        <div style="margin-left:10px;">
+                                            <input [(ngModel)]="opioidAgonists.norbuprenorphine" type="checkbox" name="opioidAgonistsU2" [disabled]="true">
+                                            norbuprenorphine<br />
+                                        </div>
+                                        <input [(ngModel)]="opioidAgonists.codeine" type="checkbox" name="opioidAgonistsU3" [disabled]="true">
+                                        Codeine<br />
+                                        <input [(ngModel)]="opioidAgonists.dextromethorphan" type="checkbox" name="opioidAgonistsU4" [disabled]="true">
+                                        Dextromethorphan<br />
+                                        <input [(ngModel)]="opioidAgonists.levorphanol" type="checkbox" name="opioidAgonistsU5" [disabled]="true">
+                                        Levorphanol/Dextrorphan<br />
+                                        <input [(ngModel)]="opioidAgonists.dihydrocodeine" type="checkbox" name="opioidAgonistsU6" [disabled]="true">
+                                        Dihydrocodeine<br />
+                                        <input [(ngModel)]="opioidAgonists.fentanyl" type="checkbox" name="opioidAgonistsU7" [disabled]="true">
+                                        Fentanyl<br />
+                                        <div style="margin-left:10px;">
+                                            <input [(ngModel)]="opioidAgonists.norfentanyl" type="checkbox" name="opioidAgonistsU8" [disabled]="true">
+                                            norfentanyl<br />
+                                        </div>
+                                        <input [(ngModel)]="opioidAgonists.acetylfentanyl" type="checkbox" name="opioidAgonistsU9" [disabled]="true">
+                                        Acetyl fentanyl<br />
+                                        <input [(ngModel)]="opioidAgonists.carfentanil" type="checkbox" name="opioidAgonistsU10" [disabled]="true">
+                                        Carfentanil<br />
+                                        <div style="margin-left:10px;">
+                                            <input [(ngModel)]="opioidAgonists.norcarfentanil" type="checkbox" name="opioidAgonistsU11" [disabled]="true">
+                                            norcarfentanil<br />
+                                        </div>
+                                        <input [(ngModel)]="opioidAgonists.fluorofentanyl" type="checkbox" name="opioidAgonistsU12" [disabled]="true">
+                                        Fluorofentanyl<br />
+                                        <input [(ngModel)]="opioidAgonists.hydrocodone" type="checkbox" name="opioidAgonistsU13" [disabled]="true">
+                                        Hydrocodone<br />
+                                        <div style="margin-left:10px;">
+                                            <input [(ngModel)]="opioidAgonists.norhydrocodone" type="checkbox" name="opioidAgonistsU14" [disabled]="true">
+                                            norhydrocodone<br />
+                                        </div>
+                                        <input [(ngModel)]="opioidAgonists.hydromorphone" type="checkbox" name="opioidAgonistsU15" [disabled]="true">
+                                        Hydromorphone<br />
+                                        <input [(ngModel)]="opioidAgonists.isotonitazene" type="checkbox" name="opioidAgonistsU16" [disabled]="true"  (change)="opioidAgonistsItemUChanged()">
+                                        Isotonitazene<br />
+                                        <input [(ngModel)]="opioidAgonists.meperidine" type="checkbox" name="opioidAgonistsU17" [disabled]="true">
+                                        Meperidine (m)<br />
+                                        <input [(ngModel)]="opioidAgonists.methadone" type="checkbox" name="opioidAgonistsU18" [disabled]="true">
+                                        Methadone<br />
+                                        <div style="margin-left:10px;">
+                                            <input [(ngModel)]="opioidAgonists.eddp" type="checkbox" name="opioidAgonistsU19" [disabled]="true">
+                                            EDDP<br />
+                                        </div>
+                                        <input [(ngModel)]="opioidAgonists.morphine" type="checkbox" name="opioidAgonistsU20" [disabled]="true">
+                                        Morphine<br />
+                                        <input [(ngModel)]="opioidAgonists.oxycodone" type="checkbox" name="opioidAgonistsU21" [disabled]="true">
+                                        Oxycodone<br />
+                                        <div style="margin-left:10px;">
+                                            <input [(ngModel)]="opioidAgonists.noroxycodone" type="checkbox" name="opioidAgonistsU22" [disabled]="true">
+                                            noroxycodone<br />
+                                        </div>
+                                        <input [(ngModel)]="opioidAgonists.oxymorphone" type="checkbox" name="opioidAgonistsU23" [disabled]="true">
+                                        Oxymorphone<br />
+                                        <input [(ngModel)]="opioidAgonists.tapentadol" type="checkbox" name="opioidAgonistsU24" [disabled]="true">
+                                        Tapentadol<br />
+                                        <input [(ngModel)]="opioidAgonists.tramadol" type="checkbox" name="opioidAgonistsU25" [disabled]="true">
+                                        Tramadol (m)<br />
+                                        <input [(ngModel)]="opioidAgonists.tianeptine" type="checkbox" name="opioidAgonistsU26" [disabled]="true">
+                                        Tianeptine
+    
+                                    </label>
+                                </div>
+                            </div>
+    
+                            <div class="col md-2">
+                                <div class="form-group" >
+                                    <label style="color:blue;">
+                                        <input [(ngModel)]="opioidAntagonists.full" type="checkbox" name="opioidAntagonistU" [disabled]="true">
+                                        OPIOID ANTAGONISTS
+                                    </label>
+                                </div>
+                                <div class="form-group" style="margin-left:10px;">
+                                    <label>
+                                        <input [(ngModel)]="opioidAntagonists.naloxone" type="checkbox" name="opioidAntagonistU1" [disabled]="true">
+                                        Naloxone<br />
+                                        <input [(ngModel)]="opioidAntagonists.nalmefene" type="checkbox" name="opioidAntagonistU2" [disabled]="true">
+                                        Nalmefene<br />
+                                        <input [(ngModel)]="opioidAntagonists.naltrexone" type="checkbox" name="opioidAntagonistU3" [disabled]="true">
+                                        Naltrexone (m)<br />
+                                    </label>
+                                </div>
+                                <div class="form-group" >
+                                    <label style="color:blue;">
+                                        <input [(ngModel)]="skeletal.full" type="checkbox" name="skeletalU" [disabled]="true">
+                                        SKELETAL MUSCLE RELAXANTS
+                                    </label>
+                                </div>
+                                <div class="form-group" style="margin-left:10px;">
+                                    <label>
+                                        <input [(ngModel)]="skeletal.baclofen" type="checkbox" name="skeletalU1" [disabled]="true">
+                                        Baclofen<br />
+                                        <input [(ngModel)]="skeletal.carisoprodol" type="checkbox" name="skeletalU2" [disabled]="true">
+                                        Carisoprodol<br />
+                                        <input [(ngModel)]="skeletal.cyclobenzaprine" type="checkbox" name="skeletalU3" [disabled]="true">
+                                        Cyclobenzaprine<br />
+                                        <input [(ngModel)]="skeletal.meprobamate" type="checkbox" name="skeletalU4" [disabled]="true">
+                                        Meprobamate<br />
+                                        <input [(ngModel)]="skeletal.methocarbomol" type="checkbox" name="skeletalU5" [disabled]="true">
+                                        Methocarbamol<br />
+                                        <input [(ngModel)]="skeletal.tizanidine" type="checkbox" name="skeletalU6" [disabled]="true">
+                                        Tizanidine
+                                    </label>
+                                </div>
+                                <div class="form-group" >
+                                    <label style="color:blue;">
+                                        <input [(ngModel)]="gabapentinoids.full" type="checkbox" name="gabapentinoidsU" [disabled]="true">
+                                        GABAPENTINOIDS
+                                    </label>
+                                </div>
+                                <div class="form-group" style="margin-left:10px;">
+                                    <label>
+                                        <input [(ngModel)]="gabapentinoids.gabapentin" type="checkbox" name="gabapentinoidsU1" [disabled]="true">
+                                        Gabapentin<br />
+                                        <input [(ngModel)]="gabapentinoids.pregabalin" type="checkbox" name="gabapentinoidsU2" [disabled]="true">
+                                        Pregabalin<br />
+                                    </label>
+                                </div>
+                                <div class="form-group" >
+                                    <label style="color:blue;">
+                                        <input [(ngModel)]="hallucinogens.full" type="checkbox" name="hallucinogensU" [disabled]="true">
+                                        HALLUCINOGENS
+                                    </label>
+                                </div>
+                                <div class="form-group" style="margin-left:10px;">
+                                    <label>
+                                        <input [(ngModel)]="hallucinogens.lsd" type="checkbox" name="hallucinogensU1" [disabled]="true">
+                                        LSD<br />
+                                        <input [(ngModel)]="hallucinogens.psilocybin" type="checkbox" name="hallucinogensU2" [disabled]="true">
+                                        Psilocybin/Psilocin (mushrooms)*<br />
+                                    </label>
+                                </div>
+                            </div>
+    
+                            <div class="col md-2">
+                                <div class="form-group" >
+                                    <label style="color:blue;">
+                                        <input [(ngModel)]="antipsychotics.full" type="checkbox" name="antipsychoticsU" [disabled]="true">
+                                        ANTIPSYCHOTICS
+                                    </label>
+                                </div>
+                                <div class="form-group" style="margin-left:10px;">
+                                    <label>
+                                        <input [(ngModel)]="antipsychotics.aripiprazole" type="checkbox" name="antipsychoticsU1" [disabled]="true">
+                                        Aripiprazole (m)<br />
+                                        <input [(ngModel)]="antipsychotics.haloperidol" type="checkbox" name="antipsychoticsU2" [disabled]="true">
+                                        Haloperidol<br />
+                                        <input [(ngModel)]="antipsychotics.lurasidone" type="checkbox" name="antipsychoticsU3" [disabled]="true">
+                                        Lurasidone<br />
+                                        <input [(ngModel)]="antipsychotics.olanzapine" type="checkbox" name="antipsychoticsU4" [disabled]="true">
+                                        Olanzapine<br />
+                                        <input [(ngModel)]="antipsychotics.quetiapine" type="checkbox" name="antipsychoticsU5" [disabled]="true">
+                                        Quetiapine<br />
+                                        <input [(ngModel)]="antipsychotics.risperidone" type="checkbox" name="antipsychoticsU6" [disabled]="true">
+                                        Risperidone (m)<br />
+                                        <input [(ngModel)]="antipsychotics.ziprasidone" type="checkbox" name="antipsychoticsU7" [disabled]="true">
+                                        Ziprasidone
+                                    </label>
+                                </div>  
+                                <div class="form-group" >
+                                    <label style="color:blue;">
+                                        <input [(ngModel)]="benzodiazepines.full" type="checkbox" name="benzodiazepinesU" [disabled]="true">
+                                        BENZODIAZEPINES
+                                    </label>
+                                </div>
+                                <div class="form-group" style="margin-left:10px;">
+                                    <label>
+                                        <input [(ngModel)]="benzodiazepines.alprazolam" type="checkbox" name="benzodiazepinesU1" [disabled]="true">
+                                        Alprazolam (m)<br />
+                                        <input [(ngModel)]="benzodiazepines.chlordiazepoxide" type="checkbox" name="benzodiazepinesU2" [disabled]="true">
+                                        Chlordiazepoxide/Clorazepate/ Diazepam (m)<br />
+                                        <input [(ngModel)]="benzodiazepines.clonazepam" type="checkbox" name="benzodiazepinesU3" [disabled]="true">
+                                        Clonazepam (m)<br />
+                                        <input [(ngModel)]="benzodiazepines.clonazolam" type="checkbox" name="benzodiazepinesU4" [disabled]="true">
+                                        Clonazolam (m)<br />
+                                        <input [(ngModel)]="benzodiazepines.etizolam" type="checkbox" name="benzodiazepinesU5" [disabled]="true">
+                                        Etizolam (m)<br />
+                                        <input [(ngModel)]="benzodiazepines.flualprazolam" type="checkbox" name="benzodiazepinesU6" [disabled]="true">
+                                        Flualprazolam<br />
+                                        <input [(ngModel)]="benzodiazepines.lorazepam" type="checkbox" name="benzodiazepinesU7" [disabled]="true">
+                                        Lorazepam<br />
+                                        <input [(ngModel)]="benzodiazepines.midazolam" type="checkbox" name="benzodiazepinesU8" [disabled]="true">
+                                        Midazolam (m)<br />
+                                        <input [(ngModel)]="benzodiazepines.oxazepam" type="checkbox" name="benzodiazepinesU9" [disabled]="true">
+                                        Oxazepam<br />
+                                        <input [(ngModel)]="benzodiazepines.temazepam" type="checkbox" name="benzodiazepinesU10" [disabled]="true">
+                                        Temazepam<br />
+                                        <input [(ngModel)]="benzodiazepines.triazolam" type="checkbox" name="benzodiazepinesU11" [disabled]="true">
+                                        Triazolam (m)
+                                    </label>
+                                </div>
+                                <div class="form-group" >
+                                    <label style="color:blue;">
+                                        <input [(ngModel)]="sedative.full" type="checkbox" name="sedativeU" [disabled]="true">
+                                        SEDATIVES / HYPNOTICS
+                                    </label>
+                                </div>
+                                <div class="form-group" style="margin-left:10px;">
+                                    <label>
+                                        <input [(ngModel)]="sedative.butalbital" type="checkbox" name="sedativeU1" [disabled]="true">
+                                        Butalbital<br />
+                                        <input [(ngModel)]="sedative.phenibut" type="checkbox" name="sedativeU1" [disabled]="true">
+                                        Phenibut<br />
+                                        <input [(ngModel)]="sedative.xylazine" type="checkbox" name="sedativeU2" [disabled]="true">
+                                        Xylazine<br />
+                                        <input [(ngModel)]="sedative.zolpidem" type="checkbox" name="sedativeU3" [disabled]="true">
+                                        Zolpidem (m)<br />
+                                        <input [(ngModel)]="sedative.zopiclone" type="checkbox" name="sedativeU4" [disabled]="true">
+                                        Zopiclone/Eszopiclone (m)
+                                    </label>
+                                </div>
+                            </div>  
+                          
+                            <div class="col md-2">
+                                <div class="form-group" >
+                                    <label style="color:blue;">
+                                        <input [(ngModel)]="antidepressants.full" type="checkbox" name="antidepressantsU" [disabled]="true">
+                                        ANTIDEPRESSANTS
+                                    </label>
+                                </div>
+                                <div class="form-group" style="margin-left:10px;">
+                                    <label>
+                                        <input [(ngModel)]="antidepressants.amitriptyline" type="checkbox" name="antidepressantsU1" [disabled]="true">
+                                        Amitriptyline/Nortriptyline<br />
+                                        <input [(ngModel)]="antidepressants.doxepin" type="checkbox" name="antidepressantsU2" [disabled]="true">
+                                        Doxepin<br />
+                                        <input [(ngModel)]="antidepressants.imipramine" type="checkbox" name="antidepressantsU3" [disabled]="true">
+                                        Imipramine/Desipramine<br />
+                                        <input [(ngModel)]="antidepressants.mirtazapine" type="checkbox" name="antidepressantsU4" [disabled]="true">
+                                        Mirtazapine<br />
+                                        <input [(ngModel)]="antidepressants.citalopram" type="checkbox" name="antidepressantsU5" [disabled]="true">
+                                        Citalopram/Escitalopram<br />
+                                        <input [(ngModel)]="antidepressants.duloxetine" type="checkbox" name="antidepressantsU6" [disabled]="true">
+                                        Duloxetine<br />
+                                        <input [(ngModel)]="antidepressants.fluoxetine" type="checkbox" name="antidepressantsU7" [disabled]="true">
+                                        Fluoxetine<br />
+                                        <input [(ngModel)]="antidepressants.paroxetine" type="checkbox" name="antidepressantsU8" [disabled]="true">
+                                        Paroxetine<br />
+                                        <input [(ngModel)]="antidepressants.sertraline" type="checkbox" name="antidepressantsU9" [disabled]="true">
+                                        Sertraline<br />
+                                        <input [(ngModel)]="antidepressants.bupropion" type="checkbox" name="antidepressantsU10" [disabled]="true">
+                                        Bupropion (m)<br />
+                                        <input [(ngModel)]="antidepressants.trazodone" type="checkbox" name="antidepressantsU11" [disabled]="true">
+                                        Trazodone (m)<br />
+                                        <input [(ngModel)]="antidepressants.venlafaxine" type="checkbox" name="antidepressantsU12" [disabled]="true">
+                                        Venlafaxine/Desvenlafaxine (m)
+                                        <input [(ngModel)]="antidepressants.vortioxetine" type="checkbox" name="antidepressantsU12" [disabled]="true">
+                                        Vortioxetine
+                                    </label>
+                                </div>
+                            
+                                <div class="form-group" >
+                                    <label style="color:blue;">
+                                        <input [(ngModel)]="stimulants.full" type="checkbox" name="stimulantsU" [disabled]="true">
+                                        STIMULANTS
+                                    </label>
+                                </div>
+                                <div class="form-group" style="margin-left:10px;">
+                                    <label>
+                                        <input [(ngModel)]="stimulants.benzylone" type="checkbox" name="stimulantsU1" [disabled]="true">
+                                        Benzylone (BMDP)<br />
+                                        <input [(ngModel)]="stimulants.eutylone" type="checkbox" name="stimulantsU2" [disabled]="true">
+                                        Eutylone<br />
+                                        <input [(ngModel)]="stimulants.mda" type="checkbox" name="stimulantsU3" [disabled]="true">
+                                        MDA (sally)<br />
+                                        <input [(ngModel)]="stimulants.methylphenidate" type="checkbox" name="stimulantsU4" [disabled]="true">
+                                        Methylphenidate/ Dexmethylphenidate (m)<br />
+                                        <input [(ngModel)]="stimulants.phentermine" type="checkbox" name="stimulantsU5" [disabled]="true">
+                                        Phentermine
+                                    </label>
+                                </div>
+                                <div>
+                                    <label style="color:blue;">
+                                        <input [(ngModel)]="kratom" type="checkbox" name="kratomU" [disabled]="true">
+                                        KRATOM (mitragynine) 
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" (click)="closePreferenceClicked()" class="btn btn-primary" >Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" *ngIf="showToxOral">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="title">Physician Preference - Tox Oral</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- We want to have six columns  -->
+                            <div class="col md-2">
+                                <div class="form-group" >
+                                    <label style="color:blue;">
+                                        <input [(ngModel)]="oralIllicit.full" type="checkbox" name="illicitO" [disabled]="true">
+                                        COMMON ILLICIT DRUGS
+                                    </label>
+                                </div>
+                                <div class="form-group" style="margin-left:10px;">
+                                    <label>
+                                        <input [(ngModel)]="oralIllicit.mam6" type="checkbox" name="illicitO1" [disabled]="true">
+                                        6-MAM (heroin)<br />
+                                        <input [(ngModel)]="oralIllicit.amphetamine" type="checkbox" name="illicitO2" [disabled]="true">
+                                        Amphetamine<br />
+                                        <input [(ngModel)]="oralIllicit.methamphetamine" type="checkbox" name="illicitO3" [disabled]="true">
+                                        Methamphetamine<br />
+                                        <input [(ngModel)]="oralIllicit.benzoylecgonine" type="checkbox" name="illicitO4" [disabled]="true">
+                                        Benzoylecgonine (cocaine)<br />
+                                        <input [(ngModel)]="oralIllicit.mdma" type="checkbox" name="illicitO5" [disabled]="true">
+                                        MDMA (Ecstasy, Molly)<br />
+                                        <input [(ngModel)]="oralIllicit.pcp" type="checkbox" name="illicitO6" [disabled]="true">
+                                        Phencyclidine (PCP)<br />
+                                        <input [(ngModel)]="oralIllicit.thc" type="checkbox" name="illicitO7" [disabled]="true">
+                                        THC                                    
+                                    </label>
+                                </div>
+                                <div class="form-group" >
+                                    <label style="color:blue;">
+                                        <input [(ngModel)]="oralSedative.full" type="checkbox" name="sedativeO" [disabled]="true">
+                                        SEDATIVES / HYPNOTICS
+                                    </label>
+                                </div>
+                                <div class="form-group" style="margin-left:10px;">
+                                    <label>
+                                        <input [(ngModel)]="oralSedative.zolpidem" type="checkbox" name="sedativeO1" [disabled]="true">
+                                        Zolpidem<br />
+                                        <input [(ngModel)]="oralSedative.butalbital" type="checkbox" name="sedativeO2" [disabled]="true">
+                                        Butalbital
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Column 2 -->
+                            <div class="col md-2"> 
+                                <div class="form-group" >
+                                    <label style="color:blue;">
+                                        <input [(ngModel)]="oralBenzodiazepines.full" type="checkbox" name="benzodiazepinesO" [disabled]="true">
+                                        BENZODIAZEPINES
+                                    </label>
+                                </div>
+                                <div class="form-group" style="margin-left:10px;">
+                                    <label>
+                                        <input [(ngModel)]="oralBenzodiazepines.alprazolam" type="checkbox" name="benzodiazepinesO1" [disabled]="true">
+                                        Alprazolam<br />
+                                        <input [(ngModel)]="oralBenzodiazepines.diazepam" type="checkbox" name="benzodiazepinesO2" [disabled]="true">
+                                        Diazepam<br />
+                                        <input [(ngModel)]="oralBenzodiazepines.clonazepam" type="checkbox" name="benzodiazepinesO3" [disabled]="true">
+                                        Clonazepam<br />
+                                        <div style="margin-left:10px;">
+                                            <input [(ngModel)]="oralBenzodiazepines.aminoclonazepam" type="checkbox" name="benzodiazepinesO4" [disabled]="true">
+                                            7-aminoclonazepam<br />
+                                        </div>
+                                        <input [(ngModel)]="oralBenzodiazepines.nordiazepam" type="checkbox" name="benzodiazepinesO5" [disabled]="true">
+                                        Nordiazepam<br />
+                                        <input [(ngModel)]="oralBenzodiazepines.lorazepam" type="checkbox" name="benzodiazepinesO6" [disabled]="true">
+                                        Lorazepam<br />
+                                        <input [(ngModel)]="oralBenzodiazepines.oxazepam" type="checkbox" name="benzodiazepinesO7" [disabled]="true">
+                                        Oxazepam<br />
+                                        <input [(ngModel)]="oralBenzodiazepines.temazepam" type="checkbox" name="benzodiazepinesO8" [disabled]="true">
+                                        Temazepam
+                                    </label>
+                                </div>
+
+                                <div class="form-group" >
+                                    <label style="color:blue;">
+                                        <input [(ngModel)]="oralMuscle.full" type="checkbox" name="muscularO" [disabled]="true">
+                                        MUSCLE RELAXANTS
+                                    </label>
+                                </div>
+                                <div class="form-group" style="margin-left:10px;">
+                                    <label>
+                                        <input [(ngModel)]="oralMuscle.baclofen" type="checkbox" name="muscularO1" [disabled]="true">
+                                        Baclofen<br />
+                                        <input [(ngModel)]="oralMuscle.carisoprodol" type="checkbox" name="muscularO2" [disabled]="true">
+                                        Carisoprodol<br />
+                                        <input [(ngModel)]="oralMuscle.cyclobenzaprine" type="checkbox" name="muscularO3" [disabled]="true">
+                                        Cyclobenzaprine<br />
+                                        <input [(ngModel)]="oralMuscle.meprobamate" type="checkbox" name="muscularO4" [disabled]="true">
+                                        Meprobamate<br />
+                                        <input [(ngModel)]="oralMuscle.methocarbamol" type="checkbox" name="muscularO5" [disabled]="true">
+                                        Methocarbamol
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Column 3 -->
+                            <div class="col md-2"> 
+                                <div class="form-group" >
+                                    <label style="color:blue;">
+                                        <input [(ngModel)]="oralAntipsychotics.full" type="checkbox" name="antipsychoticsO" [disabled]="true">
+                                        ANTIPSYCHOTICS
+                                    </label>
+                                </div>
+                                <div class="form-group" style="margin-left:10px;">
+                                    <label>
+                                        <input [(ngModel)]="oralAntipsychotics.aripiprazole" type="checkbox" name="antipsychoticsO1" [disabled]="true">
+                                        Aripiprazole<br />
+                                        <input [(ngModel)]="oralAntipsychotics.quetiapine" type="checkbox" name="antipsychoticsO2" [disabled]="true">
+                                        Quetiapine<br />
+                                        <input [(ngModel)]="oralAntipsychotics.risperidone" type="checkbox" name="antipsychoticsO3" [disabled]="true">
+                                        Risperidone<br />
+                                        <input [(ngModel)]="oralAntipsychotics.ziprasidone" type="checkbox" name="antipsychoticsO4" [disabled]="true">
+                                        Ziprasidone
+                                    </label>
+                                </div>
+                                <div class="form-group" >
+                                    <label style="color:blue;">
+                                        <input [(ngModel)]="oralAntidepressants.full" type="checkbox" name="antidepressantsO" [disabled]="true">
+                                        ANTIDEPRESSANTS
+                                    </label>
+                                </div>
+                                <div class="form-group" style="margin-left:10px;">
+                                    <label>
+                                        <input [(ngModel)]="oralAntidepressants.amitriptyline" type="checkbox" name="antidepressantsO1" [disabled]="true">
+                                        Amitriptyline<br />
+                                        <input [(ngModel)]="oralAntidepressants.citalopram" type="checkbox" name="antidepressantsO2" [disabled]="true">
+                                        Citalopram<br />
+                                        <input [(ngModel)]="oralAntidepressants.fluoxetine" type="checkbox" name="antidepressantsO3" [disabled]="true">
+                                        Fluoxetine<br />
+                                        <input [(ngModel)]="oralAntidepressants.nortriptyline" type="checkbox" name="antidepressantsO4" [disabled]="true">
+                                        Nortriptyline<br />
+                                        <input [(ngModel)]="oralAntidepressants.paroxetine" type="checkbox" name="antidepressantsO6" [disabled]="true">
+                                        Paroxetine<br />
+                                        <input [(ngModel)]="oralAntidepressants.sertraline" type="checkbox" name="antidepressantsO6" [disabled]="true">
+                                        Sertraline<br />
+                                        <input [(ngModel)]="oralAntidepressants.venlafaxine" type="checkbox" name="antidepressantsO7" [disabled]="true">
+                                        Venlafaxine<br />
+                                        <input [(ngModel)]="oralAntidepressants.desmethylvenlafaxine" type="checkbox" name="antidepressantsO8" [disabled]="true">
+                                        Desmethylvenlafaxine<br />
+                                        <input [(ngModel)]="oralAntidepressants.mirtazapine" type="checkbox" name="antidepressantsO9" [disabled]="true">
+                                        Mirtazapine<br />
+                                        <input [(ngModel)]="oralAntidepressants.trazodone" type="checkbox" name="antidepressantsO10" [disabled]="true">
+                                        Trazodone    
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Column 4 -->
+                            <div class="col md-2"> 
+                                <div class="form-group" >
+                                    <label style="color:blue;">
+                                        <input [(ngModel)]="oralStimulants.full" type="checkbox" name="stimulantsO" [disabled]="true">
+                                        STIMULANTS
+                                    </label>
+                                </div>
+                                <div class="form-group" style="margin-left:10px;">
+                                    <label>
+                                        <input [(ngModel)]="oralStimulants.methylphenidate" type="checkbox" name="stimulantsO1" [disabled]="true">
+                                        Methylphenidate<br />
+                                        <input [(ngModel)]="oralStimulants.ritalinicAcid" type="checkbox" name="stimulantsO2" [disabled]="true">
+                                        Ritalinic acid<br />
+                                        <input [(ngModel)]="oralStimulants.mda" type="checkbox" name="stimulantsO3" [disabled]="true">
+                                        MDA (Sally)<br />
+                                        <input [(ngModel)]="oralStimulants.phentermine" type="checkbox" name="stimulantsO4" [disabled]="true">
+                                        Phentermine
+                                    </label>
+                                </div>
+                                <div class="form-group" >
+                                    <label style="color:blue;">
+                                        <input [(ngModel)]="oralKratom.full" type="checkbox" name="kratomO" [disabled]="true">
+                                        KRATOM
+                                    </label>
+                                </div>
+                                <div class="form-group" style="margin-left:10px;">
+                                    <label>
+                                        <input [(ngModel)]="oralKratom.mitragynine" type="checkbox" name="kratomO1" [disabled]="true">
+                                        Mitragynine (Kratom)<br />
+                                    </label>
+                                </div>
+                                <div class="form-group" >
+                                    <label style="color:blue;">
+                                        <input [(ngModel)]="oralNicotine.full" type="checkbox" name="nicotineO" [disabled]="true">
+                                        NICOTINE
+                                    </label>
+                                </div>
+                                <div class="form-group" style="margin-left:10px;">
+                                    <label>
+                                        <input [(ngModel)]="oralNicotine.cotinine" type="checkbox" name="nicotineO1" [disabled]="true">
+                                        Cotinine<br />
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Column 5 -->
+                            <div class="col md-2"> 
+                                <div class="form-group" >
+                                    <label style="color:blue;">
+                                        <input [(ngModel)]="oralOpioidAntagonists.full" type="checkbox" name="opioidAntagonistO" [disabled]="true">
+                                        OPIOID ANTAGONISTS
+                                    </label>
+                                </div>
+                                <div class="form-group" style="margin-left:10px;">
+                                    <label>
+                                        <input [(ngModel)]="oralOpioidAntagonists.naloxone" type="checkbox" name="opioidAntagonistO1" [disabled]="true">
+                                        Naloxone<br />
+                                        <input [(ngModel)]="oralOpioidAntagonists.naltrexone" type="checkbox" name="opioidAntagonistO3" [disabled]="true">
+                                        Naltrexone<br />
+                                    </label>
+                                </div>
+                                <div class="form-group" >
+                                    <label style="color:blue;">
+                                        <input [(ngModel)]="oralGabapentinoids.full" type="checkbox" name="gabapentinoidsO" [disabled]="true">
+                                        GABAPENTINOIDS
+                                    </label>
+                                </div>
+                                <div class="form-group" style="margin-left:10px;">
+                                    <label>
+                                        <input [(ngModel)]="oralGabapentinoids.gabapentin" type="checkbox" name="gabapentinoidsO1" [disabled]="true">
+                                        Gabapentin<br />
+                                        <input [(ngModel)]="oralGabapentinoids.pregabalin" type="checkbox" name="gabapentinoidsO2" [disabled]="true">
+                                        Pregabalin<br />
+                                    </label>
+                                </div>
+
+                                <div class="form-group" >
+                                    <label style="color:blue;">
+                                        <input [(ngModel)]="oralDissociative.full" type="checkbox" name="dissociativeO" [disabled]="true">
+                                        DISSOCIATIVE AGENTS
+                                    </label>
+                                </div>
+                                <div class="form-group" style="margin-left:10px;">
+                                    <label>
+                                        <input [(ngModel)]="oralDissociative.ketamine" type="checkbox" name="dissociativeO1" [disabled]="true">
+                                        Ketamine<br />
+                                        <div style="margin-left:10px;">
+                                            <input [(ngModel)]="oralDissociative.norketamine" type="checkbox" name="dissociativeO2" [disabled]="true">
+                                            Norketamine
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Column 6 -->
+                            <div class="col md-2"> 
+                                <div class="col md-2">
+                                    <div class="form-group" >
+                                        <label style="color:blue;">
+                                            <input [(ngModel)]="oralOpioidAgonists.full" type="checkbox" name="opioidAgonistsO" [disabled]="true">
+                                            OPIOID AGONISTS
+                                        </label>
+                                    </div>
+                                    <div class="form-group" style="margin-left:10px;">
+                                        <label>
+                                            <input [(ngModel)]="oralOpioidAgonists.buprenorphine" type="checkbox" name="opioidAgonistsO1" [disabled]="true">
+                                            Buprenorphine<br />
+                                            <div style="margin-left:10px;">
+                                                <input [(ngModel)]="oralOpioidAgonists.norbuprenorphine" type="checkbox" name="opioidAgonistsO2" [disabled]="true">
+                                                Norbuprenorphine<br />
+                                            </div>
+                                            <input [(ngModel)]="oralOpioidAgonists.codeine" type="checkbox" name="opioidAgonistsO3" [disabled]="true">
+                                            Codeine<br />
+                                            <input [(ngModel)]="oralOpioidAgonists.dextromethorphan" type="checkbox" name="opioidAgonistsO4" [disabled]="true">
+                                            Dextromethorphan<br />
+                                            <input [(ngModel)]="oralOpioidAgonists.hydrocodone" type="checkbox" name="opioidAgonistsO5" [disabled]="true">
+                                            Hydrocodone<br />
+                                            <div style="margin-left:10px;">
+                                                <input [(ngModel)]="oralOpioidAgonists.norhydrocodone" type="checkbox" name="opioidAgonistsO6" [disabled]="true">
+                                                Norhydrocodone<br />
+                                            </div>
+                                            <input [(ngModel)]="oralOpioidAgonists.hydromorphone" type="checkbox" name="opioidAgonistsO7" [disabled]="true">
+                                            Hydromorphone<br />
+                                            <input [(ngModel)]="oralOpioidAgonists.fentanyl" type="checkbox" name="opioidAgonistsO8" [disabled]="true">
+                                            Fentanyl<br />
+                                            <div style="margin-left:10px;">
+                                                <input [(ngModel)]="oralOpioidAgonists.norfentanyl" type="checkbox" name="opioidAgonistsO9" [disabled]="true">
+                                                Norfentanyl<br />
+                                            </div>
+                                            <input [(ngModel)]="oralOpioidAgonists.methadone" type="checkbox" name="opioidAgonistsO10" [disabled]="true">
+                                            Methadone<br />
+                                            <div style="margin-left:10px;">
+                                                <input [(ngModel)]="oralOpioidAgonists.eddp" type="checkbox" name="opioidAgonistsO11" [disabled]="true">
+                                                EDDP<br />
+                                            </div>
+                                            <input [(ngModel)]="oralOpioidAgonists.morphine" type="checkbox" name="opioidAgonists12" [disabled]="true">
+                                            Morphine<br />
+                                            <input [(ngModel)]="oralOpioidAgonists.oxycodone" type="checkbox" name="opioidAgonistsO13" [disabled]="true">
+                                            Oxycodone<br />
+                                            <div style="margin-left:10px;">
+                                                <input [(ngModel)]="oralOpioidAgonists.noroxycodone" type="checkbox" name="opioidAgonistsO14" [disabled]="true">
+                                                Noroxycodone<br />
+                                            </div>
+                                            <input [(ngModel)]="oralOpioidAgonists.oxymorphone" type="checkbox" name="opioidAgonistsO15" [disabled]="true">
+                                            Oxymorphone<br />
+                                            <input [(ngModel)]="oralOpioidAgonists.tapentadol" type="checkbox" name="opioidAgonistsO16" [disabled]="true">
+                                            Tapentadol<br />
+                                            <input [(ngModel)]="oralOpioidAgonists.tramadol" type="checkbox" name="opioidAgonistsO17" [disabled]="true">
+                                            Tramadol<br />
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" (click)="closePreferenceClicked()" class="btn btn-primary" >Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
