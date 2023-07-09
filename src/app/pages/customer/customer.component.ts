@@ -11,7 +11,10 @@
 //04/10/2023 SJF Added DeleteAttachment
 //05/01/2023 SJF  Changed to new oral tox method
 //07/06/2023 SJF Added upload physician signature
+<<<<<<< HEAD:src/app/pages/customer/customer.component.ts
 //07/08/2023 SJF Fixed pdf upload
+=======
+>>>>>>> dac93fc91f9ca79168f2c715eeef72dd71f410e0:app/pages/customer/customer.component.ts
 //-----------------------------------------------------------------------------
 // Data Passing
 //-----------------------------------------------------------------------------
