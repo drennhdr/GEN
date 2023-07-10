@@ -28,6 +28,7 @@
 //06/06/2023 SJF  Added UnAccession and Edit Processed for CET Mgr
 //06/26/2023 SJF  Added printListButtonClicked
 //07/09/2023 SJF Removed Norhydrocodone & Noroxycodone
+//07/10/2023 SJF Added Billing Review User Type
 //-----------------------------------------------------------------------------
 // Data Passing
 //-----------------------------------------------------------------------------
@@ -543,8 +544,6 @@ export class LabOrderComponent implements OnInit {
 
       this.collectionTime = '';
 
-      console.log('DG',this.delegates);
-
       this.delegateSearch = false;
 
       if (this.delegates != null){
@@ -554,8 +553,6 @@ export class LabOrderComponent implements OnInit {
           }
         });
       }
-
-      console.log('DGS',this.delegateSearch);
 
       if (this.patientId != 0)
       {

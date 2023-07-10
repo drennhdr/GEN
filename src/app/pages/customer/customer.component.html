@@ -155,7 +155,14 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="title">Account Information</h5>
+                    <div class="row">
+                        <div class="col-md-6 pr-1">
+                            <h5 class="title">Account Information</h5>
+                        </div>
+                        <div *ngIf="userType==1 || userType==8" Class="col-md-3 pr-1">
+                            <label>Account Id: {{customerId}}</label>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="row">

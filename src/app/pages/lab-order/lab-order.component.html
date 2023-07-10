@@ -207,15 +207,15 @@
                                             Actions
                                         </button>
                                         <div class="dropdown-menu" ngbDropdownMenu aria-labelledby="dropdownMenuButton">
-                                            <a class="dropdown-item" *ngIf="item.labStatusId<30" (click)="selectButtonClicked(item.labOrderId)">Edit</a>
-                                            <a class="dropdown-item" *ngIf="item.labStatusId==30 AND (userType==6 || userType==7 || userType==8)" (click)="unAccessionButtonClicked(item.labOrderId)">UnAccession</a>
-                                            <a class="dropdown-item" *ngIf="item.labStatusId==40 AND UserType==8" (click)="selectButtonClicked(item.labOrderId)">Edit</a>
-                                            <a class="dropdown-item" (click)="attachmentModalClicked(item.labOrderId, item.patientId)">Attachments</a>
-                                            <a class="dropdown-item" (click)="printBarcodeFromMenu(item.labOrderId)">Print Label</a>
+                                            <a class="dropdown-item" *ngIf="item.labStatusId<30 && userType!=15" (click)="selectButtonClicked(item.labOrderId)">Edit</a>
+                                            <a class="dropdown-item" *ngIf="item.labStatusId==30 && (userType==6 || userType==7 || userType==8)" (click)="unAccessionButtonClicked(item.labOrderId)">UnAccession</a>
+                                            <a class="dropdown-item" *ngIf="item.labStatusId==40 && UserType==8" (click)="selectButtonClicked(item.labOrderId)">Edit</a>
+                                            <a class="dropdown-item" *ngIf="userType!=15" (click)="attachmentModalClicked(item.labOrderId, item.patientId)">Attachments</a>
+                                            <a class="dropdown-item" *ngIf="userType!=15"(click)="printBarcodeFromMenu(item.labOrderId)">Print Label</a>
                                             <a class="dropdown-item" (click)="orderPdfClicked(item.labOrderId)">Request Pdf</a>
                                             <a class="dropdown-item" *ngIf="item.labStatusId==50" (click)="resultPdfClicked(item.labOrderSpecimenId)">Result Pdf</a>
-                                            <a class="dropdown-item" *ngIf="item.labStatusId<30" (click)="cancelOrderDropdownButtonClicked(item.labOrderId)">Cancel</a>
-                                            <a class="dropdown-item" *ngIf="item.labStatusId==99" (click)="unCancelOrderDropdownButtonClicked(item.labOrderId)">Uncancel</a>
+                                            <a class="dropdown-item" *ngIf="item.labStatusId<30 && userType!=15" (click)="cancelOrderDropdownButtonClicked(item.labOrderId)">Cancel</a>
+                                            <a class="dropdown-item" *ngIf="item.labStatusId==99 && userType!=15" (click)="unCancelOrderDropdownButtonClicked(item.labOrderId)">Uncancel</a>
                                         </div>
                                     </div>
   

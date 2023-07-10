@@ -113,6 +113,7 @@ export class SidebarComponent implements OnInit, OnChanges {
     // 12	LCS
     // 13 LCS Plus
     // 14 Parol Officer
+    // 15 Billing Review
 
     this.router.events.subscribe((event:any) => {
       if (event instanceof NavigationStart) {
@@ -135,10 +136,10 @@ export class SidebarComponent implements OnInit, OnChanges {
         var sales = false;
         var parole = false;
     
-        if (userType == 14){
+        if (userType == 14 || userType == 15){
           dashboard = false;
         }
-        if (userType != 2 && userType != 14){
+        if (userType != 2 && userType != 14 && userType != 15){
           customer = true;
         }
 
@@ -146,10 +147,10 @@ export class SidebarComponent implements OnInit, OnChanges {
           customerFilter = true;
         }
         
-        if (userType == 1 || userType == 2 || userType == 3 || userType == 4 || userType == 6 || userType == 7 || userType == 8 || userType == 12 || userType == 13 || userType == 14) {
+        if (userType == 1 || userType == 2 || userType == 3 || userType == 4 || userType == 6 || userType == 7 || userType == 8 || userType == 12 || userType == 13 || userType == 14  || userType == 15) {
           patient = true;
         }
-        if (userType == 1 || userType == 2 || userType == 3 || userType == 4 || userType == 6 || userType == 7 || userType == 8 || userType == 12 || userType == 13) {
+        if (userType == 1 || userType == 2 || userType == 3 || userType == 4 || userType == 6 || userType == 7 || userType == 8 || userType == 12 || userType == 13  || userType == 15) {
           labOrder = true;
         }
         if (userType == 6  || userType == 7 || userType == 8) {

@@ -20,6 +20,7 @@
 //05/03/2023 SJF Changed search from Name to First Name & Last Name
 //05/15/2023 SJF Added printing of label for order.
 //07/09/2023 SJF Code Sync
+//07/10/2023 SJF Added Billing Review User Type
 //-----------------------------------------------------------------------------
 // Data Passing
 //-----------------------------------------------------------------------------
@@ -96,6 +97,7 @@ export class PatientComponent implements OnInit, AfterViewChecked {
   showError: boolean;
   errorMessage: string;
   createOrder: boolean = false;
+  viewOnly: boolean = false;
 
   // Search Variables
   searchFirstName: string;
@@ -350,6 +352,11 @@ export class PatientComponent implements OnInit, AfterViewChecked {
     else{
       this.customerLogin = true;
     }
+
+    if (this.userType == 14 || this.userType == 15){
+      this.viewOnly = true;
+    }
+
     var callingScreen = sessionStorage.getItem("callingScreen");
 
     if (callingScreen == "patient")
