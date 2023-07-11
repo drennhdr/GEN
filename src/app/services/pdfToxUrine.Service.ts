@@ -241,7 +241,7 @@ export class PdfToxUrineService {
                 doc.text(item.code, 210, 360);
             }
             else if (cntr==3){
-                doc.text(item.code, 350, 3602);
+                doc.text(item.code, 350, 360);
             }
             else if (cntr==4){
                 doc.text(item.code, 480, 360);

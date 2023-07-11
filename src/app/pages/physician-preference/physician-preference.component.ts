@@ -8,6 +8,7 @@
 //02/13/2023 SJF  Added message modal
 //05/01/2023 SJF  Changed to new oral tox method
 //07/09/2023 SJF Removed Norhydrocodone & Noroxycodone
+//07/11/2023 SJF Added Copy and Update
 //-----------------------------------------------------------------------------
 // Data Passing
 //-----------------------------------------------------------------------------
@@ -76,20 +77,21 @@ export class PhysicianPreferenceComponent implements OnInit {
     oralDissociative: any;
     oralOpioidAgonists: any;
 
-     errorMessage: string;
-     dateErrorMessage: string;
-                                   
-   
-     // Variables to control screen display
-     showList: boolean;
-     showUrine: boolean;
-     showOral: boolean;
-     showInfo: boolean;
- 
-     
-     preferenceSave: boolean;
-     orderDisabled: boolean;
-     preferenceSunset: boolean;
+    errorMessage: string;
+    dateErrorMessage: string;
+                                  
+  
+    // Variables to control screen display
+    showList: boolean;
+    showUrine: boolean;
+    showOral: boolean;
+    showInfo: boolean;
+    updateFlag: boolean; 
+
+    
+    preferenceSave: boolean;
+    orderDisabled: boolean;
+    preferenceSunset: boolean;
 
     // Modal Dialog
     modalRef: BsModalRef;
@@ -110,6 +112,7 @@ export class PhysicianPreferenceComponent implements OnInit {
     this.showUrine = false;
     this.showOral = false;
     this.showInfo = false;
+    this.updateFlag = false;
     this.preferenceSunset = false;
 
     this.loadList();
@@ -239,11 +242,10 @@ export class PhysicianPreferenceComponent implements OnInit {
                 }
                 this.showInfo = true;
 
-                
-
                 this.preferenceSave = false;
                 this.orderDisabled = true;
                 this.preferenceSunset = false;
+                this.updateFlag = false;
               }
               else
               {
@@ -329,38 +331,93 @@ export class PhysicianPreferenceComponent implements OnInit {
   }
 
   saveButtonClicked(labType: number){
-    this.preferenceData.version = "2022.11";
-    this.preferenceData.labTypeId = labType;
-    this.preferenceData.labTestId = 0;
-    this.preferenceData.customerId = parseInt(sessionStorage.getItem('entityId_Login'));
-    this.preferenceData.userId = parseInt(sessionStorage.getItem('userId_Login'));
-    this.preferenceData.active = true;
-    if (this.preferenceData.labTypeId == 1){
-      this.loadPreferenceFromTest();
+    if (this.updateFlag == true){
+      // Sunset Old Panel
+      const ckDate = new Date(this.preferenceData.effectiveDate);
+      this.preferenceData.sunsetDate = formatDate(ckDate.setDate(ckDate.getDate()),'yyyy-MM-dd', 'en');
+      this.physicianPreferenceService.sunset( this.preferenceData)
+            .pipe(first())
+            .subscribe(
+            data => {
+              console.log(data);
+              if (data.valid) {
+                // Old Panel Sunset, save updated panel
+                this.preferenceData.physicianPreferenceId = 0;
+                this.preferenceData.sunsetDate = '1/1/1900';
+                this.preferenceData.version = "2022.11";
+                this.preferenceData.labTestId = 0;
+                this.preferenceData.active = true;
+                if (this.preferenceData.labTypeId == 1){
+                  this.loadPreferenceFromTest();
+                }
+                else{
+                  this.loadOralPreferenceFromTest();
+                }
+                this.physicianPreferenceService.save( this.preferenceData)
+                      .pipe(first())
+                      .subscribe(
+                      data => {
+                        console.log(data);
+                        if (data.valid) {
+                          this.showList = true;
+                          this.showUrine = false;
+                          this.showOral = false;
+                          this.showInfo = false;
+                      
+                          this.loadList();
+                        }
+                        else{
+                          this.errorMessage = data.message;
+                        }
+                      },
+                      error => {
+                      this.errorMessage = error;
+                      });
+              }
+              else{
+                this.errorMessage = data.message;
+              }
+            },
+            error => {
+            this.errorMessage = error;
+            });
     }
+
     else{
-      this.loadOralPreferenceFromTest();
+
+      this.preferenceData.version = "2022.11";
+      this.preferenceData.labTypeId = labType;
+      this.preferenceData.labTestId = 0;
+      this.preferenceData.customerId = parseInt(sessionStorage.getItem('entityId_Login'));
+      this.preferenceData.userId = parseInt(sessionStorage.getItem('userId_Login'));
+      this.preferenceData.active = true;
+      if (this.preferenceData.labTypeId == 1){
+        this.loadPreferenceFromTest();
+      }
+      else{
+        this.loadOralPreferenceFromTest();
+      }
+      this.physicianPreferenceService.save( this.preferenceData)
+            .pipe(first())
+            .subscribe(
+            data => {
+              console.log(data);
+              if (data.valid) {
+                this.showList = true;
+                this.showUrine = false;
+                this.showOral = false;
+                this.showInfo = false;
+            
+                this.loadList();
+              }
+              else{
+                this.errorMessage = data.message;
+              }
+            },
+            error => {
+            this.errorMessage = error;
+            });
     }
-    this.physicianPreferenceService.save( this.preferenceData)
-          .pipe(first())
-          .subscribe(
-          data => {
-            console.log(data);
-            if (data.valid) {
-              this.showList = true;
-              this.showUrine = false;
-              this.showOral = false;
-              this.showInfo = false;
-          
-              this.loadList();
-            }
-            else{
-              this.errorMessage = data.message;
-            }
-          },
-          error => {
-          this.errorMessage = error;
-          });
   }
 
   sunsetChanged(){
@@ -482,6 +539,18 @@ export class PhysicianPreferenceComponent implements OnInit {
     this.orderDisabled = false;
   }
 
+  updateButtonClicked(labType: number){
+    const ckDate = new Date();
+    
+    this.preferenceData.version = "2022.11";
+    this.preferenceData.effectiveDate = formatDate(ckDate.setDate(ckDate.getDate()),'yyyy-MM-dd', 'en');
+
+    this.updateFlag = true;
+    this.preferenceSave = true;
+    this.orderDisabled = false;
+    this.preferenceSunset = false;
+
+  }
 
 
   // Tox Urine
