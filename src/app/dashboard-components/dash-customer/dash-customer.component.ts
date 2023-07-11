@@ -82,6 +82,24 @@ export class DashCustomerComponent implements OnInit {
     if (sessionStorage.getItem('physician') == 'true'){
       this.loadUnsignedCount();
     }
+    else{
+      // Check if user is a delegate
+      
+      var delegates = JSON.parse(sessionStorage.getItem('delegate'));
+      console.log("Check if delegate",delegates);
+      if (delegates != null){
+        var found = false;
+        delegates.forEach(item => {
+          if (item.userId_Delegate == this.userId){
+            found = true;
+          }
+        });
+        if (found){
+          console.log("Load Unsigned");
+          this.loadUnsignedCount();
+        }
+      }
+    }
     this.loadDemoIssues();
 
        
