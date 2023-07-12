@@ -20,7 +20,7 @@
                         </div>
                         <div class="card-body">
                             <form name="delegate-form">
-                                <div class="row">
+                                <!-- <div class="row">
                                     <div class="col-md-3  pr-1">
                                         <div class="form-group" >
                                             <label>Delegates</label>
@@ -31,7 +31,31 @@
                                             </select>
                                         </div>
                                     </div>
+                                </div> -->
+                                <div class="row">
+                                    <div class="col-md-3  pr-1">
+                                        <div class="form-group" >
+                                            <label>Select a delegate to add</label>
+
+                                            <select multiple class="form-control" name="userList" id="userList" #selectList (change)="newDelegateClick(selectList.value)">
+                                                <option *ngFor="let option of this.userList" [value]="option.userId" >
+                                                    {{option.firstName}} {{option.lastName}}
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3  pr-1">
+                                        <div class="form-group" >
+                                            <label>Selected Delegates<br /></label>
+                                            <select multiple class="form-control" name="delegatesList" id="delegatesList" #selectList2 (change)="currentDelegateClick(selectList2.value)">
+                                                <option *ngFor="let option of delegateList" [value]="option.userId" >
+                                                    {{option.firstName}} {{option.lastName}}
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </div>
                                 </div>
+                                <br />
                                 <div class="row">
                                     <div class="col-md-6 pr-1">
                                         <div class="form-group" >

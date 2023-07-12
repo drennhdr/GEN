@@ -1686,7 +1686,7 @@ toxOralFullPanel: boolean = false;
     else if (this.labOrderData.labTypeId == 3 && !this.labData.service_GPP){
       lab = 0
     }
-    else if (this.labOrderData.labTypeId == 4 && !this.labData.service_ToxUTI){
+    else if (this.labOrderData.labTypeId == 4 && !this.labData.service_UTISTI){
       lab = 0
     }
     else if (this.labOrderData.labTypeId == 5 && !this.labData.service_RPP){

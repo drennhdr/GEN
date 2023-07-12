@@ -14,7 +14,7 @@ import { first } from 'rxjs/operators';
 import { UserService } from '../../services/user.service';
 import { Router } from '@angular/router';
 
-import { UserDelegateModel, UserDelegateItemModel } from '../../models/UserModel';
+import { UserDelegateModel, UserDelegateItemModel, UserListItemModel } from '../../models/UserModel';
 
 
 @Component({
@@ -25,9 +25,10 @@ import { UserDelegateModel, UserDelegateItemModel } from '../../models/UserModel
 export class DelegatesComponent implements OnInit {
 
   userData: any;
-  delegateSelected: any;
+  // delegateSelected: any;
   attested: boolean;
   userList: any;
+  delegateList: any;
   errorMessage: string = '';
   saved: boolean;
 
@@ -64,15 +65,29 @@ export class DelegatesComponent implements OnInit {
             });
 
             // Set up list of selected delegate.
-            this.delegateSelected = [];
-            var cntr: number = 0;
+            // this.delegateSelected = [];
+            // var cntr: number = 0;
 
+            // var delegates = JSON.parse(sessionStorage.getItem('delegate'));
+
+            // if (delegates != null){
+            //   delegates.forEach( (item) =>{
+            //     this.delegateSelected[cntr] = item.userId_Delegate;
+            //     cntr++;
+            //   });
+            // }
+
+            this.delegateList = new Array<UserListItemModel>();
             var delegates = JSON.parse(sessionStorage.getItem('delegate'));
 
             if (delegates != null){
               delegates.forEach( (item) =>{
-                this.delegateSelected[cntr] = item.userId_Delegate;
-                cntr++;
+                this.userList.forEach( (item2) =>{
+                  if (item2.userId == item.userId_Delegate){
+                    this.delegateList.push(item2)
+                  }
+                  index++;
+                });
               });
             }
           }
@@ -92,10 +107,10 @@ export class DelegatesComponent implements OnInit {
     var userDelegate = new UserDelegateModel();
     userDelegate.userId = userId;
 
-    this.delegateSelected.forEach( (item) =>{
+    this.delegateList.forEach( (item) =>{
       var item2 = new UserDelegateItemModel
       item2.userId = userId;
-      item2.userId_Delegate = item;
+      item2.userId_Delegate = item.userId;
       userDelegate.delegates.push(item2);
     });
   
@@ -123,4 +138,35 @@ export class DelegatesComponent implements OnInit {
     this.attested = false;
 
   }
+
+  newDelegateClick(id: number){
+    var found = false;
+    // Check if delegate already in lab list
+    for (let item of this.delegateList){
+      if (item.userId == id){
+        found = true;
+        break;
+      }
+    }
+
+    if (!found){
+      // Find delegate in list
+      for (let item of this.userList){
+        if (item.userId == id){
+          this.delegateList.push(item)
+        }
+      }
+    }
+  }
+
+  currentDelegateClick(id: number){
+    var index = 0;
+    for (let item of this.delegateList){
+      if (item.userId == id){
+        this.delegateList.splice(index, 1);
+      }
+      index++;
+    }
+  }
+
 }

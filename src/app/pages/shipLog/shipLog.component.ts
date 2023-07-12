@@ -296,8 +296,6 @@ export class ShipLogComponent implements OnInit {
       }
     }
 
-    
-
     this.errorMessage = "";
     var oldId = this.shipLogData.shipLogId;
     this.shipLogService.save(this.shipLogData )
@@ -309,7 +307,7 @@ export class ShipLogComponent implements OnInit {
         if (print){
           var locationName = "";
           this.locationList.forEach( (item) =>{
-            if (item.locationId = this.shipLogData.locationId){
+            if (item.locationId == this.shipLogData.locationId){
               locationName = item.locationName;
             }
           });
