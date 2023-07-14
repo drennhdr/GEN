@@ -37,7 +37,7 @@
                                         <div class="form-group" >
                                             <label>Select a delegate to add</label>
 
-                                            <select multiple class="form-control" name="userList" id="userList" #selectList (change)="newDelegateClick(selectList.value)">
+                                            <select multiple class="form-control" name="userList" id="userList" #selectList (change)="newDelegateClick(selectList.value)" [disabled]="saved">
                                                 <option *ngFor="let option of this.userList" [value]="option.userId" >
                                                     {{option.firstName}} {{option.lastName}}
                                                 </option>
@@ -47,7 +47,7 @@
                                     <div class="col-md-3  pr-1">
                                         <div class="form-group" >
                                             <label>Selected Delegates<br /></label>
-                                            <select multiple class="form-control" name="delegatesList" id="delegatesList" #selectList2 (change)="currentDelegateClick(selectList2.value)">
+                                            <select multiple class="form-control" name="delegatesList" id="delegatesList" #selectList2 (change)="currentDelegateClick(selectList2.value)"  [disabled]="saved">
                                                 <option *ngFor="let option of delegateList" [value]="option.userId" >
                                                     {{option.firstName}} {{option.lastName}}
                                                 </option>

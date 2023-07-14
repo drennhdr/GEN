@@ -11,6 +11,7 @@
 //04/10/2023 SJF Added DeleteAttachment
 //05/01/2023 SJF  Changed to new oral tox method
 //07/06/2023 SJF Added upload physician signature
+//07/12/2023 SJF Added delegate setup to users
 //-----------------------------------------------------------------------------
 // Data Passing
 //-----------------------------------------------------------------------------
@@ -31,7 +32,7 @@ import { CustomerModel, CustomerLcsModel } from '../../models/CustomerModel';
 import { LocationModel, LocationListItemModel } from '../../models/LocationModel';
 import { CustomerAttachmentModel, CustomerAttachmentListItemModel} from '../../models/CustomerAttachmentModel';
 import { CustomerNoteListModel, CustomerNoteListItemModel, CustomerNoteModel} from '../../models/CustomerNoteModel';
-import { UserModel, UserListItemModel, UserListModel, UserLocationModel } from '../../models/UserModel';
+import { UserModel, UserListItemModel, UserListModel, UserLocationModel, UserDelegateModel, UserDelegateItemModel } from '../../models/UserModel';
 import { CodeItemModel } from '../../models/CodeModel';
 import { UserSignatureModel } from '../../models/UserSignatureModel';
 import { Observable, ReplaySubject } from 'rxjs';
@@ -115,6 +116,9 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
   lcsSelected: any;
   lcsList: any;
 
+  userList: any;
+  delegateList: any;
+
   accountTypeList: any;
   billingTypeList: any;
   specialtyList: any;
@@ -132,6 +136,7 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
   labUrinalysisList: any;
   labHematologyList: any;
   userSiteAdmin: boolean;
+  delegateAdd: boolean;
 
   fileUploaded:boolean = false;
   fileScanned: boolean = false;
@@ -215,6 +220,7 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
     this.showCustomer = false;
     this.showLocationList = false;
     this.showError = false;
+    this.delegateAdd = false;
 
 
     this.userType = Number(sessionStorage.getItem('userType'));
@@ -813,6 +819,7 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
                 this.userData = data;
                 this.userSiteAdmin = false;
                 this.userSave = false;
+                this.delegateAdd = false;
                 if (data.userTypeId == 3){
                   this.userSiteAdmin = true;
                 }
@@ -855,6 +862,7 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
     this.userData.userId = 0;
     this.userData.userSiteAdmin = false;
     this.userSave = false;
+    this.delegateAdd = false;
 
     this.hideSummaryItems();
 
@@ -1014,6 +1022,131 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
         this.errorMessage = error;
         this.showError = true;
       });
+  }
+
+  delegateClicked(){
+    this.delegateAdd = true;
+    var userId = this.userData.userId;
+    var index = 0;
+
+    this.userService.search(this.customerId, '','',false, false)
+        .pipe(first())
+        .subscribe(
+        data => {
+          if (data.valid)
+          {
+            // Remove physician & Duplicates from list
+            var holdUserId = 0;
+            this.userList = new Array<UserListItemModel>();
+            data.list.forEach( (item) =>{
+              if (item.userId != userId && item.userId != holdUserId){
+                this.userList.push(item);
+              }
+              holdUserId = item.userId;
+            });
+
+            this.userService.getDelegateList(userId)
+                .pipe(first())
+                .subscribe(
+                data => {
+                  if (data.valid)
+                  {
+                    this.delegateList = new Array<UserListItemModel>();
+                    
+                    if (data.valid){
+                      data.delegates.forEach( (item) =>{
+                        this.userList.forEach( (item2) =>{
+                          if (item2.userId == item.userId_Delegate){
+                            this.delegateList.push(item2)
+                          }
+                          index++;
+                        });
+                      });
+                    }
+                  }
+                  else
+                  {
+                    
+                  }
+                },
+                error => {
+                  console.log("Get Delegates Error");
+                });
+          }
+          else
+          {
+            
+          }
+        },
+        error => {
+          
+        });
+  }
+
+  newDelegateClick(id: number){
+    var found = false;
+    // Check if delegate already in lab list
+    for (let item of this.delegateList){
+      if (item.userId == id){
+        found = true;
+        break;
+      }
+    }
+
+    if (!found){
+      // Find delegate in list
+      for (let item of this.userList){
+        if (item.userId == id){
+          this.delegateList.push(item)
+        }
+      }
+    }
+  }
+
+  currentDelegateClick(id: number){
+    var index = 0;
+    for (let item of this.delegateList){
+      if (item.userId == id){
+        this.delegateList.splice(index, 1);
+      }
+      index++;
+    }
+  }
+
+
+  saveDelegateButtonClicked(){
+    var userId = this.userData.userId;
+    var userDelegate = new UserDelegateModel();
+    userDelegate.userId = userId;
+
+    this.delegateList.forEach( (item) =>{
+      var item2 = new UserDelegateItemModel
+      item2.userId = userId;
+      item2.userId_Delegate = item.userId;
+      userDelegate.delegates.push(item2);
+    });
+  
+    
+    this.userService.saveDelegates( userDelegate)
+          .pipe(first())
+          .subscribe(
+          data => {
+            if (data.valid) {
+              this.delegateAdd = false;
+              sessionStorage.setItem('delegate',JSON.stringify(userDelegate.delegates));
+            }
+            else{
+              this.errorMessage = data.message;
+            }
+          },
+          error => {
+          this.errorMessage = error;
+          });
+
+  }
+
+  cancelDelegateButtonClicked(){
+    this.delegateAdd = false;
   }
 
   // Attachments

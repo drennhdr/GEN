@@ -793,7 +793,7 @@
                             <div class="form-group" *ngIf="showPOCCSwitch" >
                                 <label>Point of Care Drug Screen</label>
                                 <div class="custom-control custom-switch">
-                                    <input type="checkbox" lascs="custom-control-input" id="pocc" name="pocc" [(ngModel)]="labOrderData.poctScreen" (change)="poccChanged()" [disabled]="orderDisabled">
+                                    <input type="checkbox" class="custom-control-input" id="pocc" name="pocc" [(ngModel)]="labOrderData.poctScreen" (change)="poccChanged()" [disabled]="orderDisabled">
                                     <label class="custom-control-label" for="pocc"></label>
                                 </div>
                             </div>

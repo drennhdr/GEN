@@ -52,30 +52,17 @@ export class DelegatesComponent implements OnInit {
         .pipe(first())
         .subscribe(
         data => {
-          // console.log("User",data);
           if (data.valid)
           {
-            this.userList = data.list;
-            // If physician logged in, default to physician
-            this.userList.forEach( (item) =>{
-              if (item.userId == userId){
-                this.userList.splice(index, 1)
+            // Remove physician & Duplicates from list
+            var holdUserId = 0;
+            this.userList = new Array<UserListItemModel>();
+            data.list.forEach( (item) =>{
+              if (item.userId != userId && item.userId != holdUserId){
+                this.userList.push(item);
               }
-              index++;
+              holdUserId = item.userId;
             });
-
-            // Set up list of selected delegate.
-            // this.delegateSelected = [];
-            // var cntr: number = 0;
-
-            // var delegates = JSON.parse(sessionStorage.getItem('delegate'));
-
-            // if (delegates != null){
-            //   delegates.forEach( (item) =>{
-            //     this.delegateSelected[cntr] = item.userId_Delegate;
-            //     cntr++;
-            //   });
-            // }
 
             this.delegateList = new Array<UserListItemModel>();
             var delegates = JSON.parse(sessionStorage.getItem('delegate'));

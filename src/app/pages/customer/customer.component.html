@@ -1153,31 +1153,72 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-6 pr-1" *ngIf="accessLevel == 1 && userData.physician && userData.userSignatureId == 0 && userData.userId > 0 && signatureMessage == ''">
-                                    <div class="row">
-                                        <div class="col-md-12  pr-1">
-                                            <label>Upload Physician Signature (must be a png)</label>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-12  pr-1">
-                                            <!-- Import File -->
-                                            <input id="importSignatureButton" type="file" (change)="readSignatureFile($event)" 
-                                            class="upload input-common" required />
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-12  pr-1">
-                                            <button type="button" *ngIf="physicianSignatureData.fileType=='image/png'" (click)="saveSignatureClicked()" class="btn btn-primary" >Save</button>
-                                        </div>
-                                    </div>
-                                </div>
 
-                                <div class="col-md-6 pr-1" *ngIf="signatureMessage != ''">
+                                <div class="col-md-6 pr-1" *ngIf="accessLevel == 1 && userData.physician && userData.userId > 0">
                                     <div class="row">
-                                        <div class="col-md-12  pr-1">
-                                            <label>{{signatureMessage}}</label>
+
+                                        <div class="col-md-8 pr-1" *ngIf="userData.userSignatureId == 0 && signatureMessage == ''">
+                                            <div class="row">
+                                                <div class="col-md-12  pr-1">
+                                                    <label>Upload Physician Signature (must be a png)</label>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-12  pr-1">
+                                                    <!-- Import File -->
+                                                    <input id="importSignatureButton" type="file" (change)="readSignatureFile($event)" 
+                                                    class="upload input-common" required />
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-12  pr-1">
+                                                    <button type="button" *ngIf="physicianSignatureData.fileType=='image/png'" (click)="saveSignatureClicked()" class="btn btn-primary" >Save</button>
+                                                </div>
+                                            </div>
                                         </div>
+
+                                        <div class="col-md-8 pr-1" *ngIf="signatureMessage != ''">
+                                            <div class="row">
+                                                <div class="col-md-12  pr-1">
+                                                    <label>{{signatureMessage}}</label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-4 pr-1">
+                                            <div class="col-md-12  pr-1">
+                                                <button type="button" *ngIf="!delegateAdd" (click)="delegateClicked()" class="btn btn-primary" >Create Delegates</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <br />
+                                    <div class="row" *ngIf="delegateAdd">
+                                        <div class="col-md-5  pr-1">
+                                            <div class="form-group" >
+                                                <label>Select a delegate to add</label>
+    
+                                                <select multiple class="form-control" name="userList" id="userList" #selectList (change)="newDelegateClick(selectList.value)">
+                                                    <option *ngFor="let option of this.userList" [value]="option.userId" >
+                                                        {{option.firstName}} {{option.lastName}}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-5  pr-1">
+                                            <div class="form-group" >
+                                                <label>Selected Delegates<br /></label>
+                                                <select multiple class="form-control" name="delegatesList" id="delegatesList" #selectList2 (change)="currentDelegateClick(selectList2.value)">
+                                                    <option *ngFor="let option of delegateList" [value]="option.userId" >
+                                                        {{option.firstName}} {{option.lastName}}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row" *ngIf="delegateAdd">
+                                        <button type="button" (click)="saveDelegateButtonClicked()" class="btn btn-primary" >Save</button>
+                                        <button type="button" (click)="cancelDelegateButtonClicked()" class="btn btn-primary" >Cancel</button>
                                     </div>
                                 </div>
                             </div>

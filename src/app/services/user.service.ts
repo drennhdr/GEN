@@ -316,6 +316,31 @@ export class UserService {
       }
 
   // ------------------------------------------------------------------------------------------------------------------
+  // getDelegateList - retrun a list of user's delegates
+  // ------------------------------------------------------------------------------------------------------------------
+  getDelegateList( userId: number ) {
+    // Validate input
+
+    var validation = new ValidationModel();
+    validation.entityId_Login = parseInt(sessionStorage.getItem('entityId_Login'));
+    validation.userId_Login =  parseInt(sessionStorage.getItem('userId_Login'));
+    validation.token = sessionStorage.getItem('token');
+    validation.tranSourceId = this.tranSourceId;
+    validation.version = this.version;
+
+    var url =  this.apiRoot + 'api/User/GetUserDelegates' + '?validation=' + JSON.stringify(validation) + '&userId=' + userId;
+
+    return this.httpClient.get(url)
+        .pipe(
+           map((data: UserDelegateModel) => {
+             return data;
+           }), catchError( error => {
+             return throwError( 'Something went wrong!' );
+           })
+        )
+    }
+
+  // ------------------------------------------------------------------------------------------------------------------
   // Get user signature id
   // ------------------------------------------------------------------------------------------------------------------
 

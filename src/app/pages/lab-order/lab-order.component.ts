@@ -884,13 +884,16 @@ export class LabOrderComponent implements OnInit {
       if (this.delegateSearch){
         signatureId = -1;
       }
-      console.log("Batch eSign");
+      // console.log("Batch eSign");
       this.labOrderService.eSign( this.checkList, signatureId)
         .pipe(first())
         .subscribe(
         data => {
           if (data.valid) {
-
+            // Loop through orders and regenerate PDF's
+            this.checkList.forEach(item => {
+              this.orderPdfRegenerate(item.id);
+            });
           }
           else{
             this.errorMessage = data.message;
@@ -7350,7 +7353,138 @@ export class LabOrderComponent implements OnInit {
 
   }
 
+  orderPdfRegenerate(labOrderId: number){
+    // Get the patient data
+    this.patientService.get( this.patientId)
+        .pipe(first())
+        .subscribe(
+        data => {                  
+          if (data.valid){
+            var doc;
+            this.patientData = data;
+            console.log("PhysicianId",this.labOrderData.userId_Physician, this.labOrderData.userSignatureId_Physician)
+            this.userService.getSignature( this.labOrderData.userId_Physician, this.labOrderData.userSignatureId_Physician )
+                .pipe(first())
+                .subscribe(
+                data => {
+                  var PhysicianSig = data.fileAsBase64;
 
+                  this.labOrderService.getPatientSignature( this.labOrderData.patientId, this.labOrderData.labOrderId )
+
+                  .pipe(first())
+                  .subscribe(
+                  data => {
+                    var PatientSig = data.fileAsBase64;
+                    // This is for Pdf generate
+
+                    if (this.labOrderData.specimens[0].labTypeId == 1){
+                      this.loadToxData(this.labOrderData.specimens[0].tests);
+                      var tox = new ToxModel();
+                      tox.fullConfirmationOnly = this.toxUrineConfirmationPanel;
+                      tox.fullScreenAndConfirmation = this.toxUrineFullPanel;
+                      tox.targetReflex = this.toxUrineTargetReflexPanel;
+                      tox.universalReflex = this.toxUrineUniversalReflexPanel;
+                      tox.custom = this.toxUrineCustomPanel;
+                      tox.presumptiveTesting13 = this.presumptiveTesting13;
+                      tox.presumptiveTesting15 = this.presumptiveTesting15;
+                      tox.alcohol = this.alcohol;
+                      tox.antidepressants = this.antidepressants;
+                      tox.antipsychotics = this.antipsychotics;
+                      tox.benzodiazepines = this.benzodiazepines;
+                      tox.cannabinoids = this.cannabinoids;
+                      tox.cannabinoidsSynth = this.cannabinoidsSynth;
+                      tox.dissociative = this.dissociative;
+                      tox.gabapentinoids = this.gabapentinoids;
+                      tox.hallucinogens = this.hallucinogens;
+                      tox.illicit = this.illicit;
+                      tox.kratom = this.kratom;
+                      tox.opioidAgonists = this.opioidAgonists;
+                      tox.opioidAntagonists = this.opioidAntagonists;
+                      tox.sedative = this.sedative;
+                      tox.skeletal = this.skeletal;
+                      tox.stimulants = this.stimulants;
+                      tox.thcSource = this.thcSource;
+
+                      doc = this.pdfToxUrineService.generateToxUrine(this.labOrderData, tox, this.patientData, PhysicianSig, PatientSig);
+                    }
+                    else if (this.labOrderData.specimens[0].labTypeId == 2){
+                      this.loadToxOralData(this.labOrderData.specimens[0].tests);
+                      var toxOral = new ToxOralModel();
+                      toxOral.fullConfirmation = this.toxOralFullPanel;
+                      toxOral.illicit = this.oralIllicit;
+                      toxOral.sedative =  this.oralSedative;
+                      toxOral.benzodiazepines = this.oralBenzodiazepines;
+                      toxOral.muscle = this.oralMuscle;
+                      toxOral.antipsychotics = this.oralAntipsychotics;
+                      toxOral.antidepressants = this.oralAntidepressants;
+                      toxOral.stimulants = this.oralStimulants;
+                      toxOral.kratom = this.oralKratom;
+                      toxOral.nicotine = this.oralNicotine;
+                      toxOral.opioidAntagonists = this.oralOpioidAntagonists;
+                      toxOral.gabapentinoids = this.oralGabapentinoids;
+                      toxOral.dissociative = this.oralDissociative;
+                      toxOral.opioidAgonists = this.oralOpioidAgonists;
+                      doc = this.pdfToxOralService.generateToxOral(this.labOrderData, toxOral, this.patientData, PhysicianSig, PatientSig);
+                    }
+                    else if (this.labOrderData.specimens[0].labTypeId == 3){
+                      this.gppData = new GPPModel();
+                      this.loadGPPData();
+                      doc = this.pdfGPPService.generateGPP(this.labOrderData, this.gppData, this.patientData, PhysicianSig, PatientSig);
+                    }
+                    else if (this.labOrderData.specimens[0].labTypeId == 4){
+                      this.utiData = new UTIModel();
+                      this.loadUTIData();
+                      doc = this.pdfUTISTIService.generateUTISTI(this.labOrderData, this.utiData, this.patientData, PhysicianSig, PatientSig);
+                    }
+                    else if (this.labOrderData.specimens[0].labTypeId == 5){
+                      this.rppData = new RPPModel();
+                      this.loadRPPData();
+                      doc = this.pdfRPPService.generateRPP(this.labOrderData, this.rppData, this.patientData, PhysicianSig, PatientSig);
+                    }
+
+                    this.pdfData.specimenId = this.labOrderData.specimens[0].labOrderSpecimenId;
+
+                    this.pdfData.fileType = "application/pdf";
+
+                    var b64 = doc.output('datauristring'); // base64 string
+              
+                    this.pdfData.fileType = "application/pdf";
+              
+                    this.pdfData.fileAsBase64 = b64.replace("data:application/pdf;filename=generated.pdf;base64,", "");
+              
+            
+                    this.labOrderService.saveLabOrderRequestPdf( this.pdfData)
+                          .pipe(first())
+                          .subscribe(
+                          data => {
+                            if (data.valid) {
+                            
+                            }
+                            else{
+                              this.errorMessage = data.message;
+                              this.showError = true;
+                            }
+                          },
+                          error => {
+                            this.errorMessage = error;
+                            this.showError = true;
+                          });
+
+                  });
+                });
+          }
+          else
+          {
+            //this.errorMessage = data.message;
+          }
+        },
+        error => {
+          this.errorMessage = error;
+          this.showError = true;
+        });
+
+
+  }
   orderPdfClicked(labOrderId: number){
     this.pdfData = new LabOrderPdfModel();
     // Get the lab order data
