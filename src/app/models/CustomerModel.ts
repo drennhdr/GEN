@@ -68,6 +68,10 @@ export class CustomerModel {
   lab_GPP: number = 0;
   lab_Urinalysis: number = 0;
   lab_Hematology: number = 0;
+  multiple_Tox: boolean = false;
+  multiple_RPP: boolean = false;
+  multiple_UTISTI: boolean = false;
+  multiple_GPP: boolean = false;
   pct_Commercial: number = 0;
   pct_SelfPay: number = 0;
   pct_Medicare: number = 0;
@@ -125,6 +129,10 @@ export class CustomerSaveModel {
   lab_GPP: number = 0;
   lab_Urinalysis: number = 0;
   lab_Hematology: number = 0;
+  multiple_Tox: boolean = false;
+  multiple_RPP: boolean = false;
+  multiple_UTISTI: boolean = false;
+  multiple_GPP: boolean = false;
   pct_Commercial: number = 0;
   pct_SelfPay: number = 0;
   pct_Medicare: number = 0;

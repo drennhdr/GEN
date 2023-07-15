@@ -140,6 +140,10 @@ export class CustomerService {
       customerSave.lab_GPP =  Number(customer.lab_GPP);
       customerSave.lab_Urinalysis =  Number(customer.lab_Urinalysis);
       customerSave.lab_Hematology =  Number(customer.lab_Hematology);
+      customerSave.multiple_Tox = customer.multiple_Tox;
+      customerSave.multiple_RPP = customer.multiple_RPP;
+      customerSave.multiple_UTISTI = customer.multiple_UTISTI;
+      customerSave.multiple_GPP = customer.multiple_GPP;
       customerSave.pct_Commercial = Number(customer.pct_Commercial);
       customerSave.pct_SelfPay = Number(customer.pct_SelfPay);
       customerSave.pct_Medicare = Number(customer.pct_Medicare);

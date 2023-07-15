@@ -5317,7 +5317,7 @@ export class LabOrderService {
     searchCriteria.collectionDateEnd = collectionDate;
 
     var url = this.apiRoot + 'api/LabOrder/CheckForExisting' + '?validation=' + JSON.stringify(validation) + '&searchCriteria=' + JSON.stringify(searchCriteria);
-
+console.log("Check for existing");
     return this.httpClient.get(url)
         .pipe(
              map((data: GenericResponseModel) => {

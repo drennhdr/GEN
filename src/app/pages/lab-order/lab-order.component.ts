@@ -1900,15 +1900,18 @@ export class LabOrderComponent implements OnInit {
   }
 
   toxUrineButtonClicked(){
-    const today = new Date();
-    var startDate = today.setDate(today.getDate())
-    this.collectionDate = formatDate(startDate , 'yyyy-MM-dd', 'en');
-    this.collectionTime = formatDate(startDate , 'HH:mm', 'en');
-
     this.showAddInsurnace = false;
     this.labOrderData.specimens[0].labTypeId = 1;
     this.labOrderData.specimens[0].version = "2022.11";
     this.lastspecimenId = this.patientData.labOrderSpecimenId_ToxUrine;
+
+    const today = new Date();
+    var startDate = today.setDate(today.getDate())
+    this.collectionDate = formatDate(startDate , 'yyyy-MM-dd', 'en');
+    this.duplicateCheck();
+    this.collectionTime = formatDate(startDate , 'HH:mm', 'en');
+
+
     this.toxUrineConfirmationPanel = false;
     this.toxUrineFullPanel = false;
     this.toxUrineTargetReflexPanel = false;
@@ -1963,14 +1966,17 @@ export class LabOrderComponent implements OnInit {
   }
 
   toxOralButtonClicked(){
-    const today = new Date();
-    var startDate = today.setDate(today.getDate())
-    this.collectionDate = formatDate(startDate , 'yyyy-MM-dd', 'en');
-    this.collectionTime = formatDate(startDate , 'HH:mm', 'en');
     this.showAddInsurnace = false;
     this.labOrderData.specimens[0].labTypeId = 2;
     this.labOrderData.specimens[0].version = "2023.01";
     this.lastspecimenId = this.patientData.labOrderSpecimenId_ToxOral;
+
+    const today = new Date();
+    var startDate = today.setDate(today.getDate())
+    this.collectionDate = formatDate(startDate , 'yyyy-MM-dd', 'en');
+    this.duplicateCheck();
+    this.collectionTime = formatDate(startDate , 'HH:mm', 'en');
+
     this.presumptiveTesting15 = false;
     this.presumptiveTesting13 = false;
     
@@ -2017,14 +2023,17 @@ export class LabOrderComponent implements OnInit {
   }
 
   gppButtonClicked(){
-    const today = new Date();
-    var startDate = today.setDate(today.getDate())
-    this.collectionDate = formatDate(startDate , 'yyyy-MM-dd', 'en');
-    this.collectionTime = formatDate(startDate , 'HH:mm', 'en');
     this.showAddInsurnace = false;
     this.labOrderData.specimens[0].labTypeId = 3;
     this.labOrderData.specimens[0].version = "2022.11";
     this.lastspecimenId = this.patientData.labOrderSpecimenId_GPP;
+
+    const today = new Date();
+    var startDate = today.setDate(today.getDate())
+    this.collectionDate = formatDate(startDate , 'yyyy-MM-dd', 'en');
+    this.duplicateCheck();
+    this.collectionTime = formatDate(startDate , 'HH:mm', 'en');
+
     this.gppData = new GPPModel();
 
     this.showSelect = false;
@@ -2055,14 +2064,17 @@ export class LabOrderComponent implements OnInit {
   }
 
   rppButtonClicked(){
-    const today = new Date();
-    var startDate = today.setDate(today.getDate())
-    this.collectionDate = formatDate(startDate , 'yyyy-MM-dd', 'en');
-    this.collectionTime = formatDate(startDate , 'HH:mm', 'en');
     this.showAddInsurnace = false;
     this.labOrderData.specimens[0].labTypeId = 5;
     this.labOrderData.specimens[0].version = "2022.11";
     this.lastspecimenId = this.patientData.labOrderSpecimenId_RPP;
+
+    const today = new Date();
+    var startDate = today.setDate(today.getDate())
+    this.collectionDate = formatDate(startDate , 'yyyy-MM-dd', 'en');
+    this.duplicateCheck();
+    this.collectionTime = formatDate(startDate , 'HH:mm', 'en');
+
     this.rppData = new RPPModel();
     this.rppData.swab = true;
 
@@ -2094,15 +2106,17 @@ export class LabOrderComponent implements OnInit {
   }
 
   utiButtonClicked(){
-    const today = new Date();
-    var startDate = today.setDate(today.getDate())
-    this.collectionDate = formatDate(startDate , 'yyyy-MM-dd', 'en');
-    this.collectionTime = formatDate(startDate , 'HH:mm', 'en');
     this.showAddInsurnace = false;
     this.labOrderData.specimens[0].labTypeId = 4;
     this.labOrderData.specimens[0].version = "2022.11";
     this.lastspecimenId = this.patientData.labOrderSpecimenId_UTISTI;
     this.utiData = new UTIModel();
+    
+    const today = new Date();
+    var startDate = today.setDate(today.getDate())
+    this.collectionDate = formatDate(startDate , 'yyyy-MM-dd', 'en');
+    this.duplicateCheck();
+    this.collectionTime = formatDate(startDate , 'HH:mm', 'en');
 
     this.showSelect = false;
     this.orderDisabled = false;
@@ -2880,6 +2894,7 @@ export class LabOrderComponent implements OnInit {
   }
 
   duplicateCheck(){
+    console.log("Duplicate Check");
     //  Check to make sure that only 1 lab order for each type can be ordered on a single day.
     var ck = Number(this.collectionDate.substring(0,4));
     if (ck >= 2023){
@@ -2896,7 +2911,7 @@ export class LabOrderComponent implements OnInit {
                       this.labInfoChanged();
                     }
                     else{
-                      this.DateError = "There is already a lab order for this lab type for " + formatDate(new Date(this.collectionDate) , 'MM-dd-yyyy', 'en');
+                      this.DateError = "There is already a lab order for this lab type for " + formatDate(new Date(this.collectionDate + ':08:00') , 'MM-dd-yyyy', 'en');
                       this.collectionDate = null;
                     }
                   }

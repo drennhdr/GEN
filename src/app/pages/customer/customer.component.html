@@ -4,6 +4,7 @@
 <!-- Description     : Customer Entry / Edit    -->
 <!-- MM/DD/YYYY xxx  Description                -->
 <!-- 11/04/2022 SJF  Renamed to Account Information -->
+<!-- 07/14/2023 SJF Added Multiple_Tox, Multiple_RPP, Multiple_UTISTI, & Multiple_GPP -->
 <!-- ----------------------------------------------------------------------------- -->
 <div class="panel-header panel-header-sm">
 </div>
@@ -336,12 +337,21 @@
                     </div>
                     <h5>Services</h5>
                     <div class="row">
-                        <div class="col-md-3 pr-1">
+                        <div class="col-md-1 pr-1">
                             <div class="form-group">
                                 <label>Toxicology Urine</label>
                                 <div class="custom-control custom-switch">
                                     <input type="checkbox" class="custom-control-input" id="ToxUrine" name="ToxUrine" [(ngModel)]="customerData.service_ToxUrine" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
                                     <label class="custom-control-label" for="ToxUrine"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 pr-1">
+                            <div class="form-group">
+                                <label>Allow Mult Tox</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="ToxMultiple" name="ToxMultiple" [(ngModel)]="customerData.multiple_Tox" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                    <label class="custom-control-label" for="ToxMultiple"></label>
                                 </div>
                             </div>
                         </div>
@@ -376,12 +386,21 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-3 pr-1">
+                        <div class="col-md-1 pr-1">
                             <div class="form-group">
                                 <label>RPP</label>
                                 <div class="custom-control custom-switch">
                                     <input type="checkbox" class="custom-control-input" id="RPP" name="RPP" [(ngModel)]="customerData.service_RPP" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
                                     <label class="custom-control-label" for="RPP"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 pr-1">
+                            <div class="form-group">
+                                <label>Allow Mult RPP</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="RPPMultiple" name="RPPMultiple" [(ngModel)]="customerData.multiple_RPP" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                    <label class="custom-control-label" for="RPPMultiple"></label>
                                 </div>
                             </div>
                         </div>
@@ -395,12 +414,21 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-3 pr-1">
+                        <div class="col-md-1 pr-1">
                             <div class="form-group">
                                 <label>UTI/STI</label>
                                 <div class="custom-control custom-switch">
                                     <input type="checkbox" class="custom-control-input" id="UTI" name="UTI" [(ngModel)]="customerData.service_UTISTI" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
                                     <label class="custom-control-label" for="UTI"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 pr-1">
+                            <div class="form-group">
+                                <label>Allow Mult UTI/STI</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="UTIMultiple" name="UTIMultiple" [(ngModel)]="customerData.multiple_UTISTI" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                    <label class="custom-control-label" for="UTIMultiple"></label>
                                 </div>
                             </div>
                         </div>
@@ -416,12 +444,21 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-3 pr-1">
+                        <div class="col-md-1 pr-1">
                             <div class="form-group">
                                 <label>GPP</label>
                                 <div class="custom-control custom-switch">
                                     <input type="checkbox" class="custom-control-input" id="GPP" name="GPP" [(ngModel)]="customerData.service_GPP" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
                                     <label class="custom-control-label" for="GPP"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 pr-1">
+                            <div class="form-group">
+                                <label>Allow Mult GPP</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="GPPMultiple" name="GPPMultiple" [(ngModel)]="customerData.multiple_GPP" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                    <label class="custom-control-label" for="GPPMultiple"></label>
                                 </div>
                             </div>
                         </div>
