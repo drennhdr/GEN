@@ -48,7 +48,7 @@ export class PdfToxUrineService {
   // ------------------------------------------------------------------------------------------------------------------
   // Based on the passed in lab order, generate the GPP pdf
   // ------------------------------------------------------------------------------------------------------------------
-  generateToxUrine(labOrder: LabOrderModel, toxData: ToxModel, patientData: PatientModel, PhysicianSig: string, PatientSig: string) {
+  generateToxUrine(labOrder: LabOrderModel, toxData: ToxModel, patientData: PatientModel, physicianNPI: string, PhysicianSig: string, PatientSig: string) {
 
 
     var img = new Image();
@@ -90,6 +90,7 @@ export class PdfToxUrineService {
     doc.text(labOrder.location,470, 32);
     doc.text(labOrder.locationAddress,470, 44);
     doc.text(labOrder.user_Physician,470, 56);
+    doc.text(physicianNPI,470,66);
 
     doc.text('Created By: ' + labOrder.userCreatedName,232, 100);
 

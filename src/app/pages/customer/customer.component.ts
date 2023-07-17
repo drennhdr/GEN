@@ -12,6 +12,7 @@
 //05/01/2023 SJF  Changed to new oral tox method
 //07/06/2023 SJF Added upload physician signature
 //07/12/2023 SJF Added delegate setup to users
+//07/15/2023 SJF Added alternate login id option
 //-----------------------------------------------------------------------------
 // Data Passing
 //-----------------------------------------------------------------------------
@@ -881,6 +882,9 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
       this.userSave = true;
     }
     this.dataShareService.changeUnsaved(true);
+    if (this.userData.userId == 0){
+      this.userData.userName = this.userData.firstName.substring(0,1) + this.userData.lastName + this.customerData.facilityCode;
+    }
   }
 
   saveUserButtonClicked(){

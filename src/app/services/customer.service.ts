@@ -156,9 +156,8 @@ export class CustomerService {
       customerSave.taxId = customer.taxId;
       customerSave.pecosEnrolled = customer.pecosEnrolled;
       customerSave.sharePatients = customer.sharePatients;
+      customerSave.alternateLoginId = customer.alternateLoginId;
       customerSave.lcs = customer.lcs;
-
-        console.log(customerSave);
 
       var url = this.apiRoot + 'api/Customer/SaveCustomer'
       var headers = new HttpHeaders();

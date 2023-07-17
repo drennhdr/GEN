@@ -48,7 +48,7 @@ export class PdfUTISTIService {
   // ------------------------------------------------------------------------------------------------------------------
   // Based on the passed in lab order, generate the GPP pdf
   // ------------------------------------------------------------------------------------------------------------------
-  generateUTISTI(labOrder: LabOrderModel, utiData: UTIModel, patientData: PatientModel, PhysicianSig: string, PatientSig: string) {
+  generateUTISTI(labOrder: LabOrderModel, utiData: UTIModel, patientData: PatientModel, physicianNPI: string, PhysicianSig: string, PatientSig: string) {
 
     console.log ("ORder",labOrder);
     var img = new Image();
@@ -78,6 +78,7 @@ export class PdfUTISTIService {
     doc.text(labOrder.location,470, 20);
     doc.text(labOrder.locationAddress,465, 32);
     doc.text(labOrder.user_Physician,470, 44);
+    doc.text(physicianNPI,470,54);
 
     doc.text('Created By: ' + labOrder.userCreatedName,232, 100);
 

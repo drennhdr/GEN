@@ -5,6 +5,7 @@
 <!-- MM/DD/YYYY xxx  Description                -->
 <!-- 11/04/2022 SJF  Renamed to Account Information -->
 <!-- 07/14/2023 SJF Added Multiple_Tox, Multiple_RPP, Multiple_UTISTI, & Multiple_GPP -->
+<!-- 07/15/2023 SJF Added alternate login id option -->
 <!-- ----------------------------------------------------------------------------- -->
 <div class="panel-header panel-header-sm">
 </div>
@@ -529,7 +530,15 @@
                                 <input [(ngModel)]="customerData.taxId" maxlength="10" name="taxId" type="text" class="form-control" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">                  
                             </div>
                         </div>
-
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>User alternate login Id instead of email address</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="alternateLoginId" name="alternateLoginId" [(ngModel)]="customerData.alternateLoginId" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                    <label class="custom-control-label" for="alternateLoginId"></label>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <h5>Payor Mix</h5>
@@ -1075,19 +1084,19 @@
                                 <div class="col-md-3  pr-1">
                                     <div class="form-group" >
                                         <label>First Name</label>
-                                        <input [(ngModel)]="userData.firstName" maxlength="10" name="firstName" type="text" [ngClass]="userData.firstName == '' ? 'form-control required' : 'form-control completed'" (change)="locationChanged()" placeholder="Location Name required" (change)="userChanged()" placeholder="First Name required" [disabled]="accessLevel == 2">
+                                        <input [(ngModel)]="userData.firstName" maxlength="10" name="firstName" type="text" [ngClass]="userData.firstName == '' ? 'form-control required' : 'form-control completed'" (change)="userChanged()" placeholder="First Name required" [disabled]="accessLevel == 2">
                                     </div>
                                 </div>
                                 <div class="col-md-3  pr-1">
                                     <div class="form-group" >
                                         <label>Last Name</label>
-                                        <input [(ngModel)]="userData.lastName" maxlength="20" name="lastName" type="text" [ngClass]="userData.lastName == '' ? 'form-control required' : 'form-control completed'" (change)="locationChanged()" placeholder="Location Name required" (change)="userChanged()" placeholder="Last Name required" [disabled]="accessLevel == 2">
+                                        <input [(ngModel)]="userData.lastName" maxlength="20" name="lastName" type="text" [ngClass]="userData.lastName == '' ? 'form-control required' : 'form-control completed'" (change)="userChanged()" placeholder="Last Name required" [disabled]="accessLevel == 2">
                                     </div>
                                 </div>
                                 <div class="col-md-6  pr-1">
                                     <div class="form-group" >
                                         <label>Email</label>
-                                        <input [(ngModel)]="userData.email" maxlength="60" name="userEmail" type="text" [ngClass]="userData.email == '' ? 'form-control required' : 'form-control completed'" (change)="locationChanged()" placeholder="Location Name required" (change)="userChanged()" placeholder="Email required" [disabled]="accessLevel == 2">
+                                        <input [(ngModel)]="userData.email" maxlength="60" name="userEmail" type="text" [ngClass]="userData.email == '' ? 'form-control required' : 'form-control completed'" (change)="userChanged()" placeholder="Email required" [disabled]="accessLevel == 2">
                                     </div>
                                 </div>
                             </div>
@@ -1263,12 +1272,12 @@
                             <!-- Credentials  -->
                             <h5>Credentials</h5>
                             <div class="row">
-                                <!-- <div class="col-md-3 pr-1">
+                                <div class="col-md-3 pr-1" *ngIf="customerData.alternateLoginId">
                                     <div class="form-group" >
                                         <label>Login</label>
-                                        <input [(ngModel)]="userData.userName" maxlength="20" name="userName" type="text" class="form-control" (change)="userChanged()" [disabled]="accessLevel == 2">
+                                        <input [(ngModel)]="userData.userName" maxlength="20" name="userName" type="text" class="form-control" (change)="userChanged()" [disabled]=true>
                                     </div>
-                                </div> -->
+                                </div>
                                 <div class="col-md-3 pr-1">
                                     <div class="form-group">
                                         <label>Disabled</label>

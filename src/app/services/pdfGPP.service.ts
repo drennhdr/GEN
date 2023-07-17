@@ -48,7 +48,7 @@ export class PdfGPPService {
   // ------------------------------------------------------------------------------------------------------------------
   // Based on the passed in lab order, generate the GPP pdf
   // ------------------------------------------------------------------------------------------------------------------
-  generateGPP(labOrder: LabOrderModel, gppData: GPPModel, patientData: PatientModel, PhysicianSig: string, PatientSig: string) {
+  generateGPP(labOrder: LabOrderModel, gppData: GPPModel, patientData: PatientModel, physicianNPI: string, PhysicianSig: string, PatientSig: string) {
 
     var img = new Image();
     img.src = '/assets/pdf/GPP_2022_10.jpg'
@@ -78,6 +78,7 @@ export class PdfGPPService {
         doc.text(labOrder.location,470, 32);
         doc.text(labOrder.locationAddress,465, 44);
         doc.text(labOrder.user_Physician,470, 56);
+        doc.text(physicianNPI,470,66);
 
         doc.text('Created By: ' + labOrder.userCreatedName,232, 100);
 

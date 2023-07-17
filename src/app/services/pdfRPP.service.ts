@@ -49,7 +49,7 @@ export class PdfRPPService {
   // ------------------------------------------------------------------------------------------------------------------
   // Based on the passed in lab order, generate the GPP pdf
   // ------------------------------------------------------------------------------------------------------------------
-  generateRPP(labOrder: LabOrderModel, rppData: RPPModel, patientData: PatientModel, PhysicianSig: string, PatientSig: string) {
+  generateRPP(labOrder: LabOrderModel, rppData: RPPModel, patientData: PatientModel, physicianNPI: string, PhysicianSig: string, PatientSig: string) {
 
     var img = new Image();
     img.src = '/assets/pdf/RPP_2022_10.jpg'
@@ -80,6 +80,7 @@ export class PdfRPPService {
         doc.text(labOrder.location,470, 20);
         doc.text(labOrder.locationAddress,465, 32);
         doc.text(labOrder.user_Physician,470, 44);
+        doc.text(physicianNPI,470,54);
 
         doc.text('Created By: ' + labOrder.userCreatedName,232, 95);
     

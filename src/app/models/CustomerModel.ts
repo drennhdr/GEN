@@ -7,6 +7,8 @@
 // 01/20/2022 SJF Added CustomerLcsModel
 // 02/10/2023 SJF Added ShipLog
 // 04/17/2023 SJF Added SharePatients
+// 06/14/2023 SJF Added Multiple_Tox, Multiple_RPP, Multiple_UTISTI, & Multiple_GPP
+// 06/15/2023 SJF Added AlternateLoginId
 //------------------------------------------------------------------------
 // Imports
 //------------------------------------------------------------------------
@@ -89,6 +91,7 @@ export class CustomerModel {
   taxId: string = '';
   pecosEnrolled: boolean = false;
   sharePatients: boolean = false;
+  alternateLoginId: boolean = false;
   dateReviewed: string = '';
   locations: LocationModel[] = new Array<LocationModel>();
   users: UserListItemModel[] = new Array<UserListItemModel>();
@@ -145,6 +148,7 @@ export class CustomerSaveModel {
   taxId: string = '';
   pecosEnrolled: boolean = false;
   sharePatients: boolean = false;
+  alternateLoginId: boolean = false;
   lcs: CustomerLcsModel[] = new Array<CustomerLcsModel>();
 }
 
