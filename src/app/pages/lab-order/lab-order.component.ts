@@ -29,6 +29,7 @@
 //06/26/2023 SJF  Added printListButtonClicked
 //07/09/2023 SJF Removed Norhydrocodone & Noroxycodone
 //07/10/2023 SJF Added Billing Review User Type
+//07/20/2023 SJF Update for delegate signature on molecular.
 //-----------------------------------------------------------------------------
 // Data Passing
 //-----------------------------------------------------------------------------
@@ -2659,36 +2660,32 @@ export class LabOrderComponent implements OnInit {
               cntr++;
             });
             this.labInfoChanged();
+          }
 
-            if (this.delegates != null){
-              this.delegates.forEach( (item) =>{
-                if(this.labOrderData.userId_Physician == item.userId){
-                  this.userService.GetUserSignatureId(this.labOrderData.userId_Physician)
-                      .pipe(first())
-                      .subscribe(
-                      data => {
-                        // console.log("Get Sign Data",data);
-                        if (data.valid)
-                        {
-                          this.delegateSignature = Number(data.id);
-                        }
-                        else
-                        {
-                          this.errorMessage = data.message;
-                        }
-                      },
-                      error => {
-                      this.errorMessage = error;
-                      });
-                      
-                }
-              });
-            }
+          if (this.delegates != null){
+            this.delegates.forEach( (item) =>{
+              if(this.labOrderData.userId_Physician == item.userId){
+                this.userService.GetUserSignatureId(this.labOrderData.userId_Physician)
+                    .pipe(first())
+                    .subscribe(
+                    data => {
+                      if (data.valid)
+                      {
+                        this.delegateSignature = Number(data.id);
+                      }
+                      else
+                      {
+                        this.errorMessage = data.message;
+                      }
+                    },
+                    error => {
+                    this.errorMessage = error;
+                    });
+                    
+              }
+            });
           }
-          else
-          {
-            this.errorMessage = data.message;
-          }
+
         },
         error => {
         this.errorMessage = error;

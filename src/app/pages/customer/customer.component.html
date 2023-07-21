@@ -1301,6 +1301,24 @@
                             <button type="button" *ngIf="accessLevel != 2 && userSave" (click)="saveUserButtonClicked()" class="btn btn-primary" >Save</button>
                             <button type="button" (click)="cancelUserButtonClicked()" class="btn btn-primary" >Cancel</button>
                             <button type="button" *ngIf="accessLevel != 2 && userData.userId != 0" (click)="resetUserPasswordButtonClicked()" class="btn btn-primary" >Reset Password</button>
+                            <button type="button" *ngIf="accessLevel == 1 && userData.userId != 0 && tempPwdFlag==0" (click)="tempPwdButtonClicked()" class="btn btn-primary" >Temporary Password</button>
+                            <div class="row" *ngIf="accessLevel == 1 && userData.userId != 0 && tempPwdFlag==true">
+                                <div class="col-md-3 pr-1" >
+                                    <div class="form-group">
+                                        <label>Temp Pwd</label>
+                                        <input [(ngModel)]="tempPwd" maxlength="20" name="tempPwd" type="text" class="form-control" >
+                                    </div>
+                                </div>
+                                <div class="col-md-3 pr-1" >
+                                    <button type="button" (click)="tempPwdSetButtonClicked()" class="btn btn-primary" >Save Temporary Password</button>
+                                    <button type="button" (click)="tempPwdCancelButtonClicked()" class="btn btn-primary" >Cancel Reset Password</button>
+                                </div>
+                                <div class="col-md-3 pr-1" >
+                                    <div class="form-group">
+                                        <label>{{pwdError}}</label>
+                                    </div>
+                                </div>
+                            </div>
                         </form>
                     </div>
                 </div>

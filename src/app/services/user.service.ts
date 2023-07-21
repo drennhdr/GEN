@@ -1,3 +1,12 @@
+// Service Name  : user.service.ts
+// Date Created  : 
+// Written By    : Stephen Farkas
+// Description   : Interface to User api
+// MM/DD/YYYY XXX Description
+// 07/21/2023 SJF Added SetTempPassword
+//------------------------------------------------------------------------
+// Imports
+//------------------------------------------------------------------------
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Config } from "../models/Config";
@@ -148,6 +157,35 @@ export class UserService {
             })
         )
       }      
+
+  // ------------------------------------------------------------------------------------------------------------------
+  // Set Temp Password - Write the updated user data to the server
+  // ------------------------------------------------------------------------------------------------------------------
+
+  setTempPassword(email: string, password: string){
+    var validation = new ValidationModel();
+    validation.entityId_Login = parseInt(sessionStorage.getItem('entityId_Login'));
+    validation.userId_Login =  parseInt(sessionStorage.getItem('userId_Login'));
+    validation.token = sessionStorage.getItem('token');
+    validation.tranSourceId = this.tranSourceId;
+    validation.version = this.version;
+
+   
+    var parms = '?validation=' +  JSON.stringify(validation) + '&email=' + email + '&password=' + password;
+
+    var url =  this.apiRoot + 'api/User/SetTempPassword' + parms
+
+    return this.httpClient.get(url)
+        .pipe(
+            map((data: GenericResponseModel) => {
+
+            return data;
+            }), catchError( error => {
+              console.log("error",error)
+              return throwError( 'Something went wrong!' );
+            })
+        )
+  }
 
   // ------------------------------------------------------------------------------------------------------------------
   // getTicketAssignList - retrun a list of users that can have tickets assigned by user

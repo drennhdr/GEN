@@ -13,6 +13,7 @@
 //07/06/2023 SJF Added upload physician signature
 //07/12/2023 SJF Added delegate setup to users
 //07/15/2023 SJF Added alternate login id option
+//07/20/2023 SJF Added Setting a temporary user password
 //-----------------------------------------------------------------------------
 // Data Passing
 //-----------------------------------------------------------------------------
@@ -194,6 +195,11 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
   error: any;
   isCaptured: boolean = false;
   cameraOn: boolean;
+
+  // Temporary Pwd
+  tempPwd: string = "";
+  tempPwdFlag: boolean = false;
+  pwdError: string = "";
 
   constructor(
     private customerService: CustomerService,
@@ -404,6 +410,7 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
   }
 
   selectButtonClicked(customerId: number){
+
     // Call the customer service to get the data for the selected customer
     this.customerService.get( customerId)
             .pipe(first())
@@ -807,6 +814,8 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
   // Users
 
   selectUserButtonClicked(userId: number){
+    this.tempPwd = "";
+    this.tempPwdFlag = false;
     // Call the user service to get the data for the selected user
     this.physicianSignatureData = new UserSignatureModel();
     this.userService.get( userId)
@@ -857,6 +866,8 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
   }
 
   addUserButtonClicked(){
+    this.tempPwd = "";
+    this.tempPwdFlag = false;
     this.physicianSignatureData = new UserSignatureModel()
     this.userData = new UserModel();
     this.userData.customerId = this.customerId;
@@ -1152,6 +1163,81 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
   cancelDelegateButtonClicked(){
     this.delegateAdd = false;
   }
+
+  tempPwdButtonClicked(){
+    this.tempPwd = "";
+    this.tempPwdFlag = true;
+  }
+
+  tempPwdSetButtonClicked(){
+
+    var valid = false;
+    var number = 0;
+    var upper = 0;
+    var lower = 0;
+    var special = 0;
+    var bad = 0;
+    for (var i=0;i<this.tempPwd.length;i++){
+      var c = this.tempPwd.charCodeAt(i);
+      if (c >= 48 && c <= 57){
+        number++;
+      }
+      else if (c >= 65 && c <= 90){
+        upper++;
+      }
+      else if (c >= 97 && c <= 122){
+        lower++;
+      }
+      else if (c == 33 || c == 36 || c == 42 || c == 64){  //!$*!
+        special++;
+      }
+      else {
+        bad++;
+      }
+    }
+
+    if (bad > 0){
+      this.pwdError = "Invalid character in password";
+    }
+    else if (this.tempPwd.length >= 10 && number >= 1 && upper >= 1 && lower >= 1 && special >= 1){
+      valid = true;
+    }
+    else {
+      this.pwdError = "Password did not meet minimum requirements";
+    }
+
+    if (valid){
+
+      var email = this.userData.email;
+      if (this.customerData.alternateLoginId){
+        email = this.userData.userName;
+      }
+
+      this.userService.setTempPassword(email, this.tempPwd)
+        .pipe(first())
+        .subscribe(
+          data => {
+            if (data.valid) {
+              this.tempPwd = "";
+              this.tempPwdFlag = false;
+            }
+            else {
+              this.pwdError = data.message;
+            }
+          },
+          error => {
+            this.pwdError = error;
+          });
+    }
+
+    
+  }
+  
+  tempPwdCancelButtonClicked(){
+    this.tempPwd = "";
+    this.tempPwdFlag = false;
+  }
+
 
   // Attachments
 
