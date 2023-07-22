@@ -214,6 +214,7 @@
                                             <a class="dropdown-item" *ngIf="userType!=15"(click)="printBarcodeFromMenu(item.labOrderId)">Print Label</a>
                                             <a class="dropdown-item" (click)="orderPdfClicked(item.labOrderId)">Request Pdf</a>
                                             <a class="dropdown-item" *ngIf="item.labStatusId==50" (click)="resultPdfClicked(item.labOrderSpecimenId)">Result Pdf</a>
+                                            <a class="dropdown-item" *ngIf="item.labStatusId==50" (click)="reviewedOrderClicked(item.labOrderSpecimenId)">Reviewed</a>
                                             <a class="dropdown-item" *ngIf="item.labStatusId<30 && userType!=15" (click)="cancelOrderDropdownButtonClicked(item.labOrderId)">Cancel</a>
                                             <a class="dropdown-item" *ngIf="item.labStatusId==99 && userType!=15" (click)="unCancelOrderDropdownButtonClicked(item.labOrderId)">Uncancel</a>
                                         </div>

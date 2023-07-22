@@ -968,6 +968,40 @@ export class LabOrderService {
     }
 
   // ------------------------------------------------------------------------------------------------------------------
+  // Specimen Revied 
+  // ------------------------------------------------------------------------------------------------------------------
+  specimenReviewed(labOrderSpecimenId: number)
+  {
+    var validation = new ValidationModel();
+    validation.entityId_Login = parseInt(sessionStorage.getItem('entityId_Login'));
+    validation.userId_Login = parseInt(sessionStorage.getItem('userId_Login'));
+    validation.token = sessionStorage.getItem('token');
+    validation.tranSourceId = this.tranSourceId;
+    validation.version = this.version;
+    var status = new LabOrderStatusModel();
+
+
+    status.validation = validation;
+    status.labOrderSpecimenId = labOrderSpecimenId;
+    status.userId_Updated = parseInt(sessionStorage.getItem('userId_Login'));
+
+    var url = this.apiRoot + 'api/LabOrder/SpecimenReviewed'
+    var headers = new HttpHeaders();
+    headers = headers.set("Content-Type", "application/json; charset=utf-8");
+
+    return this.httpClient.post(url, status, { headers: headers })
+        .pipe(
+            map((data: GenericResponseModel) => {
+                console.log("Data",data);
+                return data;
+            }), catchError(error => {
+                console.log("Error", error)
+                return throwError('Something went wrong!');
+            })
+        )
+    }    
+
+  // ------------------------------------------------------------------------------------------------------------------
   // Esign a group lab order - write data to the server
   // ------------------------------------------------------------------------------------------------------------------
   eSign(checkList: Array<CodeItemModel>, signatureId: number)

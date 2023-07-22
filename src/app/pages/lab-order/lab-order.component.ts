@@ -30,6 +30,7 @@
 //07/09/2023 SJF Removed Norhydrocodone & Noroxycodone
 //07/10/2023 SJF Added Billing Review User Type
 //07/20/2023 SJF Update for delegate signature on molecular.
+//07/21/2023 SJF Added Reviewed Order
 //-----------------------------------------------------------------------------
 // Data Passing
 //-----------------------------------------------------------------------------
@@ -1909,9 +1910,7 @@ export class LabOrderComponent implements OnInit {
     const today = new Date();
     var startDate = today.setDate(today.getDate())
     this.collectionDate = formatDate(startDate , 'yyyy-MM-dd', 'en');
-    this.duplicateCheck();
     this.collectionTime = formatDate(startDate , 'HH:mm', 'en');
-
 
     this.toxUrineConfirmationPanel = false;
     this.toxUrineFullPanel = false;
@@ -1937,7 +1936,6 @@ export class LabOrderComponent implements OnInit {
     this.skeletal  = new SkeletalModel();
     this.stimulants = new StimulantsModel()
     this.thcSource = false;
-
     this.showSelect = false;
     this.orderDisabled = false;
     this.showLabInfo = true;
@@ -1955,6 +1953,9 @@ export class LabOrderComponent implements OnInit {
     this.showButtons = true;
     this.showPOCC = false;
     this.showPOCCSwitch = true;
+
+    this.duplicateCheck();
+  
     this.physicianSelected();
     this.donerSignature();
     if (this.userType ==6 || this.userType == 7 || this.userType == 8 ){
@@ -1975,7 +1976,6 @@ export class LabOrderComponent implements OnInit {
     const today = new Date();
     var startDate = today.setDate(today.getDate())
     this.collectionDate = formatDate(startDate , 'yyyy-MM-dd', 'en');
-    this.duplicateCheck();
     this.collectionTime = formatDate(startDate , 'HH:mm', 'en');
 
     this.presumptiveTesting15 = false;
@@ -2012,6 +2012,7 @@ export class LabOrderComponent implements OnInit {
     this.showButtons = true;
     this.showPOCC = false;
     this.showPOCCSwitch = true;
+    this.duplicateCheck();
     this.physicianSelected();
     this.donerSignature();
     if (this.userType ==6 || this.userType == 7 || this.userType == 8 ){
@@ -2032,7 +2033,6 @@ export class LabOrderComponent implements OnInit {
     const today = new Date();
     var startDate = today.setDate(today.getDate())
     this.collectionDate = formatDate(startDate , 'yyyy-MM-dd', 'en');
-    this.duplicateCheck();
     this.collectionTime = formatDate(startDate , 'HH:mm', 'en');
 
     this.gppData = new GPPModel();
@@ -2054,6 +2054,7 @@ export class LabOrderComponent implements OnInit {
     this.showButtons = true;
     this.showPOCC = false;
     this.showPOCCSwitch = false;
+    this.duplicateCheck();
     this.donerSignature();
     if (this.userType ==6 || this.userType == 7 || this.userType == 8 ){
       this.showNoteList = true;
@@ -2073,7 +2074,6 @@ export class LabOrderComponent implements OnInit {
     const today = new Date();
     var startDate = today.setDate(today.getDate())
     this.collectionDate = formatDate(startDate , 'yyyy-MM-dd', 'en');
-    this.duplicateCheck();
     this.collectionTime = formatDate(startDate , 'HH:mm', 'en');
 
     this.rppData = new RPPModel();
@@ -2096,6 +2096,7 @@ export class LabOrderComponent implements OnInit {
     this.showButtons = true;
     this.showPOCC = false;
     this.showPOCCSwitch = false;
+    this.duplicateCheck();
     this.donerSignature();
     if (this.userType ==6 || this.userType == 7 || this.userType == 8 ){
       this.showNoteList = true;
@@ -2116,7 +2117,6 @@ export class LabOrderComponent implements OnInit {
     const today = new Date();
     var startDate = today.setDate(today.getDate())
     this.collectionDate = formatDate(startDate , 'yyyy-MM-dd', 'en');
-    this.duplicateCheck();
     this.collectionTime = formatDate(startDate , 'HH:mm', 'en');
 
     this.showSelect = false;
@@ -2137,6 +2137,7 @@ export class LabOrderComponent implements OnInit {
     this.showPOCC = false;
     this.showPOCCSwitch = false;
     this.utiData.urine = true; // Default to urine
+    this.duplicateCheck();
     this.donerSignature();
     if (this.userType ==6 || this.userType == 7 || this.userType == 8 ){
       this.showNoteList = true;
@@ -2891,7 +2892,6 @@ export class LabOrderComponent implements OnInit {
   }
 
   duplicateCheck(){
-    console.log("Duplicate Check");
     //  Check to make sure that only 1 lab order for each type can be ordered on a single day.
     var ck = Number(this.collectionDate.substring(0,4));
     if (ck >= 2023){
@@ -3845,6 +3845,22 @@ export class LabOrderComponent implements OnInit {
         });
 
  
+  }
+
+  reviewedOrderClicked(labOrderSpecimenId: number){
+    this.labOrderService.specimenReviewed(labOrderSpecimenId )
+        .pipe(first())
+        .subscribe(
+              data => {
+                if (data.valid) {
+                  this.searchButtonClicked();
+                }
+              },
+              error => {
+                this.errorMessage = error;
+                this.showError = true;
+              });
+
   }
 
   unCancelOrderDropdownButtonClicked(labOrderId: number){
