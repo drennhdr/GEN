@@ -1095,8 +1095,8 @@
                                 </div>
                                 <div class="col-md-6  pr-1">
                                     <div class="form-group" >
-                                        <label>Email</label>
-                                        <input [(ngModel)]="userData.email" maxlength="60" name="userEmail" type="text" [ngClass]="userData.email == '' ? 'form-control required' : 'form-control completed'" (change)="userChanged()" placeholder="Email required" [disabled]="accessLevel == 2">
+                                        <label *ngIf="!invalidEmail">Email</label><label *ngIf="invalidEmail" style="color:red">Email - Invalid email address</label>
+                                        <input [(ngModel)]="userData.email" maxlength="60" name="userEmail" type="email" [ngClass]="userData.email == '' ? 'form-control required' : 'form-control completed'" (change)="emailChanged()" placeholder="Email required" [disabled]="accessLevel == 2">
                                     </div>
                                 </div>
                             </div>

@@ -74,7 +74,14 @@
                             </div>
                         </div>
                         <div class="col-md-3 pr-1">
-
+                            <div class="form-group" *ngIf="showLocationSearch">
+                                <label>Location</label>
+                                <select class="form-control" id="searchLocationId" name="searchLocationId" [(ngModel)]="searchLocationId">
+                                    <option *ngFor="let option of locationSearchList" [value]="option.locationId">
+                                    {{option.locationName}}
+                                    </option>
+                                </select>
+                            </div>
                         </div>
                         <div class="col-md-3 pr-1">
                             <div class="form-group" >

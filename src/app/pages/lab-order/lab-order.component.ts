@@ -31,6 +31,7 @@
 //07/10/2023 SJF Added Billing Review User Type
 //07/20/2023 SJF Update for delegate signature on molecular.
 //07/21/2023 SJF Added Reviewed Order
+//07/24/2023 SJF Added location filter to lab order list for accounts with shared patients.
 //-----------------------------------------------------------------------------
 // Data Passing
 //-----------------------------------------------------------------------------
@@ -150,6 +151,10 @@ export class LabOrderComponent implements OnInit {
   searchLabTypeId: number;
   corpUser: boolean;
   customerFilter: string = "";
+
+  searchLocationId: number;
+  locationSearchList: any;
+  showLocationSearch: boolean = false;
  
 
   // Patient Search
@@ -439,6 +444,15 @@ export class LabOrderComponent implements OnInit {
     this.delegateSignature = 0;
     this.showCancel = false;
     this.customerIdLogin = Number(sessionStorage.getItem('entityId_Login'));
+    
+    var filter = sessionStorage.getItem('locationName');
+    if (filter == 'All Locations'){
+      this.showLocationSearch = true;
+      this.loadLocationList();
+    }
+    else{
+      this.showLocationSearch = false;
+    }
 
     if (sessionStorage.getItem('callingFirst') == 'True'){
       sessionStorage.setItem('callingFirst','');
@@ -492,7 +506,6 @@ export class LabOrderComponent implements OnInit {
     this.locationId = Number(sessionStorage.getItem('locationId'));
     this.delegates = JSON.parse(sessionStorage.getItem('delegate'));
 
-    console.log("Location",this.locationId);
     this.checkList = new Array<CodeItemModel>();
 
     this.medicationSearchList = new Array<MedicationListItemModel>();
@@ -672,7 +685,16 @@ export class LabOrderComponent implements OnInit {
   }
 
   searchButtonClicked(){
-    var locationId = Number(sessionStorage.getItem('locationId'));
+    var locationId = 0;
+
+    if (this.showLocationSearch){
+      var locationId = this.searchLocationId;
+    }
+    else{
+      var locationId = Number(sessionStorage.getItem('locationId'));
+    }
+    
+    console.log("LocationId",locationId);
     this.labOrderService.search(this.customerId, locationId, this.searchLabStatusId, 0, 0, this.searchName, this.searchSpecimenId, this.searchLabTypeId, this.searchStartDate, this.searchEndtDate, this.searchDateTypeId )
         .pipe(first())
         .subscribe(
@@ -7180,6 +7202,56 @@ export class LabOrderComponent implements OnInit {
           this.errorMessage = error;
           this.showError = true;
         });
+  }
+
+  loadLocationList(){
+    var customerIdLogin = Number(sessionStorage.getItem('entityId_Login'));
+    var customerId = Number(sessionStorage.getItem('customerId'));
+    
+    if (customerIdLogin > 0) {
+      var userId = Number(sessionStorage.getItem('userId_Login'));
+      this.locationService.search(userId)
+            .pipe(first())
+            .subscribe(
+            data => {
+              if (data.valid)
+              {
+                this.locationSearchList = data.list;
+
+                var item = new LocationListItemModel();
+                item.locationId = 0;
+                item.locationName = "All";
+                this.locationSearchList.splice(0,0,item);
+
+                this.searchLocationId = 0; //Number(sessionStorage.getItem('locationId'));
+              }
+            },
+            error => {
+              //
+            });
+    
+    }
+    else{
+      this.locationService.getForCustomer(customerId)
+            .pipe(first())
+            .subscribe(
+            data => {
+              if (data.valid)
+              {
+                this.locationSearchList = data.list;
+                var item = new LocationListItemModel();
+                item.locationId = 0;
+                item.locationName = "All";
+                this.locationSearchList.splice(0,0,item);
+                this.searchLocationId = 0;// Number(sessionStorage.getItem('locationId'));
+                console.log("Location Search List 2",this.locationSearchList);
+              }
+            },
+            error => {
+              //
+            });
+
+    }
   }
 
   // Camera capture code

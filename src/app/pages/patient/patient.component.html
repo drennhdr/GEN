@@ -224,7 +224,7 @@
                         <div class="col-md-3 pr-1">
                             <div class="form-group">
                                 <label>Sex</label>
-                                <select class="form-control" id="gender" name="genderId" [(ngModel)]="patientData.genderId" [disabled]="viewOnly" (change)="patientChanged()">
+                                <select class="form-control" id="gender" name="genderId" [(ngModel)]="patientData.genderId" [ngClass]="patientData.genderId == -1 ? 'form-control required' : 'form-control completed'" [disabled]="viewOnly" (change)="patientChanged()">
                                     <option *ngFor="let option of genderList" [value]="option.id">
                                     {{option.description}}
                                     </option>

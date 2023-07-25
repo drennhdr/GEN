@@ -14,6 +14,7 @@
 //07/12/2023 SJF Added delegate setup to users
 //07/15/2023 SJF Added alternate login id option
 //07/20/2023 SJF Added Setting a temporary user password
+//07/24/2023 SJF Added email check
 //-----------------------------------------------------------------------------
 // Data Passing
 //-----------------------------------------------------------------------------
@@ -95,6 +96,7 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
   showToxUrine: boolean;
   showToxOral: boolean;
   location: string = '';
+  invalidEmail: boolean = false;
 
   acctachmentDisabled: boolean;
   customerSave: boolean;
@@ -848,6 +850,8 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
                 this.showUserEdit = true;
                 this.signatureMessage = "";
 
+                this.emailChanged();
+
                 // Position screen
                 var elmnt = document.getElementById("topOfScreen");
                 elmnt.scrollIntoView();
@@ -866,6 +870,7 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
   }
 
   addUserButtonClicked(){
+    this.invalidEmail = true;
     this.tempPwd = "";
     this.tempPwdFlag = false;
     this.physicianSignatureData = new UserSignatureModel()
@@ -887,7 +892,7 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
   userChanged(){
     this.userSave = false;
     if (this.userData.firstName != "" && this.userData.lastName !=""
-      && this.userData.email !="" &&
+      && this.userData.email !="" && !this.invalidEmail &&
       (this.userData.physician == false || this.userData.npi !="")
       ){
       this.userSave = true;
@@ -896,6 +901,17 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
     if (this.userData.userId == 0){
       this.userData.userName = this.userData.firstName.substring(0,1) + this.userData.lastName + this.customerData.facilityCode;
     }
+  }
+
+  emailChanged(){
+
+    this.userData.email = this.userData.email.replace(/\s/g, "");
+    const expression: RegExp = /^(?=.{1,254}$)(?=.{1,64}@)[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+(\.[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+)*@[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$/;
+    this.invalidEmail = !expression.test(this.userData.email);
+
+    this.userChanged();
+
+    console.log("InvalidEmail",this.invalidEmail);
   }
 
   saveUserButtonClicked(){
@@ -909,6 +925,7 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
       this.userData.userType = "EHR User";
     }
 
+    this.userData.email = this.userData.email.replace(/\s/g, "");
     this.userData.locations = new Array<UserLocationModel> 
     var cntr: number = 1;
     if (this.locationSelected != null){

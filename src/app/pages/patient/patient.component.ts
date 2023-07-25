@@ -404,7 +404,7 @@ export class PatientComponent implements OnInit, AfterViewChecked {
       this.searchFirstName = '';
       this.searchLastName = '';
       this.searchMedicalRecordId = '';
-      this.searchGenderId = 0;
+      this.searchGenderId = -1;
       this.searchActive = true;
       this.searchIsPatient = true;
       if(Number(sessionStorage.getItem('locationId'))  > 0){
@@ -449,7 +449,7 @@ export class PatientComponent implements OnInit, AfterViewChecked {
     this.searchLastName = '';
     this.searchMedicalRecordId = '';
     this.searchDOB = null;
-    this.searchGenderId = 0;
+    this.searchGenderId = -1;
     this.searchActive = true;
     this.searchIsPatient = true;
     this.searchIsEmployee = false;
@@ -861,6 +861,7 @@ export class PatientComponent implements OnInit, AfterViewChecked {
     if ((this.patientData.firstName != "" || this.patientData.firstNameMissing)
       && (this.patientData.lastName !="" && this.patientData.lastName.length > 1 || this.patientData.lastNameMissing)
       && ((this.patientData.dob !="" && this.patientData.dob != undefined) || this.patientData.dobMissing)
+      && (this.patientData.genderId > -1)
       && (this.patientData.address.street1 !="" || this.patientData.addressMissing)
       && (this.patientData.address.postalCode !="" || this.patientData.addressMissing)
       && (this.patientData.address.city !="" || this.patientData.addressMissing)
@@ -896,7 +897,7 @@ export class PatientComponent implements OnInit, AfterViewChecked {
     // Initialze data to a blank record
     this.patientData = new PatientModel();
     this.patientData.customerId = this.customerId;
-    this.patientData.locationId = Number(sessionStorage.getItem('locationId'));
+    this.patientData.locationId = Number(sessionStorage.getItem('locaesearctionId'));
     if (this.customerId == 0){
       this.showCustomerField = true;
     }
@@ -2164,6 +2165,10 @@ export class PatientComponent implements OnInit, AfterViewChecked {
           if (data.valid)
           {
             this.genderList = data.list0;
+            var gitem = new CodeItemModel();
+            gitem.id = -1;
+            gitem.description = "Select";
+            this.genderList.splice(0,0,gitem);
             this.genderSearchList = data.list0;
             this.ethnicityList = data.list1;
             this.relationshipList = data.list2;
