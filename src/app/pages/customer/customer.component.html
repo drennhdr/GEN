@@ -1301,7 +1301,7 @@
                             <button type="button" *ngIf="accessLevel != 2 && userSave" (click)="saveUserButtonClicked()" class="btn btn-primary" >Save</button>
                             <button type="button" (click)="cancelUserButtonClicked()" class="btn btn-primary" >Cancel</button>
                             <button type="button" *ngIf="accessLevel != 2 && userData.userId != 0" (click)="resetUserPasswordButtonClicked()" class="btn btn-primary" >Reset Password</button>
-                            <button type="button" *ngIf="accessLevel == 1 && userData.userId != 0 && tempPwdFlag==0" (click)="tempPwdButtonClicked()" class="btn btn-primary" >Temporary Password</button>
+                            <button type="button" *ngIf="accessLevel == 1 && userData.userId != 0 && tempPwdFlag==false" (click)="tempPwdButtonClicked()" class="btn btn-primary" >Temporary Password</button>
                             <div class="row" *ngIf="accessLevel == 1 && userData.userId != 0 && tempPwdFlag==true">
                                 <div class="col-md-3 pr-1" >
                                     <div class="form-group">

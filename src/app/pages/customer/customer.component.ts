@@ -504,7 +504,9 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
       });
     }
 
+    this.customerSave = false;
     this.showError = false;
+    
     this.customerService.save( this.customerData)
           .pipe(first())
           .subscribe(
@@ -531,18 +533,18 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
                 this.dataShareService.unsaved.subscribe(data=>{
                   cng = data;
                 });
-
-                console.log ('save',cng);
               }
             }
             else{
               this.errorMessage = data.message;
               this.showError = true;
+              this.customerSave = true;
             }
           },
           error => {
-          this.errorMessage = error;
-          this.showError = true;
+            this.errorMessage = error;
+            this.showError = true;
+            this.customerSave = true;
           });
   }
 
@@ -690,6 +692,7 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
     // Put dates back into string
     this.errorMessage = "";
     this.showError = false;
+    this.locationSave = false;
     if (this.locationData.pickupMonday) {
       this.locationData.pickupDay = "1";  
     }
@@ -770,11 +773,13 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
       else{
         this.errorMessage = data.message;
         this.showError = true;
+        this.locationSave = true;
       }
     },
     error => {
       this.errorMessage = error;
       this.showError = true;
+      this.locationSave = true;
     });
   }
 
@@ -870,7 +875,7 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
   }
 
   addUserButtonClicked(){
-    this.invalidEmail = true;
+    this.invalidEmail = false;
     this.tempPwd = "";
     this.tempPwdFlag = false;
     this.physicianSignatureData = new UserSignatureModel()
@@ -880,6 +885,7 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
     this.userData.userSiteAdmin = false;
     this.userSave = false;
     this.delegateAdd = false;
+    this.userData.email = "";
 
     this.hideSummaryItems();
 
@@ -904,11 +910,15 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
   }
 
   emailChanged(){
-
+    console.log("Email",this.userData.email);
     this.userData.email = this.userData.email.replace(/\s/g, "");
-    const expression: RegExp = /^(?=.{1,254}$)(?=.{1,64}@)[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+(\.[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+)*@[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$/;
-    this.invalidEmail = !expression.test(this.userData.email);
-
+    if (this.userData.email != ""){
+      const expression: RegExp = /^(?=.{1,254}$)(?=.{1,64}@)[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+(\.[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+)*@[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$/;
+      this.invalidEmail = !expression.test(this.userData.email);
+    }
+    else{
+      this.invalidEmail = false;
+    }
     this.userChanged();
 
     console.log("InvalidEmail",this.invalidEmail);
@@ -916,6 +926,7 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
 
   saveUserButtonClicked(){
     // Set user type string from userSiteAdmin
+    this.userSave = false;
     if (this.userSiteAdmin) {
       this.userData.userTypeId = 3;
       this.userData.userType = "EHR Admin";
@@ -1010,11 +1021,13 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
             else{
               this.errorMessage = data.message;
               this.showError = true;
+              this.userSave = true;
             }
           },
           error => {
           this.errorMessage = error;
           this.showError = true;
+          this.userSave = true;
           });
   }
 
@@ -1077,14 +1090,14 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
               holdUserId = item.userId;
             });
 
+            this.delegateList = new Array<UserListItemModel>();
+            
             this.userService.getDelegateList(userId)
                 .pipe(first())
                 .subscribe(
                 data => {
                   if (data.valid)
-                  {
-                    this.delegateList = new Array<UserListItemModel>();
-                    
+                  {                    
                     if (data.valid){
                       data.delegates.forEach( (item) =>{
                         this.userList.forEach( (item2) =>{
