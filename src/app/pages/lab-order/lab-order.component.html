@@ -137,7 +137,7 @@
                     <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="10"> -->
                         <thead class=" text-primary">
                             <th><a (click)="sortBy('collectionDate')">Collected</a></th>
-                            <th *ngIf="corpUser"><a (click)="sortBy('receivedDate')">Received</a></th>
+                            <th><a (click)="sortBy('receivedDate')">Received</a></th>
                             <th *ngIf="corpUser"><a (click)="sortBy('accessionedDate')">Accessioned</a></th>
                             <th><a (click)="sortBy('resulted')">Resulted</a></th>
                             <th *ngIf="corpUser">Pending / Turnaround</th>
@@ -161,7 +161,7 @@
                                 <td *ngIf="corpUser">{{item.accessionedDate + ' UTC' | date: 'MM/dd/yyyy hh:mm a' : local}}</td>
                                 <td>{{item.resultedDate + ' UTC' | date: 'MM/dd/yyyy hh:mm a' : local}}</td> -->
                                 <td>{{item.collectionDate}}</td>
-                                <td *ngIf="corpUser">{{item.receivedDate}}</td>
+                                <td>{{item.receivedDate}}</td>
                                 <td *ngIf="corpUser">{{item.accessionedDate}}</td>
                                 <td>{{item.resultedDate}}</td>
                                 <td style="color:red" *ngIf="corpUser && (item.labStatusId==30 || item.labStatusId==40)">{{item.pending}}</td>
