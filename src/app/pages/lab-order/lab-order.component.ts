@@ -32,6 +32,7 @@
 //07/20/2023 SJF Update for delegate signature on molecular.
 //07/21/2023 SJF Added Reviewed Order
 //07/24/2023 SJF Added location filter to lab order list for accounts with shared patients.
+//07/30/2023 SJF Added export lab orders to CSV, prepare list of requests/results pdf's as single pdf.
 //-----------------------------------------------------------------------------
 // Data Passing
 //-----------------------------------------------------------------------------
@@ -57,6 +58,7 @@ import { PdfRPPService } from '../../services/pdfRPP.service';
 import { PdfUTISTIService } from '../../services/pdfUTISTI.service';
 import { PdfToxUrineService } from '../../services/pdfToxUrine.Service';
 import { PdfToxOralService } from '../../services/pdfToxOral.service';
+import { DownloadService } from '../../services/download.service';
 //import { DatePipe } from '@angular/common'
 
 import jsPDF from 'jspdf';
@@ -155,6 +157,11 @@ export class LabOrderComponent implements OnInit {
   searchLocationId: number;
   locationSearchList: any;
   showLocationSearch: boolean = false;
+
+  readonly labOrderListStaticHeaders = [
+    'Issues', 'Actions'
+  ]
+  @ViewChild('labOrdersList') labOrdersList: ElementRef;
  
 
   // Patient Search
@@ -421,6 +428,7 @@ export class LabOrderComponent implements OnInit {
     private pdfToxOralService: PdfToxOralService,
     private dataShareService: DataShareService,
     private insuranceService: InsuranceService,
+    private downloadService: DownloadService
     //private datePipe: DatePipe,
   ) { }
 
@@ -7865,9 +7873,45 @@ export class LabOrderComponent implements OnInit {
   }
 
   printListButtonClicked() {
-    
+    let csvDataAsString = this.getCSVFromHTMLTable();
+    this.downloadService.downloadFile(csvDataAsString, 'LabOrderList.csv', 'text/csv');
+  }
 
+  private getCSVFromHTMLTable() {
+    let csvStringBuilder = '';
+    var labOrderListTable = this.labOrdersList.nativeElement;
+    //children[0]: Table Headers
+    let headers = labOrderListTable.children[0];
+    //staticHeaderIndexs: indexes will be used to skip prepare static header row data while iterating body tr tags.//
+    let staticHeaderIndexs = [];
+    for (let i = 0; i < headers.children.length; i++) {
+      let headerText = headers.children[i].innerText;
+      if (this.labOrderListStaticHeaders.indexOf(headerText) == -1) {
+        csvStringBuilder += headerText + ",";
+      }
+      else {
+        staticHeaderIndexs.push(i);
+      }
+    }
+    csvStringBuilder = this.addNewLineToString(csvStringBuilder);
+    //children[1]: Table Body
+    let tbody = labOrderListTable.children[1];
+    for (let i = 0; i < tbody.children.length; i++) {
+      if (tbody.children[i] instanceof HTMLTableRowElement) {
+        for (let j = 0; j < tbody.children[i].children.length; j++) {
+          if (staticHeaderIndexs.indexOf(j) == -1)
+            csvStringBuilder += tbody.children[i].children[j].innerText + ",";
+        }
+        csvStringBuilder = this.addNewLineToString(csvStringBuilder);
+      }
+    }
+    csvStringBuilder = this.addNewLineToString(csvStringBuilder);
+    return csvStringBuilder;
+  }
 
+  addNewLineToString(inputString) {
+    inputString = inputString.substring(0, inputString.length - 1) + "\n";
+    return inputString;
   }
 }
 

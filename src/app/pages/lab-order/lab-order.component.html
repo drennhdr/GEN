@@ -122,9 +122,9 @@
                             <p class="category">Select a lab order</p>
                         </div>
                         <div class="col-md-4 pr-1">
-                            <!-- <button type="button" (click)="printListButtonClicked()" class="btn btn-primary" >Print List</button>
+                            <button type="button" (click)="printListButtonClicked()" class="btn btn-primary" >Print List</button>
                             <button type="button" (click)="printRequestsButtonClicked()" class="btn btn-primary" >Print Requests</button>
-                            <button type="button" (click)="printResultsButtonClicked()" class="btn btn-primary" >Print Results</button> -->
+                            <button type="button" (click)="printResultsButtonClicked()" class="btn btn-primary" >Print Results</button>
                         </div>
                         <div class="col-md-3 pr-1">
                             <h4>Item Count {{searchCount}}</h4>
@@ -133,7 +133,7 @@
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                    <table class="table table-striped" datatable >
+                    <table class="table table-striped" datatable #labOrdersList>
                     <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="10"> -->
                         <thead class=" text-primary">
                             <th><a (click)="sortBy('collectionDate')">Collected</a></th>
