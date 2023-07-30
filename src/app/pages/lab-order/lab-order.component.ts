@@ -38,7 +38,7 @@
 //-----------------------------------------------------------------------------
 
 import { Component, ElementRef, OnInit, ViewChild, HostListener } from '@angular/core';
-import { first } from 'rxjs/operators';
+import { catchError, first } from 'rxjs/operators';
 import SignaturePad from 'signature_pad';
 import {formatDate} from '@angular/common';
 
@@ -81,7 +81,7 @@ import { Icd10ListModel, Icd10ListItemModel } from '../../models/Icd10Model';
 import { AllergyListModel, AllergyListItemModel } from '../../models/AllergyModel';
 import { CodeItemModel } from '../../models/CodeModel';
 import { ThisReceiver } from '@angular/compiler';
-import { Observable, ReplaySubject } from 'rxjs';
+import { forkJoin, from, Observable, of, ReplaySubject } from 'rxjs';
 import { StatusModalComponent } from '../../modal/status-modal/status-modal.component';
 import { IssueModalComponent } from '../../modal/issue-modal/issue-modal.component';
 import { AttachmentModalComponent } from '../../modal/attachment-modal/attachment-modal.component';
@@ -92,6 +92,7 @@ import { BsModalService, ModalOptions } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { ClientPrintJob, InstalledPrinter, JSPrintManager, WSStatus } from 'JSPrintManager';
 import { DataShareService } from '../../services/data-share.service';
+import { PDFDocument } from 'pdf-lib'
 
 @Component({
   selector: 'app-lab-order',
@@ -160,7 +161,8 @@ export class LabOrderComponent implements OnInit {
 
   readonly labOrderListStaticHeaders = [
     'Issues', 'Actions'
-  ]
+  ];
+  resutlPDFDocument = null;
   @ViewChild('labOrdersList') labOrdersList: ElementRef;
  
 
@@ -7834,42 +7836,37 @@ export class LabOrderComponent implements OnInit {
 
   resultPdfClicked(specimenId: number) {
     console.log("Result PDF Show");
-    this.labOrderService.getLabOrderResultPdf( specimenId)
-    .pipe(first())
-    .subscribe(
-    data => {
-      console.log("Data",data);
-      if (data.valid)
-      {
-        this.pdfData = data;
+    this.labOrderService.getLabOrderResultPdf(specimenId)
+      .pipe(first())
+      .subscribe(
+        data => {
+          console.log("Data", data);
+          if (data.valid) {
+            this.pdfData = data;
+            this.preparePDFPreviewInNewTab
+          }
+          else {
+            //this.errorMessage = data.message;
+          }
+        },
+        error => {
+          this.errorMessage = error;
+          this.showError = true;
+        });
+  }
 
+  preparePDFPreviewInNewTab(pdfData) {
+    let bytes = this.base64ToArrayBuffer(pdfData.fileAsBase64);
+    this.openPDFInNewWindow(bytes)
+  }
 
-        const binaryString = window.atob(this.pdfData.fileAsBase64);
-        const len = binaryString.length;
-        const bytes = new Uint8Array(len);
-        for (let i = 0; i < len; ++i) {
-          bytes[i] = binaryString.charCodeAt(i);
-        }
-
-        
-        var fileblob = new Blob([bytes], { type: 'application/pdf' });
-
-        var url = window.URL.createObjectURL(fileblob); 
-      
-        let anchor = document.createElement("a");
-        anchor.href = url;
-        anchor.target = "_blank"
-        anchor.click();             
-      }
-      else
-      {
-        //this.errorMessage = data.message;
-      }
-    },
-    error => {
-      this.errorMessage = error;
-      this.showError = true;
-    });
+  openPDFInNewWindow(bytes) {
+    var fileblob = new Blob([bytes], { type: 'application/pdf' });
+    var url = window.URL.createObjectURL(fileblob);
+    let anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.target = "_blank"
+    anchor.click();
   }
 
   printListButtonClicked() {
@@ -7912,6 +7909,51 @@ export class LabOrderComponent implements OnInit {
   addNewLineToString(inputString) {
     inputString = inputString.substring(0, inputString.length - 1) + "\n";
     return inputString;
+  }
+
+  async mergePDFs(base64PDFs) {
+    const mergedPDF = !this.resutlPDFDocument ? await PDFDocument.create() : this.resutlPDFDocument
+    for (const base64PDF of base64PDFs) {
+      if (!!base64PDF) {
+        const pdfBytes = this.base64ToArrayBuffer(base64PDF);
+        const pdfDoc = await PDFDocument.load(pdfBytes);
+        const copiedPages = await mergedPDF.copyPages(pdfDoc, pdfDoc.getPageIndices());
+        copiedPages.forEach(page => mergedPDF.addPage(page));
+      }
+    }
+    const mergedPDFBytes = await mergedPDF.save();
+    this.openPDFInNewWindow(mergedPDFBytes);
+    this.resutlPDFDocument = null;
+  }
+
+  base64ToArrayBuffer(base64Str) {
+    return Uint8Array.from(atob(base64Str), c => c.charCodeAt(0));
+  };
+
+  async printResultsButtonClicked() {
+    let qualifiedLabOrderSpecimenId = [];
+    this.searchData?.forEach(labOrder => {
+      if (labOrder.labStatusId == 50) {
+        qualifiedLabOrderSpecimenId.push(labOrder.labOrderSpecimenId);
+      }
+    });
+    if (qualifiedLabOrderSpecimenId.length > 0) {
+      let requests = qualifiedLabOrderSpecimenId.map(specimenId =>
+        this.labOrderService.getLabOrderResultPdf(specimenId)
+          .pipe(catchError(e => {
+            let pdfModel = new LabOrderPdfModel();
+            pdfModel.message = e;
+            console.log("error handler message", e.toString())
+            return of(pdfModel)
+          }))
+      );
+      forkJoin(requests)
+        .subscribe(async (orderdata) => {
+          await this.mergePDFs(orderdata.map(order => order.fileAsBase64));
+        })
+    }else{
+        alert('No resulted speciment id`s found.')
+    }
   }
 }
 
