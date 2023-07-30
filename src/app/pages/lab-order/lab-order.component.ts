@@ -7952,7 +7952,7 @@ export class LabOrderComponent implements OnInit {
           await this.mergePDFs(orderdata.map(order => order.fileAsBase64));
         })
     }else{
-        alert('No resulted speciment id`s found.')
+        alert('No resulting Specimen ID found.')
     }
   }
 }
