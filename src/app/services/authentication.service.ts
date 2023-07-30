@@ -37,6 +37,7 @@ export class AuthenticationService {
             console.log("Validation",data);
               if (data.valid == true && !data.changePwd)
               {
+                console.log("User",data);
                 sessionStorage.setItem('unsavedChanges',"0");
                 sessionStorage.setItem('entityId_Login',String(data.customerId));
                 sessionStorage.setItem('userId_Login',String(data.userId));
@@ -50,6 +51,18 @@ export class AuthenticationService {
                 sessionStorage.setItem('camera',data.camera.toString());
                 sessionStorage.setItem('delegate',JSON.stringify(data.delegates));
                 sessionStorage.setItem('shipLog',JSON.stringify(data.shipLog));
+                if (data.salesUserEdit){
+                  sessionStorage.setItem('salesUserEdit',"1");
+                }
+                else{
+                  sessionStorage.setItem('salesUserEdit',"0");
+                }
+                if (data.salesPatientReport){
+                  sessionStorage.setItem('salesPatientReport',"1");
+                }
+                else{
+                  sessionStorage.setItem('salesPatientReport',"0");
+                }
                 sessionStorage.setItem('locationId','');
                 sessionStorage.setItem('locationName','');
                 if (data.multiLogin){

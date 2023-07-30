@@ -165,17 +165,21 @@
                   <thead class="text-primary">
                     <th>Specimen ID</th>
                     <th>Collected</th>
+                    <th>Received</th>
                     <!-- <th>Patient</th> -->
                     <th>Status</th>
                     <th>Sample Type</th>
+                    <th *ngIf="salesReport">Actions</th>
                   </thead>
                   <tbody *ngIf="labOrderListData!=null">
                     <tr *ngFor="let item of labOrderListData">
                       <td>{{item.specimenBarcode}}</td>
                       <td>{{item.collectionDate}}</td>
+                      <td>{{item.receivedDate}}</td>
                       <!-- <td>{{item.patient}}</td> -->
                       <td>{{item.status}}</td>
                       <td>{{item.labType}}</td>
+                      <td *ngIf="salesReport"><button type="button" (click)="selectButtonClicked(item.labOrderId,item.labOrderSpecimenId)" class="btn btn-primary" >Select</button></td>
                     </tr>
                   </tbody>
                 </table>

@@ -15,6 +15,7 @@
 //07/15/2023 SJF Added alternate login id option
 //07/20/2023 SJF Added Setting a temporary user password
 //07/24/2023 SJF Added email check
+//07/28/2023 SJF Added sales edit users based on flag on user 
 //-----------------------------------------------------------------------------
 // Data Passing
 //-----------------------------------------------------------------------------
@@ -203,6 +204,8 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
   tempPwdFlag: boolean = false;
   pwdError: string = "";
 
+  salesEdit: number = 0;
+
   constructor(
     private customerService: CustomerService,
     private codeService: CodeService,
@@ -234,6 +237,8 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
 
     this.userType = Number(sessionStorage.getItem('userType'));
     var userId = Number(sessionStorage.getItem('userId_Login'));
+    this.salesEdit = Number(sessionStorage.getItem('salesUserEdit'));
+
     if (this.userType == 1){
       // Admin
       this.accessLevel = 1; // full
@@ -301,10 +306,11 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
       this.searchCity = "";
       this.searchState = "";
       this.searchRegion = 0;
+    }
+    if (!this.salesFlag){
       this.searchAM = 0;
       this.searchTM = 0;
       this.searchRM = 0;
-
     }
 
   }
@@ -905,7 +911,15 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
     }
     this.dataShareService.changeUnsaved(true);
     if (this.userData.userId == 0){
-      this.userData.userName = this.userData.firstName.substring(0,1) + this.userData.lastName + this.customerData.facilityCode;
+      var lname = this.userData.lastName;
+      if (lname.indexOf(" ") > 0){
+        lname = lname.substring(0,lname.indexOf(" "));
+      }
+      if (lname.indexOf("-") > 0){
+        lname = lname.substring(0,lname.indexOf("-"));
+      }
+
+      this.userData.userName = this.userData.firstName.substring(0,1) + lname + this.customerData.facilityCode;
     }
   }
 
