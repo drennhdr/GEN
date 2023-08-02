@@ -1704,9 +1704,9 @@
                                     </div>
                                     <!-- Snapshot Container  -->
                                     <div class="snap-container">
-                                        <button class="btn btn-primary" *ngIf="!cameraOn && !fileUploaded" [disabled]="attachmentData.loAttachmentTypeId==0" (click)="setupDevices()">Start Camera</button>
+                                        <button class="btn btn-primary" *ngIf="!cameraOn && !fileUploaded" (click)="setupDevices()">Start Camera</button>
                                         <button class="btn btn-primary" *ngIf="cameraOn" (click)="stopDevice()">Stop Camera</button>
-                                        <button class="btn btn-primary" *ngIf="cameraOn" (click)="capture()">Snap Photo</button>
+                                        <button class="btn btn-primary" *ngIf="cameraOn" [disabled]="attachmentData.loAttachmentTypeId==0" (click)="capture()">Snap Photo</button>
                                     </div>
 
                                 </div>
