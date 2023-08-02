@@ -1204,7 +1204,12 @@ export class LabOrderComponent implements OnInit {
             this.labOrderSave = false;
             
             //  Set the edit ability based on user type and status
-            if (this.labOrderData.specimens[0].labStatusId < 20){
+            if (this.userType==9 || this.userType==10 || this.userType==11)
+            {
+              // Disable for sales.
+              this.orderDisabled = true;
+            }
+            else if (this.labOrderData.specimens[0].labStatusId < 20){
               this.orderDisabled = false;
             }
             else if (this.labOrderData.specimens[0].labStatusId < 30 && (this.userType == 6 || this.userType == 7 || this.userType == 8)){
