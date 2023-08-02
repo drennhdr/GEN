@@ -47,6 +47,8 @@ export class UserModel {
   barcodeQty: number = 0;
   camera: boolean = false;
   shipLog: boolean = false;
+  salesUserEdit: boolean = false;
+  salesPatientReport: boolean = false;
   customerName: string = '';
   userId_Updated: number = 0;
   labs: UserLabModel[] = new Array<UserLabModel>

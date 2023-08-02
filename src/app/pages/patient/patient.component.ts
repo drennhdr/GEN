@@ -897,7 +897,7 @@ export class PatientComponent implements OnInit, AfterViewChecked {
     // Initialze data to a blank record
     this.patientData = new PatientModel();
     this.patientData.customerId = this.customerId;
-    this.patientData.locationId = Number(sessionStorage.getItem('locaesearctionId'));
+    this.patientData.locationId = Number(sessionStorage.getItem('locationId'));
     if (this.customerId == 0){
       this.showCustomerField = true;
     }
