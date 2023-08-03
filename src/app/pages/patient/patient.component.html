@@ -787,8 +787,17 @@
                     <div class="row">
                         <div class="col-md-4  pr-1" *ngIf="!viewOnly">
                             <div class="form-group" >
-                                <label>Select a medication</label>
-                                <input maxlength="20" name="searchMedication" type="text" class="form-control" (keyup)="medicationKeypress($event)">
+                                <div class="row">
+                                    <div class="col-md-10 pr-1">
+                                        <div class="form-group" >
+                                            <label>Select a medication</label>
+                                            <input [(ngModel)]="medicationName" maxlength="50" name="searchMedication" type="text" class="form-control" (keyup)="medicationKeypress($event)">
+                                        </div>
+                                    </div>
+                                    <div clas="col-md-2 pr-1">
+                                        <button type="button" *ngIf="addMedication" (click)="addMedicationButtonClicked()" class="btn btn-primary" >Add</button>
+                                    </div>
+                                </div>
                                 <select multiple class="form-control" name="medicationList" id="medicationList" #selectList (change)="newMedicationClick(selectList.value)">
                                     <option *ngFor="let option of medicationSearchList" [value]="option.medicationId" >
                                     {{option.description}}
@@ -800,7 +809,7 @@
                             <div class="form-group" >
                                 <label>Current patient medications<br /></label>
                                 <select multiple class="form-control" name="currentMedications" id="currentMedications" #selectList2 (change)="currentMedicationClick(selectList2.value)">
-                                    <option *ngFor="let option of medicationCurrentList" [value]="option.medicationId" >
+                                    <option *ngFor="let option of medicationCurrentList" [value]="option.medicationId + ',' + option.description" >
                                     {{option.description}}
                                     </option>
                                 </select>
@@ -912,8 +921,19 @@
                         <div class="row">
                             <div class="col-md-4  pr-1" *ngIf="!viewOnly">
                                 <div class="form-group" >
-                                    <label>Select an allergy</label>
-                                    <input maxlength="20" name="searchAllergy" type="text" class="form-control" (keyup)="allergyKeypress($event)" [disabled]="patientData.noAllergy">
+
+                                    <div class="row">
+                                        <div class="col-md-10 pr-1">
+                                            <div class="form-group" >
+                                                <label>Select an allergy</label>
+                                                <input [(ngModel)]="allergyName" maxlength="50" name="searchAllergy" type="text" class="form-control" (keyup)="allergyKeypress($event)">
+                                            </div>
+                                        </div>
+                                        <div clas="col-md-2 pr-1">
+                                            <button type="button" *ngIf="addAllergy" (click)="addAllergyButtonClicked()" class="btn btn-primary" >Add</button>
+                                        </div>
+                                    </div>
+
                                     <select multiple class="form-control" name="allergyList" id="allergyList" #selectListA (change)="newAllergyClick(selectListA.value)">
                                         <option *ngFor="let option of allergySearchList" [value]="option.allergyId" >
                                         {{option.description}}
@@ -925,7 +945,7 @@
                                 <div class="form-group" >
                                     <label>Current patient allergies<br /></label>
                                     <select multiple class="form-control" name="currentAllergies" id="currentAllergies" #selectListA2 (change)="currentAllergyClick(selectListA2.value)">
-                                        <option *ngFor="let option of allergyCurrentList" [value]="option.allergyId" >
+                                        <option *ngFor="let option of allergyCurrentList" [value]="option.allergyId + ',' + option.description" >
                                         {{option.description}}
                                         </option>
                                     </select>

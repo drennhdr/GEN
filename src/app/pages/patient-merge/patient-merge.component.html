@@ -1,0 +1,460 @@
+<!-- Page Name       : Patient-Merge            -->
+<!-- Date Created    : 07/31/2023               -->
+<!-- Written By      : Stephen Farkas           -->
+<!-- Description     : Patient Merge            -->
+<!-- MM/DD/YYYY xxx  Description                -->
+<!--                                            -->
+<!-- ----------------------------------------------------------------------------- -->
+<div class="panel-header panel-header-sm">
+</div>
+<div class="main-content">
+
+    <div  id="topOfScreen"></div>
+
+    <div class="row" *ngIf="showError" >
+        <div class="col-md-12">
+            <!-- Errors -->
+            <div class="card">
+                <div class="card-header">
+                <h5 class="title">Error Message</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <textarea rows="3" cols="80" class= "form-control alert-login">{{errorMessage}}</textarea>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Search Base                  -->
+    <div class="row" *ngIf="showSearch" id="patientSearchCard">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+
+                    <div class="row">
+                        <div class="col-md-9 pr-1">
+                            <h5 class="title">Base Patient Search {{customerFilter}} {{locationName}}</h5>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <button type="button" (click)="clearSearchButtonClicked()" class="btn btn-primary" >Clear Search Criteria</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                <form name="search-form">
+                    <div class="row">
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>First Name</label>
+                                <input [(ngModel)]="searchFirstName" maxlength="20" name="searchFirstName" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Last Name</label>
+                                <input [(ngModel)]="searchLastName" maxlength="20" name="searchLastName" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>DOB</label>
+                                <input [(ngModel)]="searchDOB" name="searchDOB" type="date" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Sex</label>
+                                <select class="form-control" id="searchGender" name="searchGender" [(ngModel)]="searchGenderId">
+                                    <option *ngFor="let option of genderSearchList" [value]="option.id">
+                                    {{option.description}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Medical Record #</label>
+                                <input [(ngModel)]="searchMedicalRecordId" maxlength="18" name="searchMR" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Active</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="searchActive" name="searchActive" [(ngModel)]="searchActive">
+                                    <label class="custom-control-label" for="searchActive"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 pr-1">
+                            <div class="form-group" >
+                                <label>Include Patients</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="searchPatient" name="searchPatient" [(ngModel)]="searchIsPatient">
+                                    <label class="custom-control-label" for="searchPatient"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 pr-1">
+                            <div class="form-group" >
+                                <label>Include Employees</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="searchEmployee" name="searchEmployee" [(ngModel)]="searchIsEmployee">
+                                    <label class="custom-control-label" for="searchEmployee"></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" (click)="searchButtonClicked()" class="btn btn-primary" >Search</button>
+
+                </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Items Returned From Search                                  -->
+    <div class="row" *ngIf="showSearchList" id="searchlistCard">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Patient</h4>
+                    <p class="category">Select a Patient To Merge Data Into</p>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                    <table class="table table-striped" datatable >
+                        <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
+                        <thead class=" text-primary">
+                            <th>Name</th>
+                            <th>DOB</th>
+                            <th>Sex</th>
+                            <th>Medical ID</th>
+                            <th>Phone</th>
+                            <th>Actions</th>
+                        </thead>
+                        <tbody>
+                        <tr *ngFor="let item of patientSearchData">
+                            <td><a style="color:blue" (click)="selectButtonClicked(item.patientId)">{{item.name}}</a></td>
+                            <td>{{item.dob}}</td>
+                            <td>{{item.gender}}</td>
+                            <td>{{item.medicalRecordId}}</td>
+                            <td>{{item.phone}}</td>
+                            <td><button type="button" (click)="selectButtonClicked(item.patientId)" class="btn btn-primary" >Select</button></td>                    
+                         </tr>
+                        
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Show the base patient details                -->
+    <div class="row" *ngIf="showPatient" id="patientDetail">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-md-11">
+                            <h5 class="title">Patient To Merge Data Into</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>First Name</label>
+                                <input [(ngModel)]="patientData.firstName" name="firstName" type="text" class="form-control" [disabled]="true">                  
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Last Name</label>
+                                <input [(ngModel)]="patientData.lastName" name="lastName" type="text" class="form-control" [disabled]="true">                  
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>DOB</label>
+                                <input [(ngModel)]="patientData.dob" name="DOB" type="date" class="form-control" [disabled]="true">
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>Sex</label>
+                                <select class="form-control" id="gender" name="genderId" [(ngModel)]="patientData.genderId" class="form-control" [disabled]="true">
+                                    <option *ngFor="let option of genderList" [value]="option.id">
+                                    {{option.description}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6  pr-1">
+                            <div class="form-group" >
+                                <label>Street Address</label>
+                                <input [(ngModel)]="patientData.address.street1" name="street1" type="text" class="form-control" [disabled]="true">
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>City</label>
+                                <input [(ngModel)]="patientData.address.city" name="city" type="text" class="form-control" [disabled]="true">
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>State</label>
+                                <input [(ngModel)]="patientData.address.state" name="state" type="text" class="form-control" [disabled]="true">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6  pr-1">
+                            <div class="form-group" >
+                                <label>Primary Insurance</label>
+                                <input [(ngModel)]="primaryInsurance" name="primaryInsurance" type="text" class="form-control" [disabled]="true">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 pr-1">
+                            <div class="form-group">
+                                <label>Secondary Insurance</label>
+                                <input [(ngModel)]="secondaryInsurance" name="secondaryInsurance" type="text" class="form-control" [disabled]="true">
+                            </div>
+                        </div>
+                    </div>
+    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Merge patient Search                 -->
+    <div class="row" *ngIf="showMergeSearch" id="mergeSearchCard">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-md-9 pr-1">
+                            <h5 class="title">Merge Patient Search</h5>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <button type="button" (click)="clearMergeSearchButtonClicked()" class="btn btn-primary" >Clear Search Criteria</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                <form name="search-form">
+                    <div class="row">
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>First Name</label>
+                                <input [(ngModel)]="searchMergeFirstName" maxlength="20" name="searchMergeFirstName" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Last Name</label>
+                                <input [(ngModel)]="searchMergeLastName" maxlength="20" name="searchMergeLastName" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>DOB</label>
+                                <input [(ngModel)]="searchMergeDOB" name="searchMergeDOB" type="date" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Sex</label>
+                                <select class="form-control" id="searchMergeGender" name="searchMergeGender" [(ngModel)]="searchMergeGenderId">
+                                    <option *ngFor="let option of genderSearchList" [value]="option.id">
+                                    {{option.description}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Medical Record #</label>
+                                <input [(ngModel)]="searchMergeMedicalRecordId" maxlength="18" name="searchMergeMR" type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Active</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="searchMergeActive" name="searchMergeActive" [(ngModel)]="searchMergeActive">
+                                    <label class="custom-control-label" for="searchMergeActive"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 pr-1">
+                            <div class="form-group" >
+                                <label>Include Patients</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="searchMergePatient" name="searchMergePatient" [(ngModel)]="searchMergeIsPatient">
+                                    <label class="custom-control-label" for="searchMergePatient"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 pr-1">
+                            <div class="form-group" >
+                                <label>Include Employees</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="searchMergeEmployee" name="searchMergeEmployee" [(ngModel)]="searchMergeIsEmployee">
+                                    <label class="custom-control-label" for="searchMergeEmployee"></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" (click)="searchMergeButtonClicked()" class="btn btn-primary" >Search</button>
+                </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Items Returned From Search                                  -->
+    <div class="row" *ngIf="showMergeSearchList" id="listMergeCard">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Patient Search</h4>
+                    <p class="category">Select a Patient To Extract Data From & Inactivate</p>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                    <table class="table table-striped" datatable >
+                        <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
+                        <thead class=" text-primary">
+                            <th>Name</th>
+                            <th>DOB</th>
+                            <th>Sex</th>
+                            <th>Medical ID</th>
+                            <th>Phone</th>
+                            <th>Actions</th>
+                        </thead>
+                        <tbody>
+                        <tr *ngFor="let item of patientMergeSearchData">
+                            <td><a style="color:blue" (click)="selectMergeButtonClicked(item.patientId)">{{item.name}}</a></td>
+                            <td>{{item.dob}}</td>
+                            <td>{{item.gender}}</td>
+                            <td>{{item.medicalRecordId}}</td>
+                            <td>{{item.phone}}</td>
+                            <td><button type="button" (click)="selectMergeButtonClicked(item.patientId)" class="btn btn-primary" >Select</button></td>                    
+                        </tr>
+                        
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Show the merge patient details                -->
+    <div class="row" *ngIf="showMergePatient" id="patientMergeDetail">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-md-11">
+                            <h5 class="title">Patient To Extract Data From & Inactivate</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>First Name</label>
+                                <input [(ngModel)]="patientMergeData.firstName" name="firstName" type="text" class="form-control" [disabled]="true">                  
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>Last Name</label>
+                                <input [(ngModel)]="patientMergeData.lastName" name="lastName" type="text" class="form-control" [disabled]="true">                  
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group" >
+                                <label>DOB</label>
+                                <input [(ngModel)]="patientMergeData.dob" name="DOB" type="date" class="form-control" [disabled]="true">
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>Sex</label>
+                                <select class="form-control" id="gender" name="genderId" [(ngModel)]="patientMergeData.genderId" class="form-control" [disabled]="true">
+                                    <option *ngFor="let option of genderList" [value]="option.id">
+                                    {{option.description}}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6  pr-1">
+                            <div class="form-group" >
+                                <label>Street Address</label>
+                                <input [(ngModel)]="patientMergeData.address.street1" name="street1" type="text" class="form-control" [disabled]="true">
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>City</label>
+                                <input [(ngModel)]="patientMergeData.address.city" name="city" type="text" class="form-control" [disabled]="true">
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>State</label>
+                                <input [(ngModel)]="patientMergeData.address.state" name="state" type="text" class="form-control" [disabled]="true">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6  pr-1">
+                            <div class="form-group" >
+                                <label>Primary Insurance</label>
+                                <input [(ngModel)]="primaryMergeInsurance" name="primaryInsurance" type="text" class="form-control" [disabled]="true">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 pr-1">
+                            <div class="form-group">
+                                <label>Secondary Insurance</label>
+                                <input [(ngModel)]="secondaryMergeInsurance" name="secondaryInsurance" type="text" class="form-control" [disabled]="true">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <button type="button" (click)="mergeButtonClicked()" class="btn btn-primary" >Merge</button>
+                        <button type="button" (click)="cancelButtonClicked()" class="btn btn-primary" >Cancel</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

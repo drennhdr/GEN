@@ -602,7 +602,7 @@ export class PatientService {
   // ------------------------------------------------------------------------------------------------------------------
   // Save Patient Medication
   // ------------------------------------------------------------------------------------------------------------------
-  savePatientMedication( patientId: number, medicationId: number ) {
+  savePatientMedication( patientId: number, medicationId: number, freeformDesc: string ) {
 
     var validation = new ValidationModel();
     validation.entityId_Login = parseInt(sessionStorage.getItem('entityId_Login'));
@@ -613,18 +613,19 @@ export class PatientService {
     validation.tranSourceId = this.tranSourceId;
     validation.version = this.version;
 
-    var patientMedicaiton = new PatientMedicationModel;
+    var patientMedication = new PatientMedicationModel;
 
-    patientMedicaiton.validation = validation;
-    patientMedicaiton.patientId = patientId;
-    patientMedicaiton.medicationId = Number(medicationId);
-    patientMedicaiton.medicationId_Generic = 0;
+    patientMedication.validation = validation;
+    patientMedication.patientId = patientId;
+    patientMedication.medicationId = Number(medicationId);
+    patientMedication.medicationId_Generic = 0;
+    patientMedication.freeformDesc = freeformDesc;
 
     var url = this.apiRoot + 'api/Patient/SavePatientMedication'
     var headers = new HttpHeaders();
     headers = headers.set("Content-Type", "application/json; charset=utf-8");
 
-    return this.httpClient.post(url, patientMedicaiton, { headers: headers })
+    return this.httpClient.post(url, patientMedication, { headers: headers })
         .pipe(
             map((data: GenericResponseModel) => {
                 return data;
@@ -673,7 +674,7 @@ export class PatientService {
   // ------------------------------------------------------------------------------------------------------------------
   // Save Patient Allergy
   // ------------------------------------------------------------------------------------------------------------------
-  savePatientAllergy( patientId: number, allergyId: number ) {
+  savePatientAllergy( patientId: number, allergyId: number, freeformDesc: string ) {
 
     var validation = new ValidationModel();
     validation.entityId_Login = parseInt(sessionStorage.getItem('entityId_Login'));
@@ -689,6 +690,7 @@ export class PatientService {
     patientAllergy.validation = validation;
     patientAllergy.patientId = patientId;
     patientAllergy.allergyId = Number(allergyId);
+    patientAllergy.freeformDesc = freeformDesc;
 
     var url = this.apiRoot + 'api/Patient/SavePatientAllergy'
     var headers = new HttpHeaders();
@@ -708,7 +710,7 @@ export class PatientService {
   // ------------------------------------------------------------------------------------------------------------------
   // Delete Patient Medication
   // ------------------------------------------------------------------------------------------------------------------
-  deletePatientMedication( patientId: number, medicationId: number ) {
+  deletePatientMedication( patientId: number, medicationId: number, freeformDesc: string ) {
 
     var validation = new ValidationModel();
     validation.entityId_Login = parseInt(sessionStorage.getItem('entityId_Login'));
@@ -719,18 +721,19 @@ export class PatientService {
     validation.tranSourceId = this.tranSourceId;
     validation.version = this.version;
 
-    var patientMedicaiton = new PatientMedicationModel;
+    var patientMedication = new PatientMedicationModel;
 
-    patientMedicaiton.validation = validation;
-    patientMedicaiton.patientId = patientId;
-    patientMedicaiton.medicationId = Number(medicationId);
-    patientMedicaiton.medicationId_Generic = 0;
+    patientMedication.validation = validation;
+    patientMedication.patientId = patientId;
+    patientMedication.medicationId = Number(medicationId);
+    patientMedication.medicationId_Generic = 0;
+    patientMedication.freeformDesc = freeformDesc;
 
     var url = this.apiRoot + 'api/Patient/DeletePatientMedication'
     var headers = new HttpHeaders();
     headers = headers.set("Content-Type", "application/json; charset=utf-8");
 
-    return this.httpClient.post(url, patientMedicaiton, { headers: headers })
+    return this.httpClient.post(url, patientMedication, { headers: headers })
         .pipe(
             map((data: GenericResponseModel) => {
                 return data;
@@ -781,7 +784,7 @@ export class PatientService {
   // ------------------------------------------------------------------------------------------------------------------
   // Delete Patient Allergy
   // ------------------------------------------------------------------------------------------------------------------
-  deletePatientAllergy( patientId: number, allergyId: number ) {
+  deletePatientAllergy( patientId: number, allergyId: number, freeformDesc: string  ) {
 
     var validation = new ValidationModel();
     validation.entityId_Login = parseInt(sessionStorage.getItem('entityId_Login'));
@@ -797,6 +800,7 @@ export class PatientService {
     patientAllergy.validation = validation;
     patientAllergy.patientId = patientId;
     patientAllergy.allergyId = Number(allergyId);
+    patientAllergy.freeformDesc = freeformDesc;
 
     var url = this.apiRoot + 'api/Patient/DeletePatientAllergy'
     var headers = new HttpHeaders();
@@ -1025,4 +1029,31 @@ export class PatientService {
             })
         )
     }
+
+
+  // ------------------------------------------------------------------------------------------------------------------
+  // Merge Patient
+  // ------------------------------------------------------------------------------------------------------------------
+  mergePatient( patientId: number, patientIdMerge: number ) {
+
+    var validation = new ValidationModel();
+    validation.entityId_Login = parseInt(sessionStorage.getItem('entityId_Login'));
+    validation.userId_Login =  parseInt(sessionStorage.getItem('userId_Login'));
+    validation.token = sessionStorage.getItem('token');
+    validation.tranSourceId = this.tranSourceId;
+    validation.version = this.version;
+    validation.tranSourceId = this.tranSourceId;
+    validation.version = this.version;
+
+    var url = this.apiRoot + 'api/Patient/MergePatient' + '?validation=' + JSON.stringify(validation) + '&PatientId=' + patientId + '&PatientIdMerge=' + patientIdMerge;;
+
+    return this.httpClient.get(url)
+        .pipe(
+           map((data: PatientParoleListModel) => {
+        return data;
+        }), catchError(error => {
+            return throwError('Something went wrong!'); 
+        })
+    )
+  }
 }

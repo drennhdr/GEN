@@ -38,12 +38,13 @@ export const ROUTES: RouteInfo[] = [
     { path: '/insurance', title: 'Insurance',  icon:'ui-1_check', class: '', image:'Configuration.png' },
     { path: '/lab', title: 'Lab',  icon:'ui-1_check', class: '', image:'Configuration.png' },
     { path: '/preauth', title: 'Pre Authorization',  icon:'ui-1_check', class: '', image:'Configuration.png' },
+    { path: '/patient-merge', title: 'Patient Merge',  icon:'users_single-02', class: '', image:'Patient.png' },
     { path: '/icons', title: 'Icons',  icon:'education_atom', class: '', image:'Configuration.png' },
     // { path: '/maps', title: 'Maps',  icon:'location_map-big', class: '', image:'Configuration.png' },
     { path: '/notifications', title: 'Notifications',  icon:'ui-1_bell-53', class: '', image:'Configuration.png' },
     { path: '/table-list', title: 'Table List',  icon:'design_bullet-list-67', class: '', image:'Configuration.png' },
     { path: '/typography', title: 'Typography',  icon:'text_caps-small', class: '', image:'Configuration.png' },
-
+    
 ];
 
 @Component({
@@ -252,6 +253,10 @@ export class SidebarComponent implements OnInit, OnChanges {
               }
 
               if (item.path == '/preauth' && userType == 1){
+                this.menuItems.push(item);
+              }
+
+              if (item.path == '/patient-merge' && (userType == 1 || userType == 7 || userType == 8)){
                 this.menuItems.push(item);
               }
             }

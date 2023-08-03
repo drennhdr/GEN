@@ -161,7 +161,7 @@
                         <div class="col-md-6 pr-1">
                             <h5 class="title">Account Information</h5>
                         </div>
-                        <div *ngIf="userType==1 || userType==8" Class="col-md-3 pr-1">
+                        <div *ngIf="userType==1 || userType==7 || userType==8" Class="col-md-3 pr-1">
                             <label>Account Id: {{customerId}}</label>
                         </div>
                     </div>
@@ -256,7 +256,7 @@
                             <div class="row">
                                 <div class="col-md-4 pr-1">
                                     <div class="form-group">
-                                        <label>Share Patients Accross Locations</label>
+                                        <label>Share Patients Across Locations</label>
                                         <div class="custom-control custom-switch">
                                             <input type="checkbox" class="custom-control-input" id="sharePatients" name="sharePatients" [(ngModel)]="customerData.sharePatients"  (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
                                             <label class="custom-control-label" for="sharePatients"></label>

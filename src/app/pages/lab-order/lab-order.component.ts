@@ -32,7 +32,8 @@
 //07/20/2023 SJF Update for delegate signature on molecular.
 //07/21/2023 SJF Added Reviewed Order
 //07/24/2023 SJF Added location filter to lab order list for accounts with shared patients.
-//07/30/2023 SJF Added export lab orders to CSV, prepare list of requests/results pdf's as single pdf.
+//07/30/2023 CTB Added export lab orders to CSV, prepare list of requests/results pdf's as single pdf.
+//08/03/2023 SJF Added Freeform Medication & Allergy
 //-----------------------------------------------------------------------------
 // Data Passing
 //-----------------------------------------------------------------------------
@@ -240,6 +241,9 @@ export class LabOrderComponent implements OnInit {
   orderDisabled: Boolean;
   labOrderSave: boolean;
 
+  addMedication: boolean;
+  addAllergy: boolean;
+
   // Physician Preferences
   preference1: boolean = false;
   preference1Id: number;
@@ -323,6 +327,7 @@ export class LabOrderComponent implements OnInit {
   medicationCurrent: boolean;
   medicationCurrentList: any;
   medicationOrderList: any;
+  medicationName: string;
 
   // Diagnosis
 
@@ -339,6 +344,7 @@ export class LabOrderComponent implements OnInit {
   allergyCurrent: boolean;
   allergyCurrentList: any;
   allergyOrderList: any;
+  allergyName: string;
 
   // Attachments
   
@@ -1054,6 +1060,7 @@ export class LabOrderComponent implements OnInit {
     this.medicationCurrentList =  new Array<MedicationListItemModel>();
     this.medicationCurrent = false;
     this.medicationOrderList = new Array<MedicationListItemModel>();
+    this.medicationName = "";
     this.icdSearchList = new Array<Icd10ListItemModel>();
     this.icdCurrentList = new Array<Icd10ListItemModel>();
     this.icdCurrent = false;
@@ -1062,6 +1069,7 @@ export class LabOrderComponent implements OnInit {
     this.allergyCurrentList = new Array<AllergyListItemModel>();
     this.allergyCurrent = false;
     this.allergyOrderList = new Array<AllergyListItemModel>();
+    this.allergyName = "";
     this.showCancel = false;
     sessionStorage.setItem('image','');
     this.topazSignature = "";
@@ -3670,6 +3678,13 @@ export class LabOrderComponent implements OnInit {
       med.labOrderId = 0;
       med.labOrderMedicationId = 0;
       med.medicationId = item.medicationId;
+      if (item.medicationId > 0){
+        med.description = '';
+      }
+      else{
+        med.description = item.description;
+      }
+      
       this.labOrderData.medications.push(med);
     }
 
@@ -3690,6 +3705,12 @@ export class LabOrderComponent implements OnInit {
       allergy.labOrderId = 0;
       allergy.labOrderAllergyId = 0;
       allergy.allergyId = item.allergyId;
+      if (item.allergyId > 0){
+        allergy.description = '';
+      }
+      else{
+        allergy.description = item.description;
+      }
       this.labOrderData.allergies.push(allergy);
     }
 
@@ -6369,6 +6390,7 @@ export class LabOrderComponent implements OnInit {
   }
 
   medicationKeypress(event: any){
+    this.addMedication = false;
     if (event.target.value.length > 2){
       if(event.key == 'Enter' && this.medicationSearchList.length > 0){
         this.newMedicationClick(this.medicationSearchList[0].medicationId);
@@ -6384,12 +6406,20 @@ export class LabOrderComponent implements OnInit {
               {
                 this.medicationSearchList = data.list;
               }
+              else{
+                this.medicationSearchList = new Array<MedicationListItemModel>();
+                this.addMedication = true;
+              }
             },
             error => {
               this.errorMessage = error;
               this.showError = true;
             });
       }
+    }
+    else
+    {
+      this.medicationSearchList = new Array<MedicationListItemModel>();
     }
   }
 
@@ -6433,41 +6463,100 @@ export class LabOrderComponent implements OnInit {
     }
   }
 
-  currentMedicationClick(id: number){
+  currentMedicationClick(value: string){
+    var sepArray = value.split(',');
+    var medicationId = Number(sepArray[0]);
+    var description = sepArray[1];
     var found = false;
     // Check if medication already in lab list
-    for (let item of this.medicationOrderList){
-      if (item.medicationId == id){
-        found = true;
-        break;
-      }
-    }
-    
-    if (!found){
-      // Find medication in list
-      for (let item of this.medicationCurrentList){
-        if (item.medicationId == id){
-          this.medicationOrderList.push(item);
+    if (medicationId > 0){
+      for (let item of this.medicationOrderList){
+        if (item.medicationId == medicationId){
+          found = true;
+          break;
         }
       }
-      this.labInfoChanged();
+      
+      if (!found){
+        // Find medication in list
+        for (let item of this.medicationCurrentList){
+          if (item.medicationId == medicationId){
+            this.medicationOrderList.push(item);
+          }
+        }
+        this.labInfoChanged();
+      }
+    }
+    else{
+      for (let item of this.medicationOrderList){
+        if (item.description == description){
+          found = true;
+          break;
+        }
+      }
+      
+      if (!found){
+        // Find medication in list
+        for (let item of this.medicationCurrentList){
+          if (item.description == description){
+            this.medicationOrderList.push(item);
+          }
+        }
+        this.labInfoChanged();
+      }
     }
   }
 
-  orderMedicationClick(id: number){
+  orderMedicationClick(value: string){
     var index = 0;
-    for (let item of this.medicationOrderList){
-      if (item.medicationId == id){
-        this.medicationOrderList.splice(index, 1)
-        break;
+    var sepArray = value.split(',');
+    var medicationId = Number(sepArray[0]);
+    var description = sepArray[1];
+    if (medicationId > 0){
+      for (let item of this.medicationOrderList){
+        if (item.medicationId == medicationId){
+          this.medicationOrderList.splice(index, 1)
+          break;
+        }
+        index++;
       }
-      index++;
     }
+    else{
+      for (let item of this.medicationOrderList){
+        if (item.description == description){
+          this.medicationOrderList.splice(index, 1)
+          break;
+        }
+        index++;
+      }
+    }
+
     this.labInfoChanged();
   }
 
   noMedicationsClick(){
     this.medicationOrderList = new Array<MedicationListItemModel>();
+    this.labInfoChanged();
+  }
+
+  addMedicationButtonClicked(){
+    var found = false;
+    this.addMedication = false;
+    // Check if medication already in lab list
+    for (let item of this.medicationOrderList){
+      if (item.description == this.medicationName){
+        found = true;
+        break;
+      }
+    }
+
+    if (!found){
+      var item = new MedicationListItemModel;
+      item.medicationId = 0;
+      item.description = this.medicationName;
+      this.medicationOrderList.push(item);
+      this.medicationName = "";
+    }
     this.labInfoChanged();
   }
 
@@ -6654,6 +6743,7 @@ export class LabOrderComponent implements OnInit {
   }
 
   allergyKeypress(event: any){
+    this.addAllergy = false;
     if (event.target.value.length > 2){
       if(event.key == 'Enter' && this.icdSearchList.length > 0){
         this.newAllergyClick(this.allergySearchList[0].allergyId);
@@ -6668,12 +6758,20 @@ export class LabOrderComponent implements OnInit {
               {
                 this.allergySearchList = data.list;
               }
+              else{
+                this.allergySearchList = new Array<AllergyListItemModel>();
+                this.addAllergy = true;
+              }
             },
             error => {
               this.errorMessage = error;
               this.showError = true;
             });
       }
+    }
+    else
+    {
+      this.allergySearchList = new Array<AllergyListItemModel>();
     }
   }
 
@@ -6699,41 +6797,99 @@ export class LabOrderComponent implements OnInit {
     }
   }
 
-  currentAllergyClick(id: number){
+  currentAllergyClick(value: string){
+    var sepArray = value.split(',');
+    var allergyId = Number(sepArray[0]);
+    var description = sepArray[1];
     var found = false;
     // Check if allergy already in lab list
-    for (let item of this.allergyOrderList){
-      if (item.allergyId == id){
-        found = true;
-        break;
-      }
-    }
-    
-    if (!found){
-      // Find allergy in list
-      for (let item of this.allergyCurrentList){
-        if (item.allergyId == id){
-          this.allergyOrderList.push(item);
+    if (allergyId > 0){
+      for (let item of this.allergyOrderList){
+        if (item.allergyId == allergyId){
+          found = true;
+          break;
         }
       }
-      this.labInfoChanged();
+      
+      if (!found){
+        // Find allergy in list
+        for (let item of this.allergyCurrentList){
+          if (item.allergyId == allergyId){
+            this.allergyOrderList.push(item);
+          }
+        }
+        this.labInfoChanged();
+      }
+    }
+    else{
+      for (let item of this.allergyOrderList){
+        if (item.description == description){
+          found = true;
+          break;
+        }
+      }
+      
+      if (!found){
+        // Find allergy in list
+        for (let item of this.allergyCurrentList){
+          if (item.description == description){
+            this.allergyOrderList.push(item);
+          }
+        }
+        this.labInfoChanged();
+      }
     }
   }
 
-  orderAllergyClick(id: number){
+  orderAllergyClick(value: string){
     var index = 0;
-    for (let item of this.allergyOrderList){
-      if (item.allergyId == id){
-        this.allergyOrderList.splice(index, 1)
-        break;
+    var sepArray = value.split(',');
+    var allergyId = Number(sepArray[0]);
+    var description = sepArray[1];
+    if (allergyId > 0){
+      for (let item of this.allergyOrderList){
+        if (item.allergyId == allergyId){
+          this.allergyOrderList.splice(index, 1)
+          break;
+        }
+        index++;
       }
-      index++;
+    }
+    else{
+      for (let item of this.allergyOrderList){
+        if (item.description == description){
+          this.allergyOrderList.splice(index, 1)
+          break;
+        }
+        index++;
+      }
     }
     this.labInfoChanged();
   }
 
   noAllergiesClick(){
     this.allergyOrderList = new Array<AllergyListItemModel>();
+    this.labInfoChanged();
+  }
+
+  addAllergyButtonClicked(){
+    var found = false;
+    this.addAllergy = false;
+    // Check if allergy already in lab list
+    for (let item of this.allergyOrderList){
+      if (item.description == this.allergyName){
+        found = true;
+        break;
+      }
+    }
+
+    if (!found){
+      var item = new AllergyListItemModel;
+      item.allergyId = 0;
+      item.description = this.allergyName;
+      this.allergyOrderList.push(item);
+      this.allergyName = "";
+    }
     this.labInfoChanged();
   }
 
@@ -7691,6 +7847,21 @@ export class LabOrderComponent implements OnInit {
   printListButtonClicked() {
     let csvDataAsString = this.getCSVFromHTMLTable();
     this.downloadService.downloadFile(csvDataAsString, 'LabOrderList.csv', 'text/csv');
+  }
+
+  printLabelsButtonClicked() {
+    this.searchData?.forEach(labOrder => {
+      this.labOrderService.get(labOrder.labOrderId )
+        .pipe(first())
+        .subscribe(
+        data => {
+          if (data.valid){
+            this.labOrderData = data;
+            this.printBarcode();
+          }
+        });
+      
+    });
   }
 
   private getCSVFromHTMLTable() {

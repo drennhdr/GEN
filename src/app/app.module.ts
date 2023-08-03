@@ -17,6 +17,7 @@ import { PdfViewerModule } from  'ng2-pdf-viewer';
 import { DatePipe } from '@angular/common';
 import { AccountIncidentModalComponent } from './modal/account-incident-modal/account-incident-modal.component';
 import { LocationModalComponent } from './modal/location-modal/location-modal.component';
+//import { PatientMergeComponent } from './pages/patient-merge/patient-merge.component';
 //import { CustomerSelectComponent } from './pages/customer-select/customer-select.component';
 //import { ParolOfficerComponent } from './parol-officer/parol-officer.component';
 //import { CustomerIssueComponent } from './pages/customer-issue/customer-issue.component';
@@ -49,6 +50,7 @@ import { LocationModalComponent } from './modal/location-modal/location-modal.co
     AdminLayoutComponent,
     AccountIncidentModalComponent,
     LocationModalComponent,
+    //PatientMergeComponent,
     //CustomerSelectComponent,
     //SalesDetailComponent,
     //ParolOfficerComponent,
