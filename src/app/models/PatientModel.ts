@@ -124,6 +124,7 @@ export class PatientListItemModel {
   medicalRecordId: string = '';
   phone: string = '';
   facilityCode: string = '';
+  roiExpireDate: string = ''
 }
 
 export class PatientMedicationModel {

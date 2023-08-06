@@ -76,6 +76,9 @@ export class DashboardComponent implements OnInit {
     if (sessionStorage.getItem('userId_Login') == ""){
       this.router.navigateByUrl('/login');
     }
+    else if (this.userType == 14){
+      this.router.navigateByUrl('/patient');
+    }
     // console.log("Dashboard Init");
     // var userType = Number(sessionStorage.getItem('userType'));
 

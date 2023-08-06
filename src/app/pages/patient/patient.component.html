@@ -60,7 +60,7 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-3 pr-1">
+                        <div class="col-md-3 pr-1" *ngIf="userType!=14">
                             <div class="form-group" >
                                 <label>Medical Record #</label>
                                 <input [(ngModel)]="searchMedicalRecordId" maxlength="18" name="searchMR" type="text" class="form-control">
@@ -127,8 +127,9 @@
                             <th>Name</th>
                             <th>DOB</th>
                             <th>Sex</th>
-                            <th>Medical ID</th>
+                            <th *ngIf="userType!=14">Medical ID</th>
                             <th>Phone</th>
+                            <th *ngIf="userType==14">ROI Expire</th>
                             <th *ngIf="customerId == 0">Facility Code</th>
                             <th>Actions</th>
                         </thead>
@@ -137,8 +138,9 @@
                             <td><a style="color:blue" (click)="selectButtonClicked(item.patientId)">{{item.name}}</a></td>
                             <td>{{item.dob}}</td>
                             <td>{{item.gender}}</td>
-                            <td>{{item.medicalRecordId}}</td>
+                            <td *ngIf="userType!=14">{{item.medicalRecordId}}</td>
                             <td>{{item.phone}}</td>
+                            <td *ngIf="userType==14">{{item.roiExpireDate}}</td>
                             <td *ngIf="customerId == 0">{{item.facilityCode}}</td>
                             <td><button type="button" (click)="selectButtonClicked(item.patientId)" class="btn btn-primary" >Select</button></td>                    
                             <td *ngIf="!viewOnly"><button type="button" (click)="addOrderButtonClicked(item.patientId)" class="btn btn-primary" >Create Lab Order</button></td>
@@ -1015,6 +1017,7 @@
                                         <th>Attachment Type</th>
                                         <th>Description</th>
                                         <th>Date Created</th>
+                                        <th>Expire Date</th>
                                         <th>Actions</th>
                                     </thead>
 
@@ -1022,6 +1025,7 @@
                                         <td>{{item.attachmentType}}</td>
                                         <td>{{item.description}}</td>
                                         <td>{{item.dateCreated}}</td>
+                                        <td>{{item.expireDate}}</td>
                                         <td>
                                             <button type="button" (click)="selectAttachmentButtonClicked(item.patientAttachmentId)" class="btn btn-primary" >View</button> &nbsp;
                                             <button type="button" *ngIf="userType == 6 || userType == 7 || userType == 8" (click)="deleteAttachmentButtonClicked(item.patientAttachmentId)" class="btn btn-primary" >Delete</button>
@@ -1060,6 +1064,25 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="row" *ngIf="attachmentData.attachmentTypeId==12">
+                                        <div class="col-md-6  pr-1">
+                                            <div class="form-group" >
+                                                <label>Effective Date</label>
+                                                <input [(ngModel)]="attachmentData.effectiveDate" name="attachmentEffectiveDate" type="date" [ngClass]="attachmentData.effectiveDate == '' ? 'form-control required' : 'form-control completed'" (change)="attachmentDateChanged()">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6  pr-1">
+                                            <div class="form-group" >
+                                                <label>Expire Date</label>
+                                                <input [(ngModel)]="attachmentData.expireDate" name="attachmentExpireDate" type="date" [ngClass]="attachmentData.expireDate == '' ? 'form-control required' : 'form-control completed'" (change)="attachmentDateChanged()">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 pr-1">
+                                            <label style="color:red">{{attachmentDateErrorMessage}}</label>
+                                        </div>
+
+                                    </div>
+
                                     <div class="row">
                                         <div class="col-md-12 pr-1">
                                             <div class="form-group" >
@@ -1269,15 +1292,18 @@
                                     </button>
                                 </td> -->
                                 <td>
-                                    <div class="btn-group dropdown" ngbDropdown placement="bottom-left">
+                                    <div *ngIf='this.userType != 14' class="btn-group dropdown" ngbDropdown placement="bottom-left">
                                         <button class="btn btn-secondary dropup-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ngbDropdownToggle>
                                             Actions
                                         </button>
                                         <div class="dropdown-menu" ngbDropdownMenu aria-labelledby="dropdownMenuButton">
                                             <a class="dropdown-item" (click)="orderPdfClicked(item.labOrderId)">Request Pdf</a>
-                                            <a class="dropdown-item" *ngIf="item.labStatusId==50" (click)="resultPdfClicked(item.labOrderSpecimenId)">Result Pdf</a>
+                                            <a class="dropdown-item" *ngIf="item.labStatusId==50 || item.labStatusId==60" (click)="resultPdfClicked(item.labOrderSpecimenId)">Result Pdf</a>
                                             <a class="dropdown-item" *ngIf="!viewOnly" (click)="printBarcodeFromMenu(item.labOrderId)">Print Label</a>
                                         </div>
+                                    </div>
+                                    <div *ngIf='this.userType == 14 && (item.labStatusId==50 || item.labStatusId==60)'>
+                                        <button type="button" (click)="resultPdfClicked(item.labOrderSpecimenId)" class="btn btn-primary" >Result PDF</button>
                                     </div>
                                 </td>
                                 </tr>

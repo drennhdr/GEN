@@ -26,7 +26,9 @@ export class PatientAttachmentModel {
   fileType: string = '';
   userId_Created: number = 0;
   createdBy: string = '';
-  fileAsBase64: string = "";
+  effectiveDate: string = '';
+  expireDate: string = '';
+  fileAsBase64: string = '';
 }
 
 export class PatientAttachmentListModel {
@@ -42,4 +44,5 @@ export class PatientAttachmentListItemModel {
   attachmentTypeId: number = 0;
   attachmentType: string = '';
   description: string = '';
+  expireDate: string = '';
 }

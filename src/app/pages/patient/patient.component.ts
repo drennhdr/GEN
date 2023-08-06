@@ -22,6 +22,7 @@
 //07/09/2023 SJF Code Sync
 //07/10/2023 SJF Added Billing Review User Type
 //08/01/2023 SJF Added Freeform Medication & Allergy
+//08/04/2023 SJF Added Effective Data & Expire Date for ROI
 //-----------------------------------------------------------------------------
 // Data Passing
 //-----------------------------------------------------------------------------
@@ -46,6 +47,7 @@ import { PatientInsuranceModel, PatientInsuranceListItemModel } from '../../mode
 import { PatientAttachmentModel, PatientAttachmentListItemModel } from '../../models/PatientAttachmentModel';
 import { PatientNoteListItemModel, PatientNoteModel} from '../../models/PatientNoteModel';
 import { MedicationListItemModel } from '../../models/MedicationModel';
+import { LabOrderListModel } from '../../models/LabOrderModel';
 import { Icd10ListItemModel } from '../../models/Icd10Model';
 import { AllergyListItemModel } from '../../models/AllergyModel';
 import { MedicationService } from '../../services/medication.service';
@@ -154,6 +156,7 @@ export class PatientComponent implements OnInit, AfterViewChecked {
   noteDisabled: boolean;
   noteSave: boolean;
   dateErrorMessage: string = '';
+  attachmentDateErrorMessage: string = '';
 
   addMedication: boolean;
   addAllergy: boolean;
@@ -416,7 +419,11 @@ export class PatientComponent implements OnInit, AfterViewChecked {
       if(Number(sessionStorage.getItem('locationId'))  > 0){
         this.searchButtonClicked();
       }
+      if (this.userType == 14){
+        this.searchButtonClicked();
+      }
     }
+    
   }
 
   @HostListener('document:keyup', ['$event'])
@@ -696,6 +703,9 @@ export class PatientComponent implements OnInit, AfterViewChecked {
 
                   this.patientSaveButton = "Save";
                 }
+                
+                this.labListData = new Array<LabOrderListModel>();
+
                 // Load Lab Orders
                 this.labOrderService.search(0, 0, 0, 0, this.patientId, "", "", 99, "", "",1 )
                       .pipe(first())
@@ -703,7 +713,19 @@ export class PatientComponent implements OnInit, AfterViewChecked {
                       data => {
                         if (data.valid)
                         {
-                          this.labListData = data.list;
+                          if (this.userType != 14){
+                            this.labListData = data.list;
+                          }
+                          else{
+                            // Parole officer - Only show the orders that have been accessioned
+                            this.labListData = new Array<LabOrderListModel>();
+                            data.list.forEach(item => {
+                              if (item.labStatusId >= 30 && item.labStatusId <=60){
+                                this.labListData.push(item);
+                              }
+                            });
+                          }
+
                           this.sortBy("collectionDate");
                         }
                       },
@@ -1482,11 +1504,29 @@ export class PatientComponent implements OnInit, AfterViewChecked {
 
   }
 
+  attachmentDateChanged(){
+    this.attachmentDateErrorMessage = '';
+    if (this.attachmentData.effectiveDate != '' && this.attachmentData.expireDate != ''){
+      var dt1 = Date.parse(this.attachmentData.effectiveDate);
+      var dt2 = Date.parse(this.attachmentData.expireDate);
+      if (dt1 > dt2){
+        this.attachmentDateErrorMessage = "Expire data must be after effective date."
+      }
+    }
+
+    this.attachmentChanged();
+  }
   attachmentChanged(){
     this.attachmentSave = false;
     if (this.attachmentData.attachmentTypeId > 0 
     && (this.attachmentData.fileType !="" || this.captures.length > 0)){
       this.attachmentSave = true;
+    }
+    if (this.attachmentData.attachmentTypeId == 12 && (this.attachmentData.effectiveDate == '' || this.attachmentData.expireDate == '')){
+      this.attachmentSave = false;
+    }
+    if (this.attachmentDateErrorMessage !=''){
+      this.attachmentSave = false;
     }
     this.dataShareService.changeUnsaved(true);
   }
