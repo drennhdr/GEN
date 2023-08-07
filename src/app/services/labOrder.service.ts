@@ -3663,6 +3663,12 @@ export class LabOrderService {
         var test = new PhysicianPreferenceTestModel();
         test.labTestId = 1000;
         tests.push(test);
+        if (tox.illicit.methamphetaminePosative)
+        {
+            var test = new PhysicianPreferenceTestModel();
+            test.labTestId = 1007;
+            tests.push(test);
+        } 
     } 
     else{
         if (tox.illicit.amphetamine)
