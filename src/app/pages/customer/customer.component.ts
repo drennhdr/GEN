@@ -16,6 +16,7 @@
 //07/20/2023 SJF Added Setting a temporary user password
 //07/24/2023 SJF Added email check
 //07/28/2023 SJF Added sales edit users based on flag on user 
+//08/07/2023 SJF Require location to save, hide NPI/Pecos if physician not selected.
 //-----------------------------------------------------------------------------
 // Data Passing
 //-----------------------------------------------------------------------------
@@ -906,6 +907,7 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
     if (this.userData.firstName != "" && this.userData.lastName !=""
       && this.userData.email !="" && !this.invalidEmail &&
       (this.userData.physician == false || this.userData.npi !="")
+      && this.locationSelected.length > 0
       ){
       this.userSave = true;
     }
