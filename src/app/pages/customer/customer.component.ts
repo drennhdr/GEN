@@ -427,7 +427,7 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
             data => {
               if (data.valid)
               {
-                
+                console.log("FACE",data.facesheetAddress);
                 this.customerId = data.customerId;
 
                 this.errorMessage = "";

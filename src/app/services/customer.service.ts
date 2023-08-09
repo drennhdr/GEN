@@ -157,6 +157,7 @@ export class CustomerService {
       customerSave.pecosEnrolled = customer.pecosEnrolled;
       customerSave.sharePatients = customer.sharePatients;
       customerSave.alternateLoginId = customer.alternateLoginId;
+      customerSave.facesheetAddress = customer.facesheetAddress;
       customerSave.lcs = customer.lcs;
 
       var url = this.apiRoot + 'api/Customer/SaveCustomer'

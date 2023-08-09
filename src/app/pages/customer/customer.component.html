@@ -539,6 +539,15 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>Allow facesheet for address</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="facesheetAddress" name="facesheetAddress" [(ngModel)]="customerData.facesheetAddress" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                    <label class="custom-control-label" for="facesheetAddress"></label>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <h5>Payor Mix</h5>

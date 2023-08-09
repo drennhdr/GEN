@@ -336,13 +336,18 @@
                         </div>
                         <div class="col-md-6  pr-1">
                             <div class="form-group" >
-                                <label *ngIf="userType != 6 && !patientData.phoneMissing">Street Address</label>
+                                <label *ngIf="allowFacesheet && customerLogin">
+                                    Street Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <input type="checkbox" name="addressMissing" [(ngModel)]="useFacesheet" (change)="patientChanged()">
+                                    Use Facesheet
+                                </label>
+                                <label *ngIf="(userType != 6 && userType != 7 && userType != 8 && !patientData.addressMissing && !CustomerLogin) || (!allowFacesheet && CustomerLogin)">Street Address</label>
                                 <label *ngIf="userType == 6 || userType == 7 || userType == 8 || patientData.addressMissing">    
                                     Street Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                     <input type="checkbox" name="addressMissing" [(ngModel)]="patientData.addressMissing" (change)="addressCkChanged()">
                                     Missing
                                 </label>
-                                <input [(ngModel)]="patientData.address.street1" maxlength="50" name="street1" type="text" [ngClass]="patientData.address.street1 == '' ? 'form-control required' : 'form-control completed'" placeholder="Street required" [disabled]="viewOnly" (change)="addressChanged()">
+                                <input [(ngModel)]="patientData.address.street1" maxlength="50" name="street1" type="text" [ngClass]="patientData.address.street1 == '' && !useFacesheet ? 'form-control required' : 'form-control completed'" placeholder="Street required" [disabled]="viewOnly" (change)="addressChanged()">
                             </div>
                         </div>
                         <div class="col-md-3  pr-1">
@@ -356,13 +361,13 @@
                         <div class="col-md-2 pr-1">
                             <div class="form-group">
                                 <label>Zip Code</label>
-                                <input [(ngModel)]="patientData.address.postalCode" maxlength="10" name="postal" type="text" [ngClass]="patientData.address.postalCode == '' ? 'form-control required' : 'form-control completed'" placeholder="Zip Code required" [disabled]="viewOnly" (keyup)="zipKeypress($event)">
+                                <input [(ngModel)]="patientData.address.postalCode" maxlength="10" name="postal" type="text" [ngClass]="patientData.address.postalCode == '' && !useFacesheet ? 'form-control required' : 'form-control completed'" placeholder="Zip Code required" [disabled]="viewOnly" (keyup)="zipKeypress($event)">
                             </div>
                         </div>
                         <div class="col-md-4 pr-1">
                             <div class="form-group" (change)="patientChanged()">
                                 <label>City</label>
-                                <input [(ngModel)]="patientData.address.city" maxlength="30" name="city" type="text" [ngClass]="patientData.address.city == '' ? 'form-control required' : 'form-control completed'" placeholder="City required" [disabled]="viewOnly" (change)="patientChanged()">
+                                <input [(ngModel)]="patientData.address.city" maxlength="30" name="city" type="text" [ngClass]="patientData.address.city == '' && !useFacesheet ? 'form-control required' : 'form-control completed'" placeholder="City required" [disabled]="viewOnly" (change)="patientChanged()">
                             </div>
                         </div>
                         <div class="col-md-3 pr-1">
@@ -389,7 +394,7 @@
                                     <input type="checkbox" name="phoneMissing" [(ngModel)]="patientData.phoneMissing" (change)="patientChanged()">
                                     Missing
                                 </label>
-                                <input [(ngModel)]="patientData.phone" maxlength="15" name="phone" type="text" [ngClass]="patientData.phone == '' ? 'form-control required' : 'form-control completed'" placeholder="Phone required" [disabled]="viewOnly" (change)="patientChanged()">
+                                <input [(ngModel)]="patientData.phone" maxlength="15" name="phone" type="text" [ngClass]="patientData.phone == '' && !useFacesheet ? 'form-control required' : 'form-control completed'" placeholder="Phone required" [disabled]="viewOnly" (change)="patientChanged()">
                             </div>
                         </div>
                         <div class="row" *ngIf="showAddressFromCustomer">

@@ -92,6 +92,7 @@ export class CustomerModel {
   pecosEnrolled: boolean = false;
   sharePatients: boolean = false;
   alternateLoginId: boolean = false;
+  facesheetAddress: boolean = false;
   dateReviewed: string = '';
   locations: LocationModel[] = new Array<LocationModel>();
   users: UserListItemModel[] = new Array<UserListItemModel>();
@@ -149,6 +150,7 @@ export class CustomerSaveModel {
   pecosEnrolled: boolean = false;
   sharePatients: boolean = false;
   alternateLoginId: boolean = false;
+  facesheetAddress: boolean = false;
   lcs: CustomerLcsModel[] = new Array<CustomerLcsModel>();
 }
 

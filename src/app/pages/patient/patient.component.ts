@@ -23,6 +23,7 @@
 //07/10/2023 SJF Added Billing Review User Type
 //08/01/2023 SJF Added Freeform Medication & Allergy
 //08/04/2023 SJF Added Effective Data & Expire Date for ROI
+//08/07/2023 SJF Added Allow Facesheet
 //-----------------------------------------------------------------------------
 // Data Passing
 //-----------------------------------------------------------------------------
@@ -148,6 +149,8 @@ export class PatientComponent implements OnInit, AfterViewChecked {
   customerLogin: boolean;
   parolOfficer: boolean;
   poList: any;
+  allowFacesheet: boolean = false;
+  useFacesheet: boolean = false;
  
   patientSave: boolean;
   insuranceSave: boolean;
@@ -360,6 +363,11 @@ export class PatientComponent implements OnInit, AfterViewChecked {
     }
     else{
       this.customerLogin = true;
+
+////////////
+
+
+
     }
 
     if (this.userType == 14 || this.userType == 15){
@@ -595,6 +603,7 @@ export class PatientComponent implements OnInit, AfterViewChecked {
     this.allergyCurrentList = new Array<AllergyListItemModel>();
     this.allergyName = "";
     this.requireMR = false;
+    this.useFacesheet = false;
 
     // Call the patient service to get the data for the selected patient
     
@@ -669,6 +678,7 @@ export class PatientComponent implements OnInit, AfterViewChecked {
                                 this.customerBillingTypeId = data.customerBillingTypeId;
                                 this.allowSelfPay = data.allowSelfPay;
                                 this.parolOfficer = data.parolOfficer;
+                                this.allowFacesheet = data.facesheetAddress;
 
                                 // Check if this came from inbox with a flag
                                 if (sessionStorage.getItem('searchItem') == "Insurance"){
@@ -703,7 +713,7 @@ export class PatientComponent implements OnInit, AfterViewChecked {
 
                   this.patientSaveButton = "Save";
                 }
-                
+
                 this.labListData = new Array<LabOrderListModel>();
 
                 // Load Lab Orders
@@ -891,10 +901,10 @@ export class PatientComponent implements OnInit, AfterViewChecked {
       && (this.patientData.lastName !="" && this.patientData.lastName.length > 1 || this.patientData.lastNameMissing)
       && ((this.patientData.dob !="" && this.patientData.dob != undefined) || this.patientData.dobMissing)
       && (this.patientData.genderId > -1)
-      && (this.patientData.address.street1 !="" || this.patientData.addressMissing)
-      && (this.patientData.address.postalCode !="" || this.patientData.addressMissing)
-      && (this.patientData.address.city !="" || this.patientData.addressMissing)
-      && (this.patientData.phone !="" || this.patientData.phoneMissing)
+      && (this.patientData.address.street1 !="" || this.patientData.addressMissing || this.useFacesheet)
+      && (this.patientData.address.postalCode !="" || this.patientData.addressMissing || this.useFacesheet)
+      && (this.patientData.address.city !="" || this.patientData.addressMissing || this.useFacesheet)
+      && (this.patientData.phone !="" || this.patientData.phoneMissing || this.useFacesheet)
       && (!this.requireMR || this.patientData.medicalRecordId!= "") ){
       this.patientSave = true;
     }
@@ -920,8 +930,18 @@ export class PatientComponent implements OnInit, AfterViewChecked {
   }
 
   addButtonClicked(){
+
+    //userType != 6 && userType != 7 && userType != 8 && !patientData.addressMissing && !CustomerData) || (!allowFacesheet && CustomerLogin)
+    // console.log("User", this.userType);
+    // console.log("Missing", this.patientData.addressMissing);
+    // console.log("allow", this.allowFacesheet);
+    // console.log("Custom")
+
+
+
     this.patientId = 0;
     this.requireMR = false;
+    this.useFacesheet = false;
     // Initialze data to a blank record
     this.patientData = new PatientModel();
     this.patientData.customerId = this.customerId;
@@ -979,6 +999,7 @@ export class PatientComponent implements OnInit, AfterViewChecked {
                 this.showAddressFromCustomer = false;
                 this.locationCode = 0;
                 this.locationList = new Array<CodeItemModel>();
+                this.allowFacesheet = data.facesheetAddress;
 
                 data.locations.forEach( (item) =>{
                   if (locationId == 0 || item.locationId == locationId){
