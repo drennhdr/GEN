@@ -427,7 +427,6 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
             data => {
               if (data.valid)
               {
-                console.log("FACE",data.facesheetAddress);
                 this.customerId = data.customerId;
 
                 this.errorMessage = "";
@@ -926,7 +925,6 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
   }
 
   emailChanged(){
-    console.log("Email",this.userData.email);
     this.userData.email = this.userData.email.replace(/\s/g, "");
     if (this.userData.email != ""){
       const expression: RegExp = /^(?=.{1,254}$)(?=.{1,64}@)[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+(\.[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+)*@[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$/;
@@ -936,8 +934,6 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
       this.invalidEmail = false;
     }
     this.userChanged();
-
-    console.log("InvalidEmail",this.invalidEmail);
   }
 
   saveUserButtonClicked(){
@@ -1374,9 +1370,7 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
       this.stopDevice();
     }
 
-    console.log("FileUpload",this.fileUploaded);
     if (!this.fileUploaded){
-      console.log("Scanned");
       // Scanned image
       const doc = new jsPDF();
       var width = doc.internal.pageSize.getWidth();
@@ -1398,9 +1392,6 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
 
       this.attachmentData.fileAsBase64 = b64.replace("data:application/pdf;filename=generated.pdf;base64,", "");
     }
-
-    console.log("B64",this.attachmentData.fileAsBase64);
-
 
     this.customerService.saveCustomerAttachment( this.attachmentData)
           .pipe(first())
@@ -1494,14 +1485,12 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
       var temp = target.files[0].name;
 
       this.attachmentData.fileType = event.target.files[0].type;
-      //console.log("File Type:",fileType)
       this.convertFile(event.target.files[0]).subscribe(base64 => {
         this.attachmentData.fileAsBase64 = base64;
         this.attachmentChanged();
       });
 
       this.fileUploaded = true;
-      console.log("File",this.attachmentData.fileAsBase64);
 
     }
   }
@@ -1693,8 +1682,6 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
 
                 this.hideSummaryItems();
 
-                console.log("LoadTest");
-
                 if (this.preferenceData.labTypeId == 1){
                   this.loadTestsFromPreference();
                   this.showToxUrine = true;
@@ -1706,10 +1693,8 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
                 }
 
                 // Position screen
-                console.log("Set Position");
                 var elmnt = document.getElementById("topOfScreen");
                 elmnt.scrollIntoView();
-                console.log("Set Position 2");
               }
               else
               {

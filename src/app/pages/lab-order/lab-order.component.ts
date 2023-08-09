@@ -34,6 +34,7 @@
 //07/24/2023 SJF Added location filter to lab order list for accounts with shared patients.
 //07/30/2023 CTB Added export lab orders to CSV, prepare list of requests/results pdf's as single pdf.
 //08/03/2023 SJF Added Freeform Medication & Allergy
+//08/09/2023 SJF Added include facesheet message and logic
 //-----------------------------------------------------------------------------
 // Data Passing
 //-----------------------------------------------------------------------------
@@ -243,6 +244,7 @@ export class LabOrderComponent implements OnInit {
 
   addMedication: boolean;
   addAllergy: boolean;
+  allowFacesheet: boolean;
 
   // Physician Preferences
   preference1: boolean = false;
@@ -1537,7 +1539,6 @@ export class LabOrderComponent implements OnInit {
                     }
                   });
                 }
-                 
 
                 this.showPatient = true;
                 this.showAddInsurnace = true;
@@ -1600,6 +1601,7 @@ export class LabOrderComponent implements OnInit {
                 var requireInsurance = data.requireInsurance;
                 this.customerBillingTypeId = data.customerBillingTypeId;
                 this.missingInsurance = true;
+                this.allowFacesheet = data.facesheetAddress;
 
                 if (this.labOrderData.labOrderId == 0){
                   this.labOrderData.facilityCode = data.facilityCode;
@@ -7417,7 +7419,6 @@ export class LabOrderComponent implements OnInit {
                 item.locationName = "All";
                 this.locationSearchList.splice(0,0,item);
                 this.searchLocationId = 0;// Number(sessionStorage.getItem('locationId'));
-                console.log("Location Search List 2",this.locationSearchList);
               }
             },
             error => {
@@ -7546,7 +7547,7 @@ export class LabOrderComponent implements OnInit {
     var firstName = this.labOrderData.firstName;
     var lastName = this.labOrderData.lastName;
     var dob = formatDate(this.labOrderData.dob,'MM/dd/yyyy','en');
-    console.log("Label Location",this.labOrderData.facilityCode);
+    //console.log("Label Location",this.labOrderData.facilityCode);
     var location = this.labOrderData.facilityCode;
     var collectionDate = ""
     if (this.labOrderData.specimens[0].collectionDate == "")

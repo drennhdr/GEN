@@ -93,7 +93,6 @@ export class AttachmentModalComponent implements OnInit {
       .pipe(first())
       .subscribe(
         data => {
-          console.log("Issue Data", data);
           if (data.valid) {
             this.patientAttachment = data.list;
           }
@@ -151,14 +150,12 @@ export class AttachmentModalComponent implements OnInit {
   }
 
   selectPatientAttachmentButtonClicked(attachmentId: number) {
-    console.log("AttachmentId", attachmentId);
     // Call the attachment service to get the data for the selected attachment
     this.patientService.getPatientAttachment(attachmentId)
       .pipe(first())
       .subscribe(
         data => {
           if (data.valid) {
-            console.log(data);
             this.attachmentData = data;
             const binaryString = window.atob(this.attachmentData.fileAsBase64);
             const len = binaryString.length;
@@ -225,11 +222,6 @@ export class AttachmentModalComponent implements OnInit {
   }
 
   attachmentChanged() {
-    console.log("Type",this.attachmentTypeId);
-    console.log("Desc",this.attachmentDescription);
-    console.log("Cap",this.captures.length);
-    console.log("UPLOAD", this.fileUploaded);
-
     this.attachmentSave = false;
     if (this.attachmentTypeId > 0 && this.attachmentDescription != ""
       && (this.captures.length > 0 || this.fileUploaded)) {
@@ -267,8 +259,6 @@ export class AttachmentModalComponent implements OnInit {
       this.attachmentData.fileType = "application/pdf";
 
       this.attachmentData.fileAsBase64 = b64.replace("data:application/pdf;filename=generated.pdf;base64,", "");
-
-      //console.log ("attachment", this.attachmentData.fileAsBase64);
     }
 
     if (this.attachmentType == 'L') {
@@ -280,7 +270,6 @@ export class AttachmentModalComponent implements OnInit {
           .pipe(first())
           .subscribe(
           data => {
-            //console.log("Data",data);
             if (data.valid) {
               // Find attachment type in list
               for (let item of this.attachmentTypeList){

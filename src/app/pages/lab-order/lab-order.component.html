@@ -3004,6 +3004,13 @@
             <div class="card">
                 <div class="card-body">
                 <form name="button-form">
+                    <div class="row" *ngIf="allowFacesheet && patientData.address.street1 == ''">
+                        <div class="col-md-12">
+                            <label style="color:red">
+                                Please include a facesheet with this order.
+                            </label>
+                        </div>
+                    </div>
                     <div class="row" *ngIf="userId == labOrderData.userId_Physician  && signatureId > 0">
                         <div class="col-md-12 pr-1">
                                 <label [ngStyle]="{'color': signature == false ? '#F06B4E' : '#0d7d1c'}">
