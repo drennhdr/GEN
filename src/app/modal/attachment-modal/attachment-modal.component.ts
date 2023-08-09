@@ -15,7 +15,7 @@ import { CodeService } from '../../services/code.service';
 
 import { LabOrderAttachmentModel, LabOrderAttachmentListItemModel } from '../../models/LabOrderAttachmentModel';
 import { PatientAttachmentModel, PatientAttachmentListItemModel } from '../../models/PatientAttachmentModel';
-
+import { Observable, ReplaySubject } from 'rxjs';
 import { first } from 'rxjs/operators';
 import jsPDF from 'jspdf';
 
@@ -37,7 +37,6 @@ export class AttachmentModalComponent implements OnInit {
   attachmentTitle: string;
   attachmentDescription: string;
 
-  attachmentDisabled: boolean;
   fileUploaded: boolean = false;
   fileScanned: boolean = false;
   attachmentSave: boolean = false;
@@ -193,7 +192,10 @@ export class AttachmentModalComponent implements OnInit {
   addAttachmentButtonClicked(attachmentType: string) {
     this.addAttachment = true;
     this.attachmentType = attachmentType;
+
+
     if (attachmentType == 'L') {
+      this.attachmentData = new LabOrderAttachmentModel();
       // Load Lab Attachment Type
       this.codeService.getList('LOAttachmentType')
 
@@ -207,6 +209,7 @@ export class AttachmentModalComponent implements OnInit {
 
     }
     else {
+      this.attachmentData = new PatientAttachmentModel();
       // Load Lab Attachment Type
       this.codeService.getList('AttachmentType')
 
@@ -222,9 +225,14 @@ export class AttachmentModalComponent implements OnInit {
   }
 
   attachmentChanged() {
+    console.log("Type",this.attachmentTypeId);
+    console.log("Desc",this.attachmentDescription);
+    console.log("Cap",this.captures.length);
+    console.log("UPLOAD", this.fileUploaded);
+
     this.attachmentSave = false;
     if (this.attachmentTypeId > 0 && this.attachmentDescription != ""
-      && this.captures.length > 0) {
+      && (this.captures.length > 0 || this.fileUploaded)) {
       this.attachmentSave = true;
     }
 
@@ -236,12 +244,7 @@ export class AttachmentModalComponent implements OnInit {
       this.stopDevice();
     }
 
-    if (this.attachmentType == 'L'){
-      this.attachmentData = new LabOrderAttachmentModel();
-    }
-    else{
-      this.attachmentData = new PatientAttachmentModel();
-    }
+    
 
     if (!this.fileUploaded){
       // Scanned image
@@ -344,6 +347,34 @@ export class AttachmentModalComponent implements OnInit {
     }
     this.addAttachment = false;
     this.captures = new Array<string>();
+  }
+
+  readFile(event: any){
+    const target: DataTransfer = <DataTransfer>(event.target);
+    if (target.files.length !== 1) {
+      throw new Error('Cannot get multiple files');
+    }
+    else
+    {
+      var temp = target.files[0].name;
+      var posn = temp.indexOf(".",1);
+
+      this.attachmentData.fileType = event.target.files[0].type;
+
+      this.convertFile(event.target.files[0]).subscribe(base64 => {
+        this.attachmentData.fileAsBase64 = base64;
+        this.attachmentChanged();
+      });
+      this.fileUploaded = true;
+    }
+  }
+
+  convertFile(file : File) : Observable<string> {
+    const result = new ReplaySubject<string>(1);
+    const reader = new FileReader();
+    reader.readAsBinaryString(file);
+    reader.onload = (event) => result.next(btoa(event.target.result.toString()));
+    return result;
   }
 
   // Camera capture code
