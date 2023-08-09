@@ -113,6 +113,8 @@ import { PatientMergeComponent } from '../../pages/patient-merge/patient-merge.c
     InsuranceComponent,
     LabComponent,
     PreauthComponent,
+    AutoFocusDirective,
+    PatientMergeComponent,
     
   ],
   entryComponents: [
