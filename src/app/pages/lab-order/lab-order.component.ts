@@ -7592,6 +7592,19 @@ export class LabOrderComponent implements OnInit {
             cmds += "^XZ";
           }
         }
+        else if (barcodePrinter == 'ZDesigner LP 2824')
+        {
+            cmds += "N\r\n";
+            cmds += "q812\r\n";
+            cmds += "S2\r\n";
+            cmds += 'B30,20,0,1,2,5,30,B,"' + specimenBarcode + '"\r\n';
+            cmds += 'A30,90,0,3,1,1,N,"FIRST: ' + firstName + '"\r\n';
+            cmds += 'A30,110,0,3,1,1,N," LAST: ' + lastName + '"\r\n';
+            cmds += 'A30,130,0,3,1,1,N,"  DOB: ' + dob + '"\r\n';
+            cmds += 'A30,150,0,3,1,1,N," FROM: ' + location + '"\r\n';
+            cmds += 'A30,170,0,3,1,1,N,"  COL: ' + collectionDate + '"\r\n';
+            cmds += 'P' + barcodeQty + '\r\n';
+        }
         else
         {
           for (let i = 1;i<=barcodeQty;i++){
