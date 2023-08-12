@@ -32,12 +32,15 @@
 //07/20/2023 SJF Update for delegate signature on molecular.
 //07/21/2023 SJF Added Reviewed Order
 //07/24/2023 SJF Added location filter to lab order list for accounts with shared patients.
+//07/30/2023 CTB Added export lab orders to CSV, prepare list of requests/results pdf's as single pdf.
+//08/03/2023 SJF Added Freeform Medication & Allergy
+//08/09/2023 SJF Added include facesheet message and logic
 //-----------------------------------------------------------------------------
 // Data Passing
 //-----------------------------------------------------------------------------
 
 import { Component, ElementRef, OnInit, ViewChild, HostListener } from '@angular/core';
-import { first } from 'rxjs/operators';
+import { catchError, first,switchMap } from 'rxjs/operators';
 import SignaturePad from 'signature_pad';
 import {formatDate} from '@angular/common';
 
@@ -57,6 +60,7 @@ import { PdfRPPService } from '../../services/pdfRPP.service';
 import { PdfUTISTIService } from '../../services/pdfUTISTI.service';
 import { PdfToxUrineService } from '../../services/pdfToxUrine.Service';
 import { PdfToxOralService } from '../../services/pdfToxOral.service';
+import { DownloadService } from '../../services/download.service';
 //import { DatePipe } from '@angular/common'
 
 import jsPDF from 'jspdf';
@@ -79,7 +83,7 @@ import { Icd10ListModel, Icd10ListItemModel } from '../../models/Icd10Model';
 import { AllergyListModel, AllergyListItemModel } from '../../models/AllergyModel';
 import { CodeItemModel } from '../../models/CodeModel';
 import { ThisReceiver } from '@angular/compiler';
-import { Observable, ReplaySubject } from 'rxjs';
+import { forkJoin, from, Observable, of, ReplaySubject } from 'rxjs';
 import { StatusModalComponent } from '../../modal/status-modal/status-modal.component';
 import { IssueModalComponent } from '../../modal/issue-modal/issue-modal.component';
 import { AttachmentModalComponent } from '../../modal/attachment-modal/attachment-modal.component';
@@ -90,6 +94,9 @@ import { BsModalService, ModalOptions } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 import { ClientPrintJob, InstalledPrinter, JSPrintManager, WSStatus } from 'JSPrintManager';
 import { DataShareService } from '../../services/data-share.service';
+import { PDFDocument } from 'pdf-lib'
+import { UserModel } from '../../models/UserModel';
+import { UserSignatureModel } from '../../models/UserSignatureModel';
 
 @Component({
   selector: 'app-lab-order',
@@ -155,6 +162,12 @@ export class LabOrderComponent implements OnInit {
   searchLocationId: number;
   locationSearchList: any;
   showLocationSearch: boolean = false;
+
+  readonly labOrderListStaticHeaders = [
+    'Issues', 'Actions'
+  ];
+  resutlPDFDocument = null;
+  @ViewChild('labOrdersList') labOrdersList: ElementRef;
  
 
   // Patient Search
@@ -228,6 +241,10 @@ export class LabOrderComponent implements OnInit {
   allowRPP: boolean;
   orderDisabled: Boolean;
   labOrderSave: boolean;
+
+  addMedication: boolean;
+  addAllergy: boolean;
+  allowFacesheet: boolean;
 
   // Physician Preferences
   preference1: boolean = false;
@@ -312,6 +329,7 @@ export class LabOrderComponent implements OnInit {
   medicationCurrent: boolean;
   medicationCurrentList: any;
   medicationOrderList: any;
+  medicationName: string;
 
   // Diagnosis
 
@@ -328,6 +346,7 @@ export class LabOrderComponent implements OnInit {
   allergyCurrent: boolean;
   allergyCurrentList: any;
   allergyOrderList: any;
+  allergyName: string;
 
   // Attachments
   
@@ -421,6 +440,7 @@ export class LabOrderComponent implements OnInit {
     private pdfToxOralService: PdfToxOralService,
     private dataShareService: DataShareService,
     private insuranceService: InsuranceService,
+    private downloadService: DownloadService
     //private datePipe: DatePipe,
   ) { }
 
@@ -1042,6 +1062,7 @@ export class LabOrderComponent implements OnInit {
     this.medicationCurrentList =  new Array<MedicationListItemModel>();
     this.medicationCurrent = false;
     this.medicationOrderList = new Array<MedicationListItemModel>();
+    this.medicationName = "";
     this.icdSearchList = new Array<Icd10ListItemModel>();
     this.icdCurrentList = new Array<Icd10ListItemModel>();
     this.icdCurrent = false;
@@ -1050,6 +1071,7 @@ export class LabOrderComponent implements OnInit {
     this.allergyCurrentList = new Array<AllergyListItemModel>();
     this.allergyCurrent = false;
     this.allergyOrderList = new Array<AllergyListItemModel>();
+    this.allergyName = "";
     this.showCancel = false;
     sessionStorage.setItem('image','');
     this.topazSignature = "";
@@ -1192,7 +1214,12 @@ export class LabOrderComponent implements OnInit {
             this.labOrderSave = false;
             
             //  Set the edit ability based on user type and status
-            if (this.labOrderData.specimens[0].labStatusId < 20){
+            if (this.userType==9 || this.userType==10 || this.userType==11)
+            {
+              // Disable for sales.
+              this.orderDisabled = true;
+            }
+            else if (this.labOrderData.specimens[0].labStatusId < 20){
               this.orderDisabled = false;
             }
             else if (this.labOrderData.specimens[0].labStatusId < 30 && (this.userType == 6 || this.userType == 7 || this.userType == 8)){
@@ -1512,7 +1539,6 @@ export class LabOrderComponent implements OnInit {
                     }
                   });
                 }
-                 
 
                 this.showPatient = true;
                 this.showAddInsurnace = true;
@@ -1575,6 +1601,7 @@ export class LabOrderComponent implements OnInit {
                 var requireInsurance = data.requireInsurance;
                 this.customerBillingTypeId = data.customerBillingTypeId;
                 this.missingInsurance = true;
+                this.allowFacesheet = data.facesheetAddress;
 
                 if (this.labOrderData.labOrderId == 0){
                   this.labOrderData.facilityCode = data.facilityCode;
@@ -3653,6 +3680,13 @@ export class LabOrderComponent implements OnInit {
       med.labOrderId = 0;
       med.labOrderMedicationId = 0;
       med.medicationId = item.medicationId;
+      if (item.medicationId > 0){
+        med.description = '';
+      }
+      else{
+        med.description = item.description;
+      }
+      
       this.labOrderData.medications.push(med);
     }
 
@@ -3673,6 +3707,12 @@ export class LabOrderComponent implements OnInit {
       allergy.labOrderId = 0;
       allergy.labOrderAllergyId = 0;
       allergy.allergyId = item.allergyId;
+      if (item.allergyId > 0){
+        allergy.description = '';
+      }
+      else{
+        allergy.description = item.description;
+      }
       this.labOrderData.allergies.push(allergy);
     }
 
@@ -6352,6 +6392,7 @@ export class LabOrderComponent implements OnInit {
   }
 
   medicationKeypress(event: any){
+    this.addMedication = false;
     if (event.target.value.length > 2){
       if(event.key == 'Enter' && this.medicationSearchList.length > 0){
         this.newMedicationClick(this.medicationSearchList[0].medicationId);
@@ -6367,12 +6408,20 @@ export class LabOrderComponent implements OnInit {
               {
                 this.medicationSearchList = data.list;
               }
+              else{
+                this.medicationSearchList = new Array<MedicationListItemModel>();
+                this.addMedication = true;
+              }
             },
             error => {
               this.errorMessage = error;
               this.showError = true;
             });
       }
+    }
+    else
+    {
+      this.medicationSearchList = new Array<MedicationListItemModel>();
     }
   }
 
@@ -6416,41 +6465,100 @@ export class LabOrderComponent implements OnInit {
     }
   }
 
-  currentMedicationClick(id: number){
+  currentMedicationClick(value: string){
+    var sepArray = value.split(',');
+    var medicationId = Number(sepArray[0]);
+    var description = sepArray[1];
     var found = false;
     // Check if medication already in lab list
-    for (let item of this.medicationOrderList){
-      if (item.medicationId == id){
-        found = true;
-        break;
-      }
-    }
-    
-    if (!found){
-      // Find medication in list
-      for (let item of this.medicationCurrentList){
-        if (item.medicationId == id){
-          this.medicationOrderList.push(item);
+    if (medicationId > 0){
+      for (let item of this.medicationOrderList){
+        if (item.medicationId == medicationId){
+          found = true;
+          break;
         }
       }
-      this.labInfoChanged();
+      
+      if (!found){
+        // Find medication in list
+        for (let item of this.medicationCurrentList){
+          if (item.medicationId == medicationId){
+            this.medicationOrderList.push(item);
+          }
+        }
+        this.labInfoChanged();
+      }
+    }
+    else{
+      for (let item of this.medicationOrderList){
+        if (item.description == description){
+          found = true;
+          break;
+        }
+      }
+      
+      if (!found){
+        // Find medication in list
+        for (let item of this.medicationCurrentList){
+          if (item.description == description){
+            this.medicationOrderList.push(item);
+          }
+        }
+        this.labInfoChanged();
+      }
     }
   }
 
-  orderMedicationClick(id: number){
+  orderMedicationClick(value: string){
     var index = 0;
-    for (let item of this.medicationOrderList){
-      if (item.medicationId == id){
-        this.medicationOrderList.splice(index, 1)
-        break;
+    var sepArray = value.split(',');
+    var medicationId = Number(sepArray[0]);
+    var description = sepArray[1];
+    if (medicationId > 0){
+      for (let item of this.medicationOrderList){
+        if (item.medicationId == medicationId){
+          this.medicationOrderList.splice(index, 1)
+          break;
+        }
+        index++;
       }
-      index++;
     }
+    else{
+      for (let item of this.medicationOrderList){
+        if (item.description == description){
+          this.medicationOrderList.splice(index, 1)
+          break;
+        }
+        index++;
+      }
+    }
+
     this.labInfoChanged();
   }
 
   noMedicationsClick(){
     this.medicationOrderList = new Array<MedicationListItemModel>();
+    this.labInfoChanged();
+  }
+
+  addMedicationButtonClicked(){
+    var found = false;
+    this.addMedication = false;
+    // Check if medication already in lab list
+    for (let item of this.medicationOrderList){
+      if (item.description == this.medicationName){
+        found = true;
+        break;
+      }
+    }
+
+    if (!found){
+      var item = new MedicationListItemModel;
+      item.medicationId = 0;
+      item.description = this.medicationName;
+      this.medicationOrderList.push(item);
+      this.medicationName = "";
+    }
     this.labInfoChanged();
   }
 
@@ -6637,6 +6745,7 @@ export class LabOrderComponent implements OnInit {
   }
 
   allergyKeypress(event: any){
+    this.addAllergy = false;
     if (event.target.value.length > 2){
       if(event.key == 'Enter' && this.icdSearchList.length > 0){
         this.newAllergyClick(this.allergySearchList[0].allergyId);
@@ -6651,12 +6760,20 @@ export class LabOrderComponent implements OnInit {
               {
                 this.allergySearchList = data.list;
               }
+              else{
+                this.allergySearchList = new Array<AllergyListItemModel>();
+                this.addAllergy = true;
+              }
             },
             error => {
               this.errorMessage = error;
               this.showError = true;
             });
       }
+    }
+    else
+    {
+      this.allergySearchList = new Array<AllergyListItemModel>();
     }
   }
 
@@ -6682,41 +6799,99 @@ export class LabOrderComponent implements OnInit {
     }
   }
 
-  currentAllergyClick(id: number){
+  currentAllergyClick(value: string){
+    var sepArray = value.split(',');
+    var allergyId = Number(sepArray[0]);
+    var description = sepArray[1];
     var found = false;
     // Check if allergy already in lab list
-    for (let item of this.allergyOrderList){
-      if (item.allergyId == id){
-        found = true;
-        break;
-      }
-    }
-    
-    if (!found){
-      // Find allergy in list
-      for (let item of this.allergyCurrentList){
-        if (item.allergyId == id){
-          this.allergyOrderList.push(item);
+    if (allergyId > 0){
+      for (let item of this.allergyOrderList){
+        if (item.allergyId == allergyId){
+          found = true;
+          break;
         }
       }
-      this.labInfoChanged();
+      
+      if (!found){
+        // Find allergy in list
+        for (let item of this.allergyCurrentList){
+          if (item.allergyId == allergyId){
+            this.allergyOrderList.push(item);
+          }
+        }
+        this.labInfoChanged();
+      }
+    }
+    else{
+      for (let item of this.allergyOrderList){
+        if (item.description == description){
+          found = true;
+          break;
+        }
+      }
+      
+      if (!found){
+        // Find allergy in list
+        for (let item of this.allergyCurrentList){
+          if (item.description == description){
+            this.allergyOrderList.push(item);
+          }
+        }
+        this.labInfoChanged();
+      }
     }
   }
 
-  orderAllergyClick(id: number){
+  orderAllergyClick(value: string){
     var index = 0;
-    for (let item of this.allergyOrderList){
-      if (item.allergyId == id){
-        this.allergyOrderList.splice(index, 1)
-        break;
+    var sepArray = value.split(',');
+    var allergyId = Number(sepArray[0]);
+    var description = sepArray[1];
+    if (allergyId > 0){
+      for (let item of this.allergyOrderList){
+        if (item.allergyId == allergyId){
+          this.allergyOrderList.splice(index, 1)
+          break;
+        }
+        index++;
       }
-      index++;
+    }
+    else{
+      for (let item of this.allergyOrderList){
+        if (item.description == description){
+          this.allergyOrderList.splice(index, 1)
+          break;
+        }
+        index++;
+      }
     }
     this.labInfoChanged();
   }
 
   noAllergiesClick(){
     this.allergyOrderList = new Array<AllergyListItemModel>();
+    this.labInfoChanged();
+  }
+
+  addAllergyButtonClicked(){
+    var found = false;
+    this.addAllergy = false;
+    // Check if allergy already in lab list
+    for (let item of this.allergyOrderList){
+      if (item.description == this.allergyName){
+        found = true;
+        break;
+      }
+    }
+
+    if (!found){
+      var item = new AllergyListItemModel;
+      item.allergyId = 0;
+      item.description = this.allergyName;
+      this.allergyOrderList.push(item);
+      this.allergyName = "";
+    }
     this.labInfoChanged();
   }
 
@@ -7244,7 +7419,6 @@ export class LabOrderComponent implements OnInit {
                 item.locationName = "All";
                 this.locationSearchList.splice(0,0,item);
                 this.searchLocationId = 0;// Number(sessionStorage.getItem('locationId'));
-                console.log("Location Search List 2",this.locationSearchList);
               }
             },
             error => {
@@ -7373,7 +7547,7 @@ export class LabOrderComponent implements OnInit {
     var firstName = this.labOrderData.firstName;
     var lastName = this.labOrderData.lastName;
     var dob = formatDate(this.labOrderData.dob,'MM/dd/yyyy','en');
-    console.log("Label Location",this.labOrderData.facilityCode);
+    //console.log("Label Location",this.labOrderData.facilityCode);
     var location = this.labOrderData.facilityCode;
     var collectionDate = ""
     if (this.labOrderData.specimens[0].collectionDate == "")
@@ -7417,6 +7591,19 @@ export class LabOrderComponent implements OnInit {
             cmds += "^FO30,170^ADN,18,10^FD  COL: " + collectionDate + "^FS";
             cmds += "^XZ";
           }
+        }
+        else if (barcodePrinter == 'ZDesigner LP 2824')
+        {
+            cmds += "N\r\n";
+            cmds += "q812\r\n";
+            cmds += "S2\r\n";
+            cmds += 'B30,20,0,1,2,5,30,B,"' + specimenBarcode + '"\r\n';
+            cmds += 'A30,90,0,3,1,1,N,"FIRST: ' + firstName + '"\r\n';
+            cmds += 'A30,110,0,3,1,1,N," LAST: ' + lastName + '"\r\n';
+            cmds += 'A30,130,0,3,1,1,N,"  DOB: ' + dob + '"\r\n';
+            cmds += 'A30,150,0,3,1,1,N," FROM: ' + location + '"\r\n';
+            cmds += 'A30,170,0,3,1,1,N,"  COL: ' + collectionDate + '"\r\n';
+            cmds += 'P' + barcodeQty + '\r\n';
         }
         else
         {
@@ -7596,194 +7783,23 @@ export class LabOrderComponent implements OnInit {
 
 
   }
-  orderPdfClicked(labOrderId: number){
+  
+  orderPdfClicked(labOrderId: number) {
     this.pdfData = new LabOrderPdfModel();
-    // Get the lab order data
-
-    this.labOrderService.get(labOrderId )
-        .pipe(first())
-        .subscribe(
-        data => {
-          if (data.valid)
-          {
-            this.patientId = data.patientId;
-            this.labOrderData = data;
-            if (this.labOrderData.specimens[0].requestPDF == 1){
-              this.orderPdfShow(this.labOrderData.specimens[0].labOrderSpecimenId);
-            }
-            else{
-              // Get the patient data
-              this.patientService.get( this.patientId)
-                  .pipe(first())
-                  .subscribe(
-                  data => {                  
-                    if (data.valid){
-                      var doc;
-                      this.patientData = data;
-                      this.userService.get(this.labOrderData.userId_Physician)
-                        .pipe(first())
-                        .subscribe(
-                        data => {                  
-                          if (data.valid){
-                            var physicianNPI = data.npi;
-                            this.userService.getSignature( this.labOrderData.userId_Physician, this.labOrderData.userSignatureId_Physician )
-                                .pipe(first())
-                                .subscribe(
-                                data => {
-                                  var PhysicianSig = data.fileAsBase64;
-                                  this.labOrderService.getPatientSignature( this.labOrderData.patientId, this.labOrderData.labOrderId )
-
-                                  .pipe(first())
-                                  .subscribe(
-                                  data => {
-                                    var PatientSig = data.fileAsBase64;
-                                    console.log("Patient Signature",PatientSig);
-                                    // This is for Pdf generate
-
-                                    if (this.labOrderData.specimens[0].labTypeId == 1){
-                                      this.loadToxData(this.labOrderData.specimens[0].tests);
-                                      var tox = new ToxModel();
-                                      tox.fullConfirmationOnly = this.toxUrineConfirmationPanel;
-                                      tox.fullScreenAndConfirmation = this.toxUrineFullPanel;
-                                      tox.targetReflex = this.toxUrineTargetReflexPanel;
-                                      tox.universalReflex = this.toxUrineUniversalReflexPanel;
-                                      tox.custom = this.toxUrineCustomPanel;
-                                      tox.presumptiveTesting13 = this.presumptiveTesting13;
-                                      tox.presumptiveTesting15 = this.presumptiveTesting15;
-                                      tox.alcohol = this.alcohol;
-                                      tox.antidepressants = this.antidepressants;
-                                      tox.antipsychotics = this.antipsychotics;
-                                      tox.benzodiazepines = this.benzodiazepines;
-                                      tox.cannabinoids = this.cannabinoids;
-                                      tox.cannabinoidsSynth = this.cannabinoidsSynth;
-                                      tox.dissociative = this.dissociative;
-                                      tox.gabapentinoids = this.gabapentinoids;
-                                      tox.hallucinogens = this.hallucinogens;
-                                      tox.illicit = this.illicit;
-                                      tox.kratom = this.kratom;
-                                      tox.opioidAgonists = this.opioidAgonists;
-                                      tox.opioidAntagonists = this.opioidAntagonists;
-                                      tox.sedative = this.sedative;
-                                      tox.skeletal = this.skeletal;
-                                      tox.stimulants = this.stimulants;
-                                      tox.thcSource = this.thcSource;
-
-                                      doc = this.pdfToxUrineService.generateToxUrine(this.labOrderData, tox, this.patientData, physicianNPI, PhysicianSig, PatientSig);
-                                    }
-                                    else if (this.labOrderData.specimens[0].labTypeId == 2){
-                                      this.loadToxOralData(this.labOrderData.specimens[0].tests);
-                                      var toxOral = new ToxOralModel();
-                                      toxOral.fullConfirmation = this.toxOralFullPanel;
-                                      toxOral.illicit = this.oralIllicit;
-                                      toxOral.sedative =  this.oralSedative;
-                                      toxOral.benzodiazepines = this.oralBenzodiazepines;
-                                      toxOral.muscle = this.oralMuscle;
-                                      toxOral.antipsychotics = this.oralAntipsychotics;
-                                      toxOral.antidepressants = this.oralAntidepressants;
-                                      toxOral.stimulants = this.oralStimulants;
-                                      toxOral.kratom = this.oralKratom;
-                                      toxOral.nicotine = this.oralNicotine;
-                                      toxOral.opioidAntagonists = this.oralOpioidAntagonists;
-                                      toxOral.gabapentinoids = this.oralGabapentinoids;
-                                      toxOral.dissociative = this.oralDissociative;
-                                      toxOral.opioidAgonists = this.oralOpioidAgonists;
-                                      doc = this.pdfToxOralService.generateToxOral(this.labOrderData, toxOral, this.patientData, physicianNPI, PhysicianSig, PatientSig);
-                                    }
-                                    else if (this.labOrderData.specimens[0].labTypeId == 3){
-                                      this.gppData = new GPPModel();
-                                      this.loadGPPData();
-                                      doc = this.pdfGPPService.generateGPP(this.labOrderData, this.gppData, this.patientData, physicianNPI, PhysicianSig, PatientSig);
-                                    }
-                                    else if (this.labOrderData.specimens[0].labTypeId == 4){
-                                      this.utiData = new UTIModel();
-                                      this.loadUTIData();
-                                      doc = this.pdfUTISTIService.generateUTISTI(this.labOrderData, this.utiData, this.patientData, physicianNPI, PhysicianSig, PatientSig);
-                                    }
-                                    else if (this.labOrderData.specimens[0].labTypeId == 5){
-                                      this.rppData = new RPPModel();
-                                      this.loadRPPData();
-                                      doc = this.pdfRPPService.generateRPP(this.labOrderData, this.rppData, this.patientData, physicianNPI, PhysicianSig, PatientSig);
-                                    }
-
-                                    this.pdfData.specimenId = this.labOrderData.specimens[0].labOrderSpecimenId;
-
-                                    this.pdfData.fileType = "application/pdf";
-
-                                    var b64 = doc.output('datauristring'); // base64 string
-                              
-                                    this.pdfData.fileType = "application/pdf";
-                              
-                                    this.pdfData.fileAsBase64 = b64.replace("data:application/pdf;filename=generated.pdf;base64,", "");
-                              
-                            
-                                    this.labOrderService.saveLabOrderRequestPdf( this.pdfData)
-                                          .pipe(first())
-                                          .subscribe(
-                                          data => {
-                                            console.log("SaveData",data);
-                                            if (data.valid) {
-                                              console.log("RequestPDFSaved");
-                                            }
-                                            else{
-                                              this.errorMessage = data.message;
-                                              this.showError = true;
-                                            }
-                                          },
-                                          error => {
-                                            this.errorMessage = error;
-                                            this.showError = true;
-                                          });
-
-                                    // Show the document
-                                    const binaryString = window.atob(this.pdfData.fileAsBase64);
-                                    const len = binaryString.length;
-                                    const bytes = new Uint8Array(len);
-                                    for (let i = 0; i < len; ++i) {
-                                      bytes[i] = binaryString.charCodeAt(i);
-                                    }
-                            
-                                    
-                                    var fileblob = new Blob([bytes], { type: this.pdfData.fileType });
-                            
-                                    //this.pdfDoc = window.URL.createObjectURL(fileblob).replace("blob:","data:application/pdf;filename=generated.pdf;base64,");
-                            
-                                    var url = window.URL.createObjectURL(fileblob); 
-                            
-                                    let anchor = document.createElement("a");
-                                    anchor.href = url;
-                                    anchor.target = "_blank"
-                                    anchor.click();
-                                  });
-                                });
-                          }
-                        },
-                        error => {
-                          this.errorMessage = error;
-                          this.showError = true;
-                        });
-                    }
-                    else
-                    {
-                      //this.errorMessage = data.message;
-                    }
-                  },
-                  error => {
-                    this.errorMessage = error;
-                    this.showError = true;
-                  });
-            }
-          }
-          else
-          {
-            //this.errorMessage = data.message;
-          }
-        },
-        error => {
-          this.errorMessage = error;
-          this.showError = true;
-        });
-
+    this.getLabOrderData(labOrderId).
+    pipe(
+      switchMap((labOrderModel:LabOrderModel)=>{
+        return this.getRequestPDFData(labOrderModel);
+      })
+    ).subscribe(async (orderdata) => {
+      await this.mergePDFs([orderdata.fileAsBase64]);
+    },
+    error => {
+      this.errorMessage = error;
+      this.showError = true;
+    });
   }
+
   orderPdfShow(specimenId: number){
     console.log("PDF Show");
     this.labOrderService.getLabOrderRequestPdf( specimenId)
@@ -7794,24 +7810,7 @@ export class LabOrderComponent implements OnInit {
       if (data.valid)
       {
         this.pdfData = data;
-
-
-        const binaryString = window.atob(this.pdfData.fileAsBase64);
-        const len = binaryString.length;
-        const bytes = new Uint8Array(len);
-        for (let i = 0; i < len; ++i) {
-          bytes[i] = binaryString.charCodeAt(i);
-        }
-
-        
-        var fileblob = new Blob([bytes], { type: 'application/pdf' });
-
-        var url = window.URL.createObjectURL(fileblob); 
-      
-        let anchor = document.createElement("a");
-        anchor.href = url;
-        anchor.target = "_blank"
-        anchor.click();             
+        this.preparePDFPreviewInNewTab(this.pdfData);           
       }
       else
       {
@@ -7826,48 +7825,332 @@ export class LabOrderComponent implements OnInit {
 
   resultPdfClicked(specimenId: number) {
     console.log("Result PDF Show");
-    this.labOrderService.getLabOrderResultPdf( specimenId)
-    .pipe(first())
-    .subscribe(
-    data => {
-      console.log("Data",data);
-      if (data.valid)
-      {
-        this.pdfData = data;
+    this.labOrderService.getLabOrderResultPdf(specimenId)
+      .pipe(first())
+      .subscribe(
+        data => {
+          console.log("Data", data);
+          if (data.valid) {
+            this.pdfData = data;
+            this.preparePDFPreviewInNewTab(this.pdfData);
+          }
+          else {
+            //this.errorMessage = data.message;
+          }
+        },
+        error => {
+          this.errorMessage = error;
+          this.showError = true;
+        });
+  }
 
+  preparePDFPreviewInNewTab(pdfData) {
+    let bytes = this.base64ToArrayBuffer(pdfData.fileAsBase64);
+    this.openPDFInNewWindow(bytes)
+  }
 
-        const binaryString = window.atob(this.pdfData.fileAsBase64);
-        const len = binaryString.length;
-        const bytes = new Uint8Array(len);
-        for (let i = 0; i < len; ++i) {
-          bytes[i] = binaryString.charCodeAt(i);
-        }
-
-        
-        var fileblob = new Blob([bytes], { type: 'application/pdf' });
-
-        var url = window.URL.createObjectURL(fileblob); 
-      
-        let anchor = document.createElement("a");
-        anchor.href = url;
-        anchor.target = "_blank"
-        anchor.click();             
-      }
-      else
-      {
-        //this.errorMessage = data.message;
-      }
-    },
-    error => {
-      this.errorMessage = error;
-      this.showError = true;
-    });
+  openPDFInNewWindow(bytes) {
+    var fileblob = new Blob([bytes], { type: 'application/pdf' });
+    var url = window.URL.createObjectURL(fileblob);
+    let anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.target = "_blank"
+    anchor.click();
   }
 
   printListButtonClicked() {
-    
-
-
+    let csvDataAsString = this.getCSVFromHTMLTable();
+    this.downloadService.downloadFile(csvDataAsString, 'LabOrderList.csv', 'text/csv');
   }
+
+  printLabelsButtonClicked() {
+    this.searchData?.forEach(labOrder => {
+      this.labOrderService.get(labOrder.labOrderId )
+        .pipe(first())
+        .subscribe(
+        data => {
+          if (data.valid){
+            this.labOrderData = data;
+            this.printBarcode();
+          }
+        });
+      
+    });
+  }
+
+  private getCSVFromHTMLTable() {
+    let csvStringBuilder = '';
+    var labOrderListTable = this.labOrdersList.nativeElement;
+    //children[0]: Table Headers
+    let headers = labOrderListTable.children[0];
+    //staticHeaderIndexs: indexes will be used to skip prepare static header row data while iterating body tr tags.//
+    let staticHeaderIndexs = [];
+    for (let i = 0; i < headers?.children.length; i++) {
+      let headerText = headers.children[i].innerText;
+      if (this.labOrderListStaticHeaders.indexOf(headerText) == -1) {
+        csvStringBuilder += headerText + ",";
+      }
+      else {
+        staticHeaderIndexs.push(i);
+      }
+    }
+    csvStringBuilder = this.addNewLineToString(csvStringBuilder);
+    //children[1]: Table Body
+    let tbody = labOrderListTable.children[1];
+    for (let i = 0; i < tbody.children.length; i++) {
+      if (tbody.children[i] instanceof HTMLTableRowElement) {
+        for (let j = 0; j < tbody?.children[i].children.length; j++) {
+          if (staticHeaderIndexs.indexOf(j) == -1)
+            csvStringBuilder += tbody.children[i].children[j].innerText + ",";
+        }
+        csvStringBuilder = this.addNewLineToString(csvStringBuilder);
+      }
+    }
+    csvStringBuilder = this.addNewLineToString(csvStringBuilder);
+    return csvStringBuilder;
+  }
+
+  addNewLineToString(inputString) {
+    inputString = inputString.substring(0, inputString.length - 1) + "\n";
+    return inputString;
+  }
+
+  async mergePDFs(base64PDFs) {
+    const mergedPDF = !this.resutlPDFDocument ? await PDFDocument.create() : this.resutlPDFDocument
+    for (const base64PDF of base64PDFs) {
+      if (!!base64PDF) {
+        const pdfBytes = this.base64ToArrayBuffer(base64PDF);
+        const pdfDoc = await PDFDocument.load(pdfBytes);
+        const copiedPages = await mergedPDF.copyPages(pdfDoc, pdfDoc.getPageIndices());
+        copiedPages.forEach(page => mergedPDF.addPage(page));
+      }
+    }
+    const mergedPDFBytes = await mergedPDF.save();
+    this.openPDFInNewWindow(mergedPDFBytes);
+    this.resutlPDFDocument = null;
+  }
+
+  base64ToArrayBuffer(base64Str) {
+    return Uint8Array.from(atob(base64Str), c => c.charCodeAt(0));
+  };
+
+  async printResultsButtonClicked() {
+    let qualifiedLabOrderSpecimenId = [];
+    this.searchData?.forEach(labOrder => {
+      if (labOrder.labStatusId == 50) {
+        qualifiedLabOrderSpecimenId.push(labOrder.labOrderSpecimenId);
+      }
+    });
+    if (qualifiedLabOrderSpecimenId.length > 0) {
+      let requests = qualifiedLabOrderSpecimenId.map(specimenId =>
+        this.labOrderService.getLabOrderResultPdf(specimenId)
+          .pipe(catchError(e => {
+            let pdfModel = new LabOrderPdfModel();
+            pdfModel.message = e;
+            console.log("error handler message", e.toString())
+            return of(pdfModel)
+          }))
+      );
+      forkJoin(requests)
+        .subscribe(async (orderdata) => {
+          await this.mergePDFs(orderdata.map(order => order.fileAsBase64));
+        })
+    }else{
+        alert('No resulting Specimen ID found.')
+    }
+  }
+
+  async printRequestsButtonClicked() {
+    let qualifiedLabOrderIds = [];
+    this.searchData?.forEach(labOrder => {
+        qualifiedLabOrderIds.push(labOrder.labOrderId);
+    });
+    if (qualifiedLabOrderIds.length > 0) {
+      let requests = qualifiedLabOrderIds.map(orderId =>
+        this.getLabOrderData(orderId)
+          .pipe(
+            switchMap(orderData => {
+              return this.getRequestPDFData(orderData);
+            })
+          )
+          .pipe(catchError(e => {
+            let pdfModel = new LabOrderPdfModel();
+            pdfModel.message = e;
+            console.log("error handler message", e.toString())
+            return of(pdfModel)
+          }))
+      );
+      forkJoin(requests)
+        .subscribe(async (orderdata) => {
+          await this.mergePDFs(orderdata.map((order: LabOrderPdfModel) => order.fileAsBase64));
+        })
+        // Method2 to get pdf data using switchmap and forkjoin.
+        // let labOrderPdfModelArray$: Observable<LabOrderPdfModel>[] = [];
+        // from(qualifiedLabOrderIds).pipe(
+        //   switchMap((labOrderId) => {
+        //     return this.getLabOrderData(labOrderId)
+        //   }),
+        //   switchMap((orderData: LabOrderModel) => {
+        //     let pdfData$ = this.getOrderPDFData(orderData);
+        //     labOrderPdfModelArray$.push(pdfData$);
+        //     return forkJoin(labOrderPdfModelArray$);
+        //   })
+        // ).subscribe(async (orderdata) => {
+        //   await this.mergePDFs(orderdata.map((order: LabOrderPdfModel) => order.fileAsBase64));
+        // });
+        // return;
+    }
+  }
+
+  getLabOrderData(labOrderId): Observable<LabOrderModel> {
+    return this.labOrderService.get(labOrderId);
+  }
+
+  getRequestPDFData(orderData): Observable<LabOrderPdfModel> {
+    if (orderData.valid) {
+      this.patientId = orderData.patientId;
+      this.labOrderData = orderData;
+      if (this.labOrderData.specimens[0].requestPDF == 1) {
+        return this.labOrderService.getLabOrderRequestPdf(this.labOrderData.specimens[0].labOrderSpecimenId)
+      }
+      else {
+        return this.createAndGetPDFData(this.labOrderData);
+      }
+    }
+    else {
+      let pdfData: any = new LabOrderPdfModel();
+      return of(pdfData)
+    }
+  }
+
+  createAndGetPDFData(orderData): Observable<LabOrderPdfModel> {
+    let pdfData: any = new LabOrderPdfModel();
+    let doc;
+    let physicianNPI;
+    let PhysicianSig;
+    let PatientSig;
+    return this.patientService.get(orderData.patientId).pipe(
+      switchMap((patientModel: PatientModel) => {
+        if (patientModel.valid) {
+          this.patientData = patientModel;
+          return this.userService.get(orderData.userId_Physician);
+        } else {
+          return of(pdfData)
+        }
+      }),
+      switchMap((userModel: UserModel) => {
+        if (userModel.valid) {
+          physicianNPI = userModel.npi;
+          return this.userService.getSignature(orderData.userId_Physician, orderData.userSignatureId_Physician)
+        }
+        else {
+          return of(pdfData)
+        }
+      }),
+      switchMap((userSignatureModel: UserSignatureModel) => {
+        PhysicianSig = userSignatureModel.fileAsBase64;
+        return this.labOrderService.getPatientSignature(orderData.patientId, orderData.labOrderId)
+      }),
+      switchMap((userSignatureModel: UserSignatureModel) => {
+        PatientSig = userSignatureModel.fileAsBase64;
+        console.log("Patient Signature", PatientSig);
+        // This is for Pdf generate
+        if (orderData.specimens[0].labTypeId == 1) {
+          this.loadToxData(orderData.specimens[0].tests);
+          var tox = new ToxModel();
+          tox.fullConfirmationOnly = this.toxUrineConfirmationPanel;
+          tox.fullScreenAndConfirmation = this.toxUrineFullPanel;
+          tox.targetReflex = this.toxUrineTargetReflexPanel;
+          tox.universalReflex = this.toxUrineUniversalReflexPanel;
+          tox.custom = this.toxUrineCustomPanel;
+          tox.presumptiveTesting13 = this.presumptiveTesting13;
+          tox.presumptiveTesting15 = this.presumptiveTesting15;
+          tox.alcohol = this.alcohol;
+          tox.antidepressants = this.antidepressants;
+          tox.antipsychotics = this.antipsychotics;
+          tox.benzodiazepines = this.benzodiazepines;
+          tox.cannabinoids = this.cannabinoids;
+          tox.cannabinoidsSynth = this.cannabinoidsSynth;
+          tox.dissociative = this.dissociative;
+          tox.gabapentinoids = this.gabapentinoids;
+          tox.hallucinogens = this.hallucinogens;
+          tox.illicit = this.illicit;
+          tox.kratom = this.kratom;
+          tox.opioidAgonists = this.opioidAgonists;
+          tox.opioidAntagonists = this.opioidAntagonists;
+          tox.sedative = this.sedative;
+          tox.skeletal = this.skeletal;
+          tox.stimulants = this.stimulants;
+          tox.thcSource = this.thcSource;
+
+          doc = this.pdfToxUrineService.generateToxUrine(orderData, tox, this.patientData, physicianNPI, PhysicianSig, PatientSig);
+        }
+        else if (orderData.specimens[0].labTypeId == 2) {
+          this.loadToxOralData(orderData.specimens[0].tests);
+          var toxOral = new ToxOralModel();
+          toxOral.fullConfirmation = this.toxOralFullPanel;
+          toxOral.illicit = this.oralIllicit;
+          toxOral.sedative = this.oralSedative;
+          toxOral.benzodiazepines = this.oralBenzodiazepines;
+          toxOral.muscle = this.oralMuscle;
+          toxOral.antipsychotics = this.oralAntipsychotics;
+          toxOral.antidepressants = this.oralAntidepressants;
+          toxOral.stimulants = this.oralStimulants;
+          toxOral.kratom = this.oralKratom;
+          toxOral.nicotine = this.oralNicotine;
+          toxOral.opioidAntagonists = this.oralOpioidAntagonists;
+          toxOral.gabapentinoids = this.oralGabapentinoids;
+          toxOral.dissociative = this.oralDissociative;
+          toxOral.opioidAgonists = this.oralOpioidAgonists;
+          doc = this.pdfToxOralService.generateToxOral(orderData, toxOral, this.patientData, physicianNPI, PhysicianSig, PatientSig);
+        }
+        else if (orderData.specimens[0].labTypeId == 3) {
+          this.gppData = new GPPModel();
+          this.loadGPPData();
+          doc = this.pdfGPPService.generateGPP(orderData, this.gppData, this.patientData, physicianNPI, PhysicianSig, PatientSig);
+        }
+        else if (orderData.specimens[0].labTypeId == 4) {
+          this.utiData = new UTIModel();
+          this.loadUTIData();
+          doc = this.pdfUTISTIService.generateUTISTI(orderData, this.utiData, this.patientData, physicianNPI, PhysicianSig, PatientSig);
+        }
+        else if (orderData.specimens[0].labTypeId == 5) {
+          this.rppData = new RPPModel();
+          this.loadRPPData();
+          doc = this.pdfRPPService.generateRPP(orderData, this.rppData, this.patientData, physicianNPI, PhysicianSig, PatientSig);
+        }
+
+        pdfData.specimenId = orderData.specimens[0].labOrderSpecimenId;
+
+        pdfData.fileType = "application/pdf";
+
+        var b64 = doc.output('datauristring'); // base64 string
+
+        pdfData.fileType = "application/pdf";
+
+        pdfData.fileAsBase64 = b64.replace("data:application/pdf;filename=generated.pdf;base64,", "");
+
+        this.labOrderService.saveLabOrderRequestPdf(pdfData)
+          .pipe(first())
+          .subscribe(
+            data => {
+              console.log("SaveData", data);
+              if (data.valid) {
+                console.log("RequestPDFSaved");
+              }
+              else {
+                this.errorMessage = data.message;
+                this.showError = true;
+              }
+            },
+            error => {
+              this.errorMessage = error;
+              this.showError = true;
+            });
+        return of(pdfData);
+      })
+    )
+  }
+  
 }
 

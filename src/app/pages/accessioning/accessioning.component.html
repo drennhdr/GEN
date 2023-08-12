@@ -36,7 +36,7 @@
                         <div class="col-md-3 pr-1">
                             <div class="form-group" >
                                 <label>Scan Barcode</label>
-                                <input [(ngModel)]="searchBarcode" maxlength="100" name="searchBarcode" type="text" #searchField class="form-control" >
+                                <input appAutoFocus [(ngModel)]="searchBarcode" maxlength="100" name="searchBarcode" type="text" #searchField class="form-control" >
                             </div>
                         </div>
                         
@@ -1706,7 +1706,7 @@
                                     <div class="snap-container">
                                         <button class="btn btn-primary" *ngIf="!cameraOn && !fileUploaded" (click)="setupDevices()">Start Camera</button>
                                         <button class="btn btn-primary" *ngIf="cameraOn" (click)="stopDevice()">Stop Camera</button>
-                                        <button class="btn btn-primary" *ngIf="cameraOn" (click)="capture()">Snap Photo</button>
+                                        <button class="btn btn-primary" *ngIf="cameraOn" [disabled]="attachmentData.loAttachmentTypeId==0" (click)="capture()">Snap Photo</button>
                                     </div>
 
                                 </div>

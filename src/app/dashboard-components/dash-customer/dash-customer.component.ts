@@ -138,8 +138,10 @@ export class DashCustomerComponent implements OnInit {
         sessionStorage.setItem('callingScreen','');
         this.searchLocationId = Number(sessionStorage.getItem('searchLocationId'));
         sessionStorage.setItem('searchLocationId','');
-        this.searchTimeframeId = Number(sessionStorage.getItem('searchTimeframeId'));
-        sessionStorage.setItem('searchTimeframeId','');
+        this.searchStartDate = sessionStorage.getItem('searchStartDate');
+        sessionStorage.setItem('searchStartDate','');
+        this.searchStartDate = sessionStorage.getItem('searchEndDate');
+        sessionStorage.setItem('searchEndDate','');
         this.searchLabTypeId = Number(sessionStorage.getItem('searchLabTypeId'));
         sessionStorage.setItem('searchLabTypeId','');
 
@@ -366,7 +368,6 @@ console.log("End", this.searchEndDate);
       .pipe(first())
       .subscribe(
       data => {
-        console.log("Data",data);
         if (data.valid)
         {
           this.pdfData = data;

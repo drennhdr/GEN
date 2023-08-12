@@ -60,7 +60,7 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-3 pr-1">
+                        <div class="col-md-3 pr-1" *ngIf="userType!=14">
                             <div class="form-group" >
                                 <label>Medical Record #</label>
                                 <input [(ngModel)]="searchMedicalRecordId" maxlength="18" name="searchMR" type="text" class="form-control">
@@ -127,8 +127,9 @@
                             <th>Name</th>
                             <th>DOB</th>
                             <th>Sex</th>
-                            <th>Medical ID</th>
+                            <th *ngIf="userType!=14">Medical ID</th>
                             <th>Phone</th>
+                            <th *ngIf="userType==14">ROI Expire</th>
                             <th *ngIf="customerId == 0">Facility Code</th>
                             <th>Actions</th>
                         </thead>
@@ -137,8 +138,9 @@
                             <td><a style="color:blue" (click)="selectButtonClicked(item.patientId)">{{item.name}}</a></td>
                             <td>{{item.dob}}</td>
                             <td>{{item.gender}}</td>
-                            <td>{{item.medicalRecordId}}</td>
+                            <td *ngIf="userType!=14">{{item.medicalRecordId}}</td>
                             <td>{{item.phone}}</td>
+                            <td *ngIf="userType==14">{{item.roiExpireDate}}</td>
                             <td *ngIf="customerId == 0">{{item.facilityCode}}</td>
                             <td><button type="button" (click)="selectButtonClicked(item.patientId)" class="btn btn-primary" >Select</button></td>                    
                             <td *ngIf="!viewOnly"><button type="button" (click)="addOrderButtonClicked(item.patientId)" class="btn btn-primary" >Create Lab Order</button></td>
@@ -334,13 +336,18 @@
                         </div>
                         <div class="col-md-6  pr-1">
                             <div class="form-group" >
-                                <label *ngIf="userType != 6 && !patientData.phoneMissing">Street Address</label>
+                                <label *ngIf="allowFacesheet && customerLogin">
+                                    Street Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <input type="checkbox" name="addressMissing" [(ngModel)]="useFacesheet" (change)="patientChanged()">
+                                    Use Facesheet
+                                </label>
+                                <label *ngIf="(userType != 6 && userType != 7 && userType != 8 && !patientData.addressMissing && !CustomerLogin) || (!allowFacesheet && CustomerLogin)">Street Address</label>
                                 <label *ngIf="userType == 6 || userType == 7 || userType == 8 || patientData.addressMissing">    
                                     Street Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                     <input type="checkbox" name="addressMissing" [(ngModel)]="patientData.addressMissing" (change)="addressCkChanged()">
                                     Missing
                                 </label>
-                                <input [(ngModel)]="patientData.address.street1" maxlength="50" name="street1" type="text" [ngClass]="patientData.address.street1 == '' ? 'form-control required' : 'form-control completed'" placeholder="Street required" [disabled]="viewOnly" (change)="addressChanged()">
+                                <input [(ngModel)]="patientData.address.street1" maxlength="50" name="street1" type="text" [ngClass]="patientData.address.street1 == '' && !useFacesheet ? 'form-control required' : 'form-control completed'" placeholder="Street required" [disabled]="viewOnly" (change)="addressChanged()">
                             </div>
                         </div>
                         <div class="col-md-3  pr-1">
@@ -354,13 +361,13 @@
                         <div class="col-md-2 pr-1">
                             <div class="form-group">
                                 <label>Zip Code</label>
-                                <input [(ngModel)]="patientData.address.postalCode" maxlength="10" name="postal" type="text" [ngClass]="patientData.address.postalCode == '' ? 'form-control required' : 'form-control completed'" placeholder="Zip Code required" [disabled]="viewOnly" (keyup)="zipKeypress($event)">
+                                <input [(ngModel)]="patientData.address.postalCode" maxlength="10" name="postal" type="text" [ngClass]="patientData.address.postalCode == '' && !useFacesheet ? 'form-control required' : 'form-control completed'" placeholder="Zip Code required" [disabled]="viewOnly" (keyup)="zipKeypress($event)">
                             </div>
                         </div>
                         <div class="col-md-4 pr-1">
                             <div class="form-group" (change)="patientChanged()">
                                 <label>City</label>
-                                <input [(ngModel)]="patientData.address.city" maxlength="30" name="city" type="text" [ngClass]="patientData.address.city == '' ? 'form-control required' : 'form-control completed'" placeholder="City required" [disabled]="viewOnly" (change)="patientChanged()">
+                                <input [(ngModel)]="patientData.address.city" maxlength="30" name="city" type="text" [ngClass]="patientData.address.city == '' && !useFacesheet ? 'form-control required' : 'form-control completed'" placeholder="City required" [disabled]="viewOnly" (change)="patientChanged()">
                             </div>
                         </div>
                         <div class="col-md-3 pr-1">
@@ -387,7 +394,7 @@
                                     <input type="checkbox" name="phoneMissing" [(ngModel)]="patientData.phoneMissing" (change)="patientChanged()">
                                     Missing
                                 </label>
-                                <input [(ngModel)]="patientData.phone" maxlength="15" name="phone" type="text" [ngClass]="patientData.phone == '' ? 'form-control required' : 'form-control completed'" placeholder="Phone required" [disabled]="viewOnly" (change)="patientChanged()">
+                                <input [(ngModel)]="patientData.phone" maxlength="15" name="phone" type="text" [ngClass]="patientData.phone == '' && !useFacesheet ? 'form-control required' : 'form-control completed'" placeholder="Phone required" [disabled]="viewOnly" (change)="patientChanged()">
                             </div>
                         </div>
                         <div class="row" *ngIf="showAddressFromCustomer">
@@ -787,8 +794,17 @@
                     <div class="row">
                         <div class="col-md-4  pr-1" *ngIf="!viewOnly">
                             <div class="form-group" >
-                                <label>Select a medication</label>
-                                <input maxlength="20" name="searchMedication" type="text" class="form-control" (keyup)="medicationKeypress($event)">
+                                <div class="row">
+                                    <div class="col-md-10 pr-1">
+                                        <div class="form-group" >
+                                            <label>Select a medication</label>
+                                            <input [(ngModel)]="medicationName" maxlength="50" name="searchMedication" type="text" class="form-control" (keyup)="medicationKeypress($event)">
+                                        </div>
+                                    </div>
+                                    <div clas="col-md-2 pr-1">
+                                        <button type="button" *ngIf="addMedication" (click)="addMedicationButtonClicked()" class="btn btn-primary" >Add</button>
+                                    </div>
+                                </div>
                                 <select multiple class="form-control" name="medicationList" id="medicationList" #selectList (change)="newMedicationClick(selectList.value)">
                                     <option *ngFor="let option of medicationSearchList" [value]="option.medicationId" >
                                     {{option.description}}
@@ -800,7 +816,7 @@
                             <div class="form-group" >
                                 <label>Current patient medications<br /></label>
                                 <select multiple class="form-control" name="currentMedications" id="currentMedications" #selectList2 (change)="currentMedicationClick(selectList2.value)">
-                                    <option *ngFor="let option of medicationCurrentList" [value]="option.medicationId" >
+                                    <option *ngFor="let option of medicationCurrentList" [value]="option.medicationId + ',' + option.description" >
                                     {{option.description}}
                                     </option>
                                 </select>
@@ -912,8 +928,19 @@
                         <div class="row">
                             <div class="col-md-4  pr-1" *ngIf="!viewOnly">
                                 <div class="form-group" >
-                                    <label>Select an allergy</label>
-                                    <input maxlength="20" name="searchAllergy" type="text" class="form-control" (keyup)="allergyKeypress($event)" [disabled]="patientData.noAllergy">
+
+                                    <div class="row">
+                                        <div class="col-md-10 pr-1">
+                                            <div class="form-group" >
+                                                <label>Select an allergy</label>
+                                                <input [(ngModel)]="allergyName" maxlength="50" name="searchAllergy" type="text" class="form-control" (keyup)="allergyKeypress($event)">
+                                            </div>
+                                        </div>
+                                        <div clas="col-md-2 pr-1">
+                                            <button type="button" *ngIf="addAllergy" (click)="addAllergyButtonClicked()" class="btn btn-primary" >Add</button>
+                                        </div>
+                                    </div>
+
                                     <select multiple class="form-control" name="allergyList" id="allergyList" #selectListA (change)="newAllergyClick(selectListA.value)">
                                         <option *ngFor="let option of allergySearchList" [value]="option.allergyId" >
                                         {{option.description}}
@@ -925,7 +952,7 @@
                                 <div class="form-group" >
                                     <label>Current patient allergies<br /></label>
                                     <select multiple class="form-control" name="currentAllergies" id="currentAllergies" #selectListA2 (change)="currentAllergyClick(selectListA2.value)">
-                                        <option *ngFor="let option of allergyCurrentList" [value]="option.allergyId" >
+                                        <option *ngFor="let option of allergyCurrentList" [value]="option.allergyId + ',' + option.description" >
                                         {{option.description}}
                                         </option>
                                     </select>
@@ -995,6 +1022,7 @@
                                         <th>Attachment Type</th>
                                         <th>Description</th>
                                         <th>Date Created</th>
+                                        <th>Expire Date</th>
                                         <th>Actions</th>
                                     </thead>
 
@@ -1002,6 +1030,7 @@
                                         <td>{{item.attachmentType}}</td>
                                         <td>{{item.description}}</td>
                                         <td>{{item.dateCreated}}</td>
+                                        <td>{{item.expireDate}}</td>
                                         <td>
                                             <button type="button" (click)="selectAttachmentButtonClicked(item.patientAttachmentId)" class="btn btn-primary" >View</button> &nbsp;
                                             <button type="button" *ngIf="userType == 6 || userType == 7 || userType == 8" (click)="deleteAttachmentButtonClicked(item.patientAttachmentId)" class="btn btn-primary" >Delete</button>
@@ -1040,6 +1069,25 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="row" *ngIf="attachmentData.attachmentTypeId==12">
+                                        <div class="col-md-6  pr-1">
+                                            <div class="form-group" >
+                                                <label>Effective Date</label>
+                                                <input [(ngModel)]="attachmentData.effectiveDate" name="attachmentEffectiveDate" type="date" [ngClass]="attachmentData.effectiveDate == '' ? 'form-control required' : 'form-control completed'" (change)="attachmentDateChanged()">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6  pr-1">
+                                            <div class="form-group" >
+                                                <label>Expire Date</label>
+                                                <input [(ngModel)]="attachmentData.expireDate" name="attachmentExpireDate" type="date" [ngClass]="attachmentData.expireDate == '' ? 'form-control required' : 'form-control completed'" (change)="attachmentDateChanged()">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 pr-1">
+                                            <label style="color:red">{{attachmentDateErrorMessage}}</label>
+                                        </div>
+
+                                    </div>
+
                                     <div class="row">
                                         <div class="col-md-12 pr-1">
                                             <div class="form-group" >
@@ -1249,15 +1297,18 @@
                                     </button>
                                 </td> -->
                                 <td>
-                                    <div class="btn-group dropdown" ngbDropdown placement="bottom-left">
+                                    <div *ngIf='this.userType != 14' class="btn-group dropdown" ngbDropdown placement="bottom-left">
                                         <button class="btn btn-secondary dropup-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" ngbDropdownToggle>
                                             Actions
                                         </button>
                                         <div class="dropdown-menu" ngbDropdownMenu aria-labelledby="dropdownMenuButton">
                                             <a class="dropdown-item" (click)="orderPdfClicked(item.labOrderId)">Request Pdf</a>
-                                            <a class="dropdown-item" *ngIf="item.labStatusId==50" (click)="resultPdfClicked(item.labOrderSpecimenId)">Result Pdf</a>
+                                            <a class="dropdown-item" *ngIf="item.labStatusId==50 || item.labStatusId==60" (click)="resultPdfClicked(item.labOrderSpecimenId)">Result Pdf</a>
                                             <a class="dropdown-item" *ngIf="!viewOnly" (click)="printBarcodeFromMenu(item.labOrderId)">Print Label</a>
                                         </div>
+                                    </div>
+                                    <div *ngIf='this.userType == 14 && (item.labStatusId==50 || item.labStatusId==60)'>
+                                        <button type="button" (click)="resultPdfClicked(item.labOrderSpecimenId)" class="btn btn-primary" >Result PDF</button>
                                     </div>
                                 </td>
                                 </tr>

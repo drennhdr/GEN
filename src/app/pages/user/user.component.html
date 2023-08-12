@@ -161,6 +161,27 @@
                                         </select>
                                     </div>
                                 </div>
+                                <div class="col-md-3 pr-1" *ngIf="userData.userTypeId==9 || userData.userTypeId==10">
+                                    <div class="form-group">
+                                        <label>User Edit</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="salesUserEdit" name="salesUserEdit" [(ngModel)]="userData.salesUserEdit" (change)="userChanged()">
+                                            <label class="custom-control-label" for="salesUserEdit"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 pr-1" *ngIf="userData.userTypeId==9 || userData.userTypeId==10 || userData.userTypeId==11">
+                                    <div class="form-group">
+                                        <label>Patient Report</label>
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="salesPatientReport" name="salesPatientReport" [(ngModel)]="userData.salesPatientReport" (change)="userChanged()">
+                                            <label class="custom-control-label" for="salesPatientReport"></label>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
                             </div>
                             <div class="row">
                                 <div class="col-md-3  pr-1">

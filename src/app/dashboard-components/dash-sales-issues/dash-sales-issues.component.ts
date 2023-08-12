@@ -4,7 +4,7 @@
 //Written By      : Stephen Farkas
 //Description     : Sales Issues component for dashboard
 //MM/DD/YYYY xxx  Description
-//
+//07/28/2023 SJF  Added view of orders based on flag on user profile
 //-----------------------------------------------------------------------------
 // Data Passing
 //-----------------------------------------------------------------------------
@@ -52,6 +52,9 @@ export class DashSalesIssuesComponent implements OnInit {
     labOrderListData: any;
     issueListData: any;
     button: number;
+
+    salesReport: number;
+    pdfData: any;
   
     errorMessage: string = '';
     showError: boolean = false;
@@ -69,6 +72,7 @@ export class DashSalesIssuesComponent implements OnInit {
 
       this.userId = Number(sessionStorage.getItem('userId_Login'));
       this.userType = Number(sessionStorage.getItem('userType'));
+      this.salesReport = Number(sessionStorage.getItem('salesPatientReport'));
 
       const today = new Date();
       var endDate = today.setDate(today.getDate());
@@ -105,7 +109,7 @@ export class DashSalesIssuesComponent implements OnInit {
         sessionStorage.setItem('searchPatientId','');
         sessionStorage.setItem('searchCustomerId','');
         sessionStorage.setItem('searchOrderId', '');
-        // this.loadLabSummary();
+        this.loadLabSummary();
         this.showLabList = false;
         this.showIssueList = true; 
 
@@ -231,23 +235,59 @@ export class DashSalesIssuesComponent implements OnInit {
             });
     }
 
-  
-    selectButtonClicked(labOrderId: number){
-      
-  
-  
-      // Set variables to pass in
-      sessionStorage.setItem('callingScreen','dashboard');
-      sessionStorage.setItem('callingFirst','True');
-      sessionStorage.setItem('searchPatientId','0');
-      sessionStorage.setItem('searchLocationId',String(this.searchLocationId));
-      sessionStorage.setItem('searchTimeframeId',String(Number(this.searchTimeframeId)));
-      sessionStorage.setItem('searchLabTypeId',String(Number(this.searchLabTypeId)));
+    selectButtonClicked(labOrderId: number, specimenId: number){
+      if (this.button == 50){
+        this.labOrderService.getLabOrderResultPdf( specimenId)
+        .pipe(first())
+        .subscribe(
+        data => {
+          if (data.valid)
+          {
+            this.pdfData = data;
     
-      sessionStorage.setItem('searchOrderId',labOrderId.toString());
+    
+            const binaryString = window.atob(this.pdfData.fileAsBase64);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; ++i) {
+              bytes[i] = binaryString.charCodeAt(i);
+            }
+    
+            
+            var fileblob = new Blob([bytes], { type: 'application/pdf' });
+    
+            var url = window.URL.createObjectURL(fileblob); 
+          
+            let anchor = document.createElement("a");
+            anchor.href = url;
+            anchor.target = "_blank"
+            anchor.click();             
+          }
+          else
+          {
+            //this.errorMessage = data.message;
+          }
+        },
+        error => {
+          this.errorMessage = error;
+          this.showError = true;
+        });
+      }
+      else
+      {
+        // Set variables to pass in
+        sessionStorage.setItem('callingScreen','dashboard');
+        sessionStorage.setItem('callingFirst','True');
+        sessionStorage.setItem('searchPatientId','0');
+        sessionStorage.setItem('searchLocationId',String(this.searchLocationId));
+        sessionStorage.setItem('searchStartDate',String(this.searchStartDate));
+        sessionStorage.setItem('searchEndDate',String(this.searchEndDate));
+        sessionStorage.setItem('searchLabTypeId',String(Number(this.searchLabTypeId)));
+      
+        sessionStorage.setItem('searchOrderId',labOrderId.toString());
   
-      this.router.navigateByUrl('/lab-order');
-  
+        this.router.navigateByUrl('/lab-order');
+      }
     }
   
     signatureButtonClicked(){

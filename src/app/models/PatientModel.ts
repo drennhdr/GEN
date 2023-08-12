@@ -124,6 +124,7 @@ export class PatientListItemModel {
   medicalRecordId: string = '';
   phone: string = '';
   facilityCode: string = '';
+  roiExpireDate: string = ''
 }
 
 export class PatientMedicationModel {
@@ -134,6 +135,7 @@ export class PatientMedicationModel {
   patientId: number = 0;
   medicationId: number = 0;
   medicationId_Generic: number = 0;
+  freeformDesc: string = '';
 }
 
 export class PatientIcd10Model {
@@ -152,6 +154,7 @@ export class PatientAllergyModel {
   patientAllergyId: number = 0;
   patientId: number = 0;
   allergyId: number = 0;
+  freeformDesc: string = '';
 }
 
 export class PatientMissingListModel {

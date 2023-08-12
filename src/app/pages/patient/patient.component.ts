@@ -21,6 +21,9 @@
 //05/15/2023 SJF Added printing of label for order.
 //07/09/2023 SJF Code Sync
 //07/10/2023 SJF Added Billing Review User Type
+//08/01/2023 SJF Added Freeform Medication & Allergy
+//08/04/2023 SJF Added Effective Data & Expire Date for ROI
+//08/07/2023 SJF Added Allow Facesheet
 //-----------------------------------------------------------------------------
 // Data Passing
 //-----------------------------------------------------------------------------
@@ -45,6 +48,7 @@ import { PatientInsuranceModel, PatientInsuranceListItemModel } from '../../mode
 import { PatientAttachmentModel, PatientAttachmentListItemModel } from '../../models/PatientAttachmentModel';
 import { PatientNoteListItemModel, PatientNoteModel} from '../../models/PatientNoteModel';
 import { MedicationListItemModel } from '../../models/MedicationModel';
+import { LabOrderListModel } from '../../models/LabOrderModel';
 import { Icd10ListItemModel } from '../../models/Icd10Model';
 import { AllergyListItemModel } from '../../models/AllergyModel';
 import { MedicationService } from '../../services/medication.service';
@@ -145,6 +149,8 @@ export class PatientComponent implements OnInit, AfterViewChecked {
   customerLogin: boolean;
   parolOfficer: boolean;
   poList: any;
+  allowFacesheet: boolean = false;
+  useFacesheet: boolean = false;
  
   patientSave: boolean;
   insuranceSave: boolean;
@@ -153,6 +159,10 @@ export class PatientComponent implements OnInit, AfterViewChecked {
   noteDisabled: boolean;
   noteSave: boolean;
   dateErrorMessage: string = '';
+  attachmentDateErrorMessage: string = '';
+
+  addMedication: boolean;
+  addAllergy: boolean;
 
   // Variables for drop down data
   genderList: any;
@@ -173,6 +183,7 @@ export class PatientComponent implements OnInit, AfterViewChecked {
   searchMedication: string;
   medicationSearchList: any;
   medicationCurrentList: any;
+  medicationName: string;
 
   // Diagnosis
   searchIcd: string;
@@ -183,6 +194,7 @@ export class PatientComponent implements OnInit, AfterViewChecked {
   searchAllergy: string;
   allergySearchList: any;ViewChild
   allergyCurrentList: any;
+  allergyName: string;
 
   // Lab Order
   labListData: any;
@@ -351,6 +363,11 @@ export class PatientComponent implements OnInit, AfterViewChecked {
     }
     else{
       this.customerLogin = true;
+
+////////////
+
+
+
     }
 
     if (this.userType == 14 || this.userType == 15){
@@ -410,7 +427,11 @@ export class PatientComponent implements OnInit, AfterViewChecked {
       if(Number(sessionStorage.getItem('locationId'))  > 0){
         this.searchButtonClicked();
       }
+      if (this.userType == 14){
+        this.searchButtonClicked();
+      }
     }
+    
   }
 
   @HostListener('document:keyup', ['$event'])
@@ -570,17 +591,19 @@ export class PatientComponent implements OnInit, AfterViewChecked {
     }
   }
   
-
   selectButtonClicked(patientId: number){
     this.medicationSearchList = new Array<MedicationListItemModel>();
     this.medicationCurrentList =  new Array<MedicationListItemModel>();
+    this.medicationName = "";
 
     this.icdSearchList = new Array<Icd10ListItemModel>();
     this.icdCurrentList = new Array<Icd10ListItemModel>();
 
     this.allergySearchList = new Array<AllergyListItemModel>();
     this.allergyCurrentList = new Array<AllergyListItemModel>();
+    this.allergyName = "";
     this.requireMR = false;
+    this.useFacesheet = false;
 
     // Call the patient service to get the data for the selected patient
     
@@ -655,6 +678,7 @@ export class PatientComponent implements OnInit, AfterViewChecked {
                                 this.customerBillingTypeId = data.customerBillingTypeId;
                                 this.allowSelfPay = data.allowSelfPay;
                                 this.parolOfficer = data.parolOfficer;
+                                this.allowFacesheet = data.facesheetAddress;
 
                                 // Check if this came from inbox with a flag
                                 if (sessionStorage.getItem('searchItem') == "Insurance"){
@@ -689,6 +713,9 @@ export class PatientComponent implements OnInit, AfterViewChecked {
 
                   this.patientSaveButton = "Save";
                 }
+
+                this.labListData = new Array<LabOrderListModel>();
+
                 // Load Lab Orders
                 this.labOrderService.search(0, 0, 0, 0, this.patientId, "", "", 99, "", "",1 )
                       .pipe(first())
@@ -696,7 +723,19 @@ export class PatientComponent implements OnInit, AfterViewChecked {
                       data => {
                         if (data.valid)
                         {
-                          this.labListData = data.list;
+                          if (this.userType != 14){
+                            this.labListData = data.list;
+                          }
+                          else{
+                            // Parole officer - Only show the orders that have been accessioned
+                            this.labListData = new Array<LabOrderListModel>();
+                            data.list.forEach(item => {
+                              if (item.labStatusId >= 30 && item.labStatusId <=60){
+                                this.labListData.push(item);
+                              }
+                            });
+                          }
+
                           this.sortBy("collectionDate");
                         }
                       },
@@ -731,6 +770,7 @@ export class PatientComponent implements OnInit, AfterViewChecked {
         return result * this.sortOrder;
     })];
   }
+
   addOrderButtonClicked(patientId: number) {
     // Set variables to pass in
     sessionStorage.setItem('callingScreen','patient');
@@ -808,7 +848,6 @@ export class PatientComponent implements OnInit, AfterViewChecked {
     this.patientChanged();
   }
   
-
   dobChanged(){
     const today = new Date();
     var maxDate = today.setDate(today.getDate());
@@ -862,10 +901,10 @@ export class PatientComponent implements OnInit, AfterViewChecked {
       && (this.patientData.lastName !="" && this.patientData.lastName.length > 1 || this.patientData.lastNameMissing)
       && ((this.patientData.dob !="" && this.patientData.dob != undefined) || this.patientData.dobMissing)
       && (this.patientData.genderId > -1)
-      && (this.patientData.address.street1 !="" || this.patientData.addressMissing)
-      && (this.patientData.address.postalCode !="" || this.patientData.addressMissing)
-      && (this.patientData.address.city !="" || this.patientData.addressMissing)
-      && (this.patientData.phone !="" || this.patientData.phoneMissing)
+      && (this.patientData.address.street1 !="" || this.patientData.addressMissing || this.useFacesheet)
+      && (this.patientData.address.postalCode !="" || this.patientData.addressMissing || this.useFacesheet)
+      && (this.patientData.address.city !="" || this.patientData.addressMissing || this.useFacesheet)
+      && (this.patientData.phone !="" || this.patientData.phoneMissing || this.useFacesheet)
       && (!this.requireMR || this.patientData.medicalRecordId!= "") ){
       this.patientSave = true;
     }
@@ -890,14 +929,23 @@ export class PatientComponent implements OnInit, AfterViewChecked {
     }
   }
 
-
   addButtonClicked(){
+
+    //userType != 6 && userType != 7 && userType != 8 && !patientData.addressMissing && !CustomerData) || (!allowFacesheet && CustomerLogin)
+    // console.log("User", this.userType);
+    // console.log("Missing", this.patientData.addressMissing);
+    // console.log("allow", this.allowFacesheet);
+    // console.log("Custom")
+
+
+
     this.patientId = 0;
     this.requireMR = false;
+    this.useFacesheet = false;
     // Initialze data to a blank record
     this.patientData = new PatientModel();
     this.patientData.customerId = this.customerId;
-    this.patientData.locationId = Number(sessionStorage.getItem('locaesearctionId'));
+    this.patientData.locationId = Number(sessionStorage.getItem('locationId'));
     if (this.customerId == 0){
       this.showCustomerField = true;
     }
@@ -910,8 +958,10 @@ export class PatientComponent implements OnInit, AfterViewChecked {
     this.patientData.active = true;
 
     this.medicationCurrentList =  new Array<MedicationListItemModel>();
+    this.medicationName = "";
     this.icdCurrentList = new Array<Icd10ListItemModel>();
     this.allergyCurrentList = new Array<AllergyListItemModel>();
+    this.allergyName = "";
 
     // Pull any values from the search over to new patient
     this.patientData.firstName = this.searchFirstName;
@@ -949,6 +999,7 @@ export class PatientComponent implements OnInit, AfterViewChecked {
                 this.showAddressFromCustomer = false;
                 this.locationCode = 0;
                 this.locationList = new Array<CodeItemModel>();
+                this.allowFacesheet = data.facesheetAddress;
 
                 data.locations.forEach( (item) =>{
                   if (locationId == 0 || item.locationId == locationId){
@@ -1474,11 +1525,29 @@ export class PatientComponent implements OnInit, AfterViewChecked {
 
   }
 
+  attachmentDateChanged(){
+    this.attachmentDateErrorMessage = '';
+    if (this.attachmentData.effectiveDate != '' && this.attachmentData.expireDate != ''){
+      var dt1 = Date.parse(this.attachmentData.effectiveDate);
+      var dt2 = Date.parse(this.attachmentData.expireDate);
+      if (dt1 > dt2){
+        this.attachmentDateErrorMessage = "Expire data must be after effective date."
+      }
+    }
+
+    this.attachmentChanged();
+  }
   attachmentChanged(){
     this.attachmentSave = false;
     if (this.attachmentData.attachmentTypeId > 0 
     && (this.attachmentData.fileType !="" || this.captures.length > 0)){
       this.attachmentSave = true;
+    }
+    if (this.attachmentData.attachmentTypeId == 12 && (this.attachmentData.effectiveDate == '' || this.attachmentData.expireDate == '')){
+      this.attachmentSave = false;
+    }
+    if (this.attachmentDateErrorMessage !=''){
+      this.attachmentSave = false;
     }
     this.dataShareService.changeUnsaved(true);
   }
@@ -1781,6 +1850,7 @@ export class PatientComponent implements OnInit, AfterViewChecked {
   }
 
   medicationKeypress(event: any){
+    this.addMedication = false;
     if (event.target.value.length > 2){
       if(event.key == 'Enter' && this.medicationSearchList.length > 0){
         this.newMedicationClick(this.medicationSearchList[0].medicationId);
@@ -1794,12 +1864,20 @@ export class PatientComponent implements OnInit, AfterViewChecked {
               {
                 this.medicationSearchList = data.list;
               }
+              else{
+                this.medicationSearchList = new Array<MedicationListItemModel>();
+                this.addMedication = true;
+              }
             },
             error => {
               this.errorMessage = error;
               this.showError = true;
             });
       }
+    }
+    else
+    {
+      this.medicationSearchList = new Array<MedicationListItemModel>();
     }
   }
 
@@ -1819,7 +1897,7 @@ export class PatientComponent implements OnInit, AfterViewChecked {
         if (item.medicationId == id){
           // Add medication to the database
           this.showError = false;
-          this.patientService.savePatientMedication( this.patientId, id)
+          this.patientService.savePatientMedication( this.patientId, id,'')
                 .pipe(first())
                 .subscribe(
                 data => {
@@ -1841,32 +1919,101 @@ export class PatientComponent implements OnInit, AfterViewChecked {
     }
   }
 
-  currentMedicationClick(id: number){
+  currentMedicationClick(value: string){
     var index = 0;
+    var sepArray = value.split(',');
+    var medicationId = Number(sepArray[0]);
+    var description = sepArray[1];
+    if (medicationId > 0){
+      for (let item of this.medicationCurrentList){
+        if (item.medicationId == medicationId){
+          // remove medication from the database
+          this.showError = false;
+          this.patientService.deletePatientMedication( this.patientId, medicationId, '')
+                .pipe(first())
+                .subscribe(
+                data => {
+                  if (data.valid) {
+                    this.medicationCurrentList.splice(index, 1);
+                  }
+                  else{
+                    this.errorMessage = data.message;
+                    this.showError = true;
+                  }
+                },
+                error => {
+                this.errorMessage = error;
+                this.showError = true;
+                });
+          break;
+        }
+        index++;
+      }
+    }
+    else{
+      // custom added - match text
+      for (let item of this.medicationCurrentList){
+        if (item.description == description){
+          // remove medication from the database
+          this.showError = false;
+          this.patientService.deletePatientMedication( this.patientId, 0, description)
+                .pipe(first())
+                .subscribe(
+                data => {
+                  if (data.valid) {
+                    this.medicationCurrentList.splice(index, 1);
+                  }
+                  else{
+                    this.errorMessage = data.message;
+                    this.showError = true;
+                  }
+                },
+                error => {
+                this.errorMessage = error;
+                this.showError = true;
+                });
+          break;
+        }
+        index++;
+      }
+    }
+  }
+
+  addMedicationButtonClicked(){
+    var found = false;
+    this.addMedication = false;
+    // Check if medication already in lab list
     for (let item of this.medicationCurrentList){
-      if (item.medicationId == id){
-        // remove medication from the database
-        this.showError = false;
-        this.patientService.deletePatientMedication( this.patientId, id)
-              .pipe(first())
-              .subscribe(
-              data => {
-                if (data.valid) {
-                  this.medicationCurrentList.splice(index, 1);
-                }
-                else{
-                  this.errorMessage = data.message;
-                  this.showError = true;
-                }
-              },
-              error => {
-              this.errorMessage = error;
-              this.showError = true;
-              });
+      if (item.description == this.medicationName){
+        found = true;
         break;
       }
-      index++;
     }
+
+    if (!found){
+      var item = new MedicationListItemModel;
+      item.medicationId = 0;
+      item.description = this.medicationName;
+      this.showError = false;
+      this.patientService.savePatientMedication( this.patientId, 0,this.medicationName)
+            .pipe(first())
+            .subscribe(
+            data => {
+              if (data.valid) {
+                this.medicationCurrentList.push(item);
+                this.medicationName = "";
+              }
+              else{
+                this.errorMessage = data.message;
+                this.showError = true;
+              }
+            },
+            error => {
+            this.errorMessage = error;
+            this.showError = true;
+            });
+    }
+
   }
 
   // ICD
@@ -1978,6 +2125,7 @@ export class PatientComponent implements OnInit, AfterViewChecked {
   }
   
   allergyKeypress(event: any){
+    this.addAllergy = false;
     if (event.target.value.length > 2){
       if(event.key == 'Enter' && this.icdSearchList.length > 0){
         this.newAllergyClick(this.allergySearchList[0].allergyId);
@@ -1992,12 +2140,20 @@ export class PatientComponent implements OnInit, AfterViewChecked {
               {
                 this.allergySearchList = data.list;
               }
+              else{
+                this.allergySearchList = new Array<AllergyListItemModel>();
+                this.addAllergy = true;
+              }
             },
             error => {
               this.errorMessage = error;
               this.showError = true;
             });
       }
+    }
+    else
+    {
+      this.allergySearchList = new Array<AllergyListItemModel>();
     }
   }
 
@@ -2017,7 +2173,7 @@ export class PatientComponent implements OnInit, AfterViewChecked {
         if (item.allergyId == id){
           // Add medication to the database
           this.showError = false;
-          this.patientService.savePatientAllergy( this.patientId, id)
+          this.patientService.savePatientAllergy( this.patientId, id, '')
                 .pipe(first())
                 .subscribe(
                 data => {
@@ -2039,31 +2195,100 @@ export class PatientComponent implements OnInit, AfterViewChecked {
     }
   }
 
-  currentAllergyClick(id: number){
+  currentAllergyClick(value: string){
     var index = 0;
+    var sepArray = value.split(',');
+    var allergyId = Number(sepArray[0]);
+    var description = sepArray[1];
+    if (allergyId > 0){
+      for (let item of this.allergyCurrentList){
+        if (item.allergyId == allergyId){
+          // remove allergy from the database
+          this.showError = false;
+          this.patientService.deletePatientAllergy( this.patientId, allergyId, '')
+                .pipe(first())
+                .subscribe(
+                data => {
+                  if (data.valid) {
+                    this.allergyCurrentList.splice(index, 1);
+                  }
+                  else{
+                    this.errorMessage = data.message;
+                    this.showError = true;
+                  }
+                },
+                error => {
+                this.errorMessage = error;
+                this.showError = true;
+                });
+          break;
+        }
+        index++;
+      }
+    }
+    else{
+      // custom added - match text
+      for (let item of this.allergyCurrentList){
+        if (item.description == description){
+          // remove allergy from the database
+          this.showError = false;
+          this.patientService.deletePatientAllergy( this.patientId, 0, description)
+                .pipe(first())
+                .subscribe(
+                data => {
+                  if (data.valid) {
+                    this.allergyCurrentList.splice(index, 1);
+                  }
+                  else{
+                    this.errorMessage = data.message;
+                    this.showError = true;
+                  }
+                },
+                error => {
+                this.errorMessage = error;
+                this.showError = true;
+                });
+          break;
+        }
+        index++;
+      }
+    }
+    
+  }
+
+  addAllergyButtonClicked(){
+    var found = false;
+    this.addAllergy = false;
+    // Check if allergy already in lab list
     for (let item of this.allergyCurrentList){
-      if (item.allergyId == id){
-        // Remove medication from the database
-        this.showError = false;
-        this.patientService.deletePatientAllergy( this.patientId, id)
-              .pipe(first())
-              .subscribe(
-              data => {
-                if (data.valid) {
-                  this.allergyCurrentList.splice(index, 1)
-                }
-                else{
-                  this.errorMessage = data.message;
-                  this.showError = true;
-                }
-              },
-              error => {
-              this.errorMessage = error;
-              this.showError = true;
-              });
+      if (item.description == this.allergyName){
+        found = true;
         break;
       }
-      index++;
+    }
+
+    if (!found){
+      var item = new AllergyListItemModel;
+      item.allergyId = 0;
+      item.description = this.allergyName;
+      this.showError = false;
+      this.patientService.savePatientAllergy( this.patientId, 0,this.allergyName)
+            .pipe(first())
+            .subscribe(
+            data => {
+              if (data.valid) {
+                this.allergyCurrentList.push(item);
+                this.allergyName = "";
+              }
+              else{
+                this.errorMessage = data.message;
+                this.showError = true;
+              }
+            },
+            error => {
+            this.errorMessage = error;
+            this.showError = true;
+            });
     }
   }
 
@@ -2700,6 +2925,19 @@ export class PatientComponent implements OnInit, AfterViewChecked {
             cmds += "^FO30,170^ADN,18,10^FD  COL: " + collectionDate + "^FS";
             cmds += "^XZ";
           }
+        }
+        else if (barcodePrinter == 'ZDesigner LP 2824')
+        {
+            cmds += "N\r\n";
+            cmds += "q812\r\n";
+            cmds += "S2\r\n";
+            cmds += 'B30,20,0,1,2,5,30,B,"' + specimenBarcode + '"\r\n';
+            cmds += 'A30,90,0,3,1,1,N,"FIRST: ' + firstName + '"\r\n';
+            cmds += 'A30,110,0,3,1,1,N," LAST: ' + lastName + '"\r\n';
+            cmds += 'A30,130,0,3,1,1,N,"  DOB: ' + dob + '"\r\n';
+            cmds += 'A30,150,0,3,1,1,N," FROM: ' + location + '"\r\n';
+            cmds += 'A30,170,0,3,1,1,N,"  COL: ' + collectionDate + '"\r\n';
+            cmds += 'P' + barcodeQty + '\r\n';
         }
         else
         {

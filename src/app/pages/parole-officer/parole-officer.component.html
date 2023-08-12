@@ -294,6 +294,7 @@
                             <th>Sex</th>
                             <th>Medical ID</th>
                             <th>Phone</th>
+                            <th>ROI Expire</th>
                             <th>Facility Code</th>
                             <th>Actions</th>
                         </thead>
@@ -304,6 +305,7 @@
                             <td>{{item.gender}}</td>
                             <td>{{item.medicalRecordId}}</td>
                             <td>{{item.phone}}</td>
+                            <td>{{item.roiExpireDate}}</td>
                             <td>{{item.facilityCode}}</td>
                             <td><button type="button" (click)="selectPatientButtonClicked(item.patientId)" class="btn btn-primary" >Select</button></td>                    
                         </tr>

@@ -30,6 +30,7 @@ import { InsuranceComponent } from '../../pages/insurance/insurance.component';
 import { LabComponent } from '../../pages/lab/lab.component';
 import { PreauthComponent } from '../../pages/preauth/preauth.component';
 import { CustomerIssueComponent } from '../../pages/customer-issue/customer-issue.component';
+import { PatientMergeComponent } from '../../pages/patient-merge/patient-merge.component';
 
 
 export const AdminLayoutRoutes: Routes = [
@@ -63,4 +64,5 @@ export const AdminLayoutRoutes: Routes = [
     { path: 'insurance',                component: InsuranceComponent },
     { path: 'lab',                      component: LabComponent },
     { path: 'preauth',                  component: PreauthComponent },
+    { path: 'patient-merge',            component: PatientMergeComponent},
 ];

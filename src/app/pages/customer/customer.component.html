@@ -161,7 +161,7 @@
                         <div class="col-md-6 pr-1">
                             <h5 class="title">Account Information</h5>
                         </div>
-                        <div *ngIf="userType==1 || userType==8" Class="col-md-3 pr-1">
+                        <div *ngIf="userType==1 || userType==7 || userType==8" Class="col-md-3 pr-1">
                             <label>Account Id: {{customerId}}</label>
                         </div>
                     </div>
@@ -256,7 +256,7 @@
                             <div class="row">
                                 <div class="col-md-4 pr-1">
                                     <div class="form-group">
-                                        <label>Share Patients Accross Locations</label>
+                                        <label>Share Patients Across Locations</label>
                                         <div class="custom-control custom-switch">
                                             <input type="checkbox" class="custom-control-input" id="sharePatients" name="sharePatients" [(ngModel)]="customerData.sharePatients"  (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
                                             <label class="custom-control-label" for="sharePatients"></label>
@@ -536,6 +536,15 @@
                                 <div class="custom-control custom-switch">
                                     <input type="checkbox" class="custom-control-input" id="alternateLoginId" name="alternateLoginId" [(ngModel)]="customerData.alternateLoginId" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
                                     <label class="custom-control-label" for="alternateLoginId"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 pr-1">
+                            <div class="form-group">
+                                <label>Allow facesheet for address</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="facesheetAddress" name="facesheetAddress" [(ngModel)]="customerData.facesheetAddress" (change)="customerChanged()" [disabled]="accessLevel == 2 || accessLevel == 3">
+                                    <label class="custom-control-label" for="facesheetAddress"></label>
                                 </div>
                             </div>
                         </div>
@@ -1030,7 +1039,7 @@
                                 <h5 class="title">Users</h5>
                             </div>
                             <div class="col-md-2">
-                                <button type="button" *ngIf="accessLevel != 2" (click)="addUserButtonClicked()" class="btn btn-primary" >Add</button>
+                                <button type="button" *ngIf="accessLevel != 2  || salesEdit==1" (click)="addUserButtonClicked()" class="btn btn-primary" >Add</button>
                             </div>
                         </div>
                     </div>
@@ -1084,19 +1093,19 @@
                                 <div class="col-md-3  pr-1">
                                     <div class="form-group" >
                                         <label>First Name</label>
-                                        <input [(ngModel)]="userData.firstName" maxlength="10" name="firstName" type="text" [ngClass]="userData.firstName == '' ? 'form-control required' : 'form-control completed'" (change)="userChanged()" placeholder="First Name required" [disabled]="accessLevel == 2">
+                                        <input [(ngModel)]="userData.firstName" maxlength="10" name="firstName" type="text" [ngClass]="userData.firstName == '' ? 'form-control required' : 'form-control completed'" (change)="userChanged()" placeholder="First Name required" [disabled]="accessLevel == 2 && salesEdit==0">
                                     </div>
                                 </div>
                                 <div class="col-md-3  pr-1">
                                     <div class="form-group" >
                                         <label>Last Name</label>
-                                        <input [(ngModel)]="userData.lastName" maxlength="20" name="lastName" type="text" [ngClass]="userData.lastName == '' ? 'form-control required' : 'form-control completed'" (change)="userChanged()" placeholder="Last Name required" [disabled]="accessLevel == 2">
+                                        <input [(ngModel)]="userData.lastName" maxlength="20" name="lastName" type="text" [ngClass]="userData.lastName == '' ? 'form-control required' : 'form-control completed'" (change)="userChanged()" placeholder="Last Name required" [disabled]="accessLevel == 2 && salesEdit==0">
                                     </div>
                                 </div>
                                 <div class="col-md-6  pr-1">
                                     <div class="form-group" >
                                         <label *ngIf="!invalidEmail">Email</label><label *ngIf="invalidEmail" style="color:red">Email - Invalid email address</label>
-                                        <input [(ngModel)]="userData.email" maxlength="60" name="userEmail" type="email" [ngClass]="userData.email == '' ? 'form-control required' : 'form-control completed'" (change)="emailChanged()" placeholder="Email required" [disabled]="accessLevel == 2">
+                                        <input [(ngModel)]="userData.email" maxlength="60" name="userEmail" type="email" [ngClass]="userData.email == '' ? 'form-control required' : 'form-control completed'" (change)="emailChanged()" placeholder="Email required" [disabled]="accessLevel == 2 && salesEdit==0">
                                     </div>
                                 </div>
                             </div>
@@ -1104,19 +1113,19 @@
                                 <div class="col-md-3 pr-1">
                                     <div class="form-group" >
                                         <label>Work Phone</label>
-                                        <input [(ngModel)]="userData.phoneWork" maxlength="20" name="userWorkPhone" type="text" class="form-control" (change)="userChanged()" [disabled]="accessLevel == 2">
+                                        <input [(ngModel)]="userData.phoneWork" maxlength="20" name="userWorkPhone" type="text" class="form-control" (change)="userChanged()" [disabled]="accessLevel == 2 && salesEdit==0">
                                     </div>
                                 </div>
                                 <div class="col-md-3 pr-1">
                                     <div class="form-group">
                                         <label>Work Phone Ext.</label>
-                                        <input [(ngModel)]="userData.phoneWorkExt" maxlength="10" name="userWorkPhoneExt" type="text" class="form-control" (change)="userChanged()" [disabled]="accessLevel == 2">
+                                        <input [(ngModel)]="userData.phoneWorkExt" maxlength="10" name="userWorkPhoneExt" type="text" class="form-control" (change)="userChanged()" [disabled]="accessLevel == 2 && salesEdit==0">
                                     </div>
                                 </div>
                                 <div class="col-md-3 pr-1">
                                     <div class="form-group" >
                                         <label>Cell Phone</label>
-                                        <input [(ngModel)]="userData.phoneCell" maxlength="20" name="userCellPhone" type="text" class="form-control" (change)="userChanged()" [disabled]="accessLevel == 2">
+                                        <input [(ngModel)]="userData.phoneCell" maxlength="20" name="userCellPhone" type="text" class="form-control" (change)="userChanged()" [disabled]="accessLevel == 2 && salesEdit==0">
                                     </div>
                                 </div>
                             </div>
@@ -1124,7 +1133,7 @@
                                 <div class="col-md-3  pr-1">
                                     <div class="form-group" >
                                         <label>Locations</label>
-                                        <select multiple class="form-control" name="userLocation" id="userLocation" [(ngModel)]="locationSelected" (change)="userChanged()"  [disabled]="accessLevel == 2">
+                                        <select multiple class="form-control" name="userLocation" id="userLocation" [(ngModel)]="locationSelected" (change)="userChanged()"  [disabled]="accessLevel == 2 && salesEdit==0">
                                             <option *ngFor="let option of this.customerData.locations" [value]="option.locationId">
                                             {{option.locationName}}
                                             </option>
@@ -1135,7 +1144,7 @@
                                     <div class="form-group" >
                                         <label>Site Administrator</label>
                                         <div class="custom-control custom-switch">
-                                            <input type="checkbox" class="custom-control-input" id="userSiteAdmin" name="userSiteAdmin" [(ngModel)]="userSiteAdmin" (change)="userChanged()" [disabled]="accessLevel == 2">
+                                            <input type="checkbox" class="custom-control-input" id="userSiteAdmin" name="userSiteAdmin" [(ngModel)]="userSiteAdmin" (change)="userChanged()" [disabled]="accessLevel == 2 && salesEdit==0">
                                             <label class="custom-control-label" for="userSiteAdmin"></label>
                                         </div>
                                     </div>
@@ -1144,7 +1153,7 @@
                                     <div class="form-group">
                                         <label>View Employee Results</label>
                                         <div class="custom-control custom-switch">
-                                            <input type="checkbox" class="custom-control-input" id="viewEmployeeResults" name="viewEmployeeResults" [(ngModel)]="userData.viewEmployeeResults" (change)="userChanged()" [disabled]="accessLevel == 2">
+                                            <input type="checkbox" class="custom-control-input" id="viewEmployeeResults" name="viewEmployeeResults" [(ngModel)]="userData.viewEmployeeResults" (change)="userChanged()" [disabled]="accessLevel == 2 && salesEdit==0">
                                             <label class="custom-control-label" for="viewEmployeeResults"></label>
                                         </div>
                                     </div>
@@ -1160,7 +1169,7 @@
                                             <div class="form-group" >
                                                 <label>Physician</label>
                                                 <div class="custom-control custom-switch">
-                                                    <input type="checkbox" class="custom-control-input" name="userPhysician" id="userPhysician" [(ngModel)]="userData.physician" (change)="userChanged()" [disabled]="accessLevel == 2">
+                                                    <input type="checkbox" class="custom-control-input" name="userPhysician" id="userPhysician" [(ngModel)]="userData.physician" (change)="userChanged()" [disabled]="accessLevel == 2 && salesEdit==0">
                                                     <label class="custom-control-label" for="userPhysician"></label>
                                                 </div>
                                             </div>
@@ -1170,28 +1179,28 @@
                                         <div class="col-md-6 pr-1">
                                             <div class="form-group" >
                                                 <label>Prefix</label>
-                                                <input [(ngModel)]="userData.prefix" maxlength="10" name="userPrefix" type="text" class="form-control" (change)="userChanged()" [disabled]="accessLevel == 2">
+                                                <input [(ngModel)]="userData.prefix" maxlength="10" name="userPrefix" type="text" class="form-control" (change)="userChanged()" [disabled]="accessLevel == 2 && salesEdit==0">
                                             </div>
                                         </div>
                                         <div class="col-md-6 pr-1">
                                             <div class="form-group">
                                                 <label>Suffix</label>
-                                                <input [(ngModel)]="userData.suffix" maxlength="10" name="userSuffix" type="text" class="form-control" (change)="userChanged()" [disabled]="accessLevel == 2">
+                                                <input [(ngModel)]="userData.suffix" maxlength="10" name="userSuffix" type="text" class="form-control" (change)="userChanged()" [disabled]="accessLevel == 2 && salesEdit==0">
                                             </div>
                                         </div>                            
                                     </div>
-                                    <div class="row">
+                                    <div class="row" *ngIf="userData.physician">
                                         <div class="col-md-6 pr-1">
                                             <div class="form-group" >
                                                 <label>NPI</label>
-                                                <input [(ngModel)]="userData.npi" maxlength="20" name="userNPI" type="text" class="form-control" [ngClass]="userData.physician == true ? 'form-control required' : 'form-control'" (change)="userChanged()" [disabled]="accessLevel == 2">
+                                                <input [(ngModel)]="userData.npi" maxlength="20" name="userNPI" type="text" class="form-control" [ngClass]="userData.physician == true ? 'form-control required' : 'form-control'" (change)="userChanged()" [disabled]="accessLevel == 2 && salesEdit==0">
                                             </div>
                                         </div>
                                         <div class="col-md-6 pr-1">
                                             <div class="form-group">
                                                 <label>Pecos Enrolled</label>
                                                 <div class="custom-control custom-switch">
-                                                    <input type="checkbox" class="custom-control-input" id="pecosEnrolled" name="pecosEnrolled" [(ngModel)]="userData.pecosEnrolled" (change)="userChanged()" [disabled]="accessLevel == 2">
+                                                    <input type="checkbox" class="custom-control-input" id="pecosEnrolled" name="pecosEnrolled" [(ngModel)]="userData.pecosEnrolled" (change)="userChanged()" [disabled]="accessLevel == 2 && salesEdit==0">
                                                     <label class="custom-control-label" for="pecosEnrolled"></label>
                                                 </div>
                                             </div>
@@ -1282,7 +1291,7 @@
                                     <div class="form-group">
                                         <label>Disabled</label>
                                         <div class="custom-control custom-switch">
-                                            <input type="checkbox" class="custom-control-input" id="userDisabled" name="userDisabled" [(ngModel)]="userData.disabled" (change)="userChanged()" [disabled]="accessLevel == 2">
+                                            <input type="checkbox" class="custom-control-input" id="userDisabled" name="userDisabled" [(ngModel)]="userData.disabled" (change)="userChanged()" [disabled]="accessLevel == 2 && salesEdit==0">
                                             <label class="custom-control-label" for="userDisabled"></label>
                                         </div>
                                     </div>
@@ -1291,14 +1300,14 @@
                                     <div class="form-group">
                                         <label>Required Password Change</label>
                                         <div class="custom-control custom-switch">
-                                            <input type="checkbox" class="custom-control-input" id="userChangePwd" name="userChangePwd" [(ngModel)]="userData.changePwd" (change)="userChanged()" [disabled]="accessLevel == 2">
+                                            <input type="checkbox" class="custom-control-input" id="userChangePwd" name="userChangePwd" [(ngModel)]="userData.changePwd" (change)="userChanged()" [disabled]="accessLevel == 2 && salesEdit==0">
                                             <label class="custom-control-label" for="userChangePwd"></label>
                                         </div>
                                     </div>
                                 </div>                         
                             </div>
 
-                            <button type="button" *ngIf="accessLevel != 2 && userSave" (click)="saveUserButtonClicked()" class="btn btn-primary" >Save</button>
+                            <button type="button" *ngIf="(accessLevel != 2  || salesEdit==1) && userSave" (click)="saveUserButtonClicked()" class="btn btn-primary" >Save</button>
                             <button type="button" (click)="cancelUserButtonClicked()" class="btn btn-primary" >Cancel</button>
                             <button type="button" *ngIf="accessLevel != 2 && userData.userId != 0" (click)="resetUserPasswordButtonClicked()" class="btn btn-primary" >Reset Password</button>
                             <button type="button" *ngIf="accessLevel == 1 && userData.userId != 0 && tempPwdFlag==false" (click)="tempPwdButtonClicked()" class="btn btn-primary" >Temporary Password</button>

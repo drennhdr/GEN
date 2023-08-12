@@ -122,9 +122,10 @@
                             <p class="category">Select a lab order</p>
                         </div>
                         <div class="col-md-4 pr-1">
-                            <!-- <button type="button" (click)="printListButtonClicked()" class="btn btn-primary" >Print List</button>
+                            <button type="button" (click)="printListButtonClicked()" class="btn btn-primary" >Print List</button>
+                            <button type="button" (click)="printLabelsButtonClicked()" class="btn btn-primary" >Print Labels</button>
                             <button type="button" (click)="printRequestsButtonClicked()" class="btn btn-primary" >Print Requests</button>
-                            <button type="button" (click)="printResultsButtonClicked()" class="btn btn-primary" >Print Results</button> -->
+                            <button type="button" (click)="printResultsButtonClicked()" class="btn btn-primary" >Print Results</button>
                         </div>
                         <div class="col-md-3 pr-1">
                             <h4>Item Count {{searchCount}}</h4>
@@ -133,11 +134,11 @@
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                    <table class="table table-striped" datatable >
+                    <table class="table table-striped" datatable #labOrdersList>
                     <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="10"> -->
                         <thead class=" text-primary">
                             <th><a (click)="sortBy('collectionDate')">Collected</a></th>
-                            <th *ngIf="corpUser"><a (click)="sortBy('receivedDate')">Received</a></th>
+                            <th><a (click)="sortBy('receivedDate')">Received</a></th>
                             <th *ngIf="corpUser"><a (click)="sortBy('accessionedDate')">Accessioned</a></th>
                             <th><a (click)="sortBy('resulted')">Resulted</a></th>
                             <th *ngIf="corpUser">Pending / Turnaround</th>
@@ -161,7 +162,7 @@
                                 <td *ngIf="corpUser">{{item.accessionedDate + ' UTC' | date: 'MM/dd/yyyy hh:mm a' : local}}</td>
                                 <td>{{item.resultedDate + ' UTC' | date: 'MM/dd/yyyy hh:mm a' : local}}</td> -->
                                 <td>{{item.collectionDate}}</td>
-                                <td *ngIf="corpUser">{{item.receivedDate}}</td>
+                                <td>{{item.receivedDate}}</td>
                                 <td *ngIf="corpUser">{{item.accessionedDate}}</td>
                                 <td>{{item.resultedDate}}</td>
                                 <td style="color:red" *ngIf="corpUser && (item.labStatusId==30 || item.labStatusId==40)">{{item.pending}}</td>
@@ -2571,7 +2572,7 @@
                                 <label>Previously reported medications<br /></label>
                                 <button type="button" (click)="allMedicationsButton()" class="btn btn-primary" >Use All Previous</button>
                                 <select multiple size="8" class="form-control" max-height="100px" name="currentMedications" id="currentMedications" #selectList2 (change)="currentMedicationClick(selectList2.value)" [disabled]="labOrderData.noMeds">
-                                    <option *ngFor="let option of medicationCurrentList" [value]="option.medicationId" >
+                                    <option *ngFor="let option of medicationCurrentList" [value]="option.medicationId + ',' + option.description" >
                                     {{option.description}}
                                     </option>
                                 </select>
@@ -2579,8 +2580,17 @@
                         </div>
                         <div class="col-md-4  pr-1" *ngIf="!orderDisabled">
                             <div class="form-group" >
-                                <label>Select a medication</label>
-                                <input maxlength="20" name="searchMedication" type="text" class="form-control" (keyup)="medicationKeypress($event)" [disabled]="labOrderData.noMeds">
+                                <div class="row">
+                                    <div class="col-md-10 pr-1">
+                                        <div class="form-group" >
+                                            <label>Select a medication</label>
+                                            <input [(ngModel)]="medicationName" maxlength="50" name="searchMedication" type="text" class="form-control" (keyup)="medicationKeypress($event)" [disabled]="labOrderData.noMeds">
+                                        </div>
+                                    </div>
+                                    <div clas="col-md-2 pr-1">
+                                        <button type="button" *ngIf="addMedication" (click)="addMedicationButtonClicked()" class="btn btn-primary" >Add</button>
+                                    </div>
+                                </div>
                                 <select multiple size="8" class="form-control" max-height:120px name="medicationList" id="medicationList" #selectList (change)="newMedicationClick(selectList.value)" [disabled]="labOrderData.noMeds">
                                     <option *ngFor="let option of medicationSearchList" [value]="option.medicationId" >
                                     {{option.description}}
@@ -2610,7 +2620,7 @@
                                     </div>
                                 </div>
                                 <select multiple size="8" [ngClass]="medicationOrderList.length < 1 ? 'form-control required' : 'form-control completed'"  name="labMedications" id="labMedications" #selectList3  (change)="orderMedicationClick(selectList3.value)" [disabled]="orderDisabled || labOrderData.noMeds">
-                                    <option *ngFor="let option of medicationOrderList" [value]="option.medicationId">
+                                    <option *ngFor="let option of medicationOrderList" [value]="option.medicationId + ',' + option.description">
                                     {{option.description}}
                                     </option>
                                 </select>
@@ -2694,7 +2704,7 @@
                                     <label>Previously reported allergies<br /></label>         
                                     <button type="button" (click)="allAllergiesButton()" class="btn btn-primary">Use All Previous</button>                                   
                                     <select multiple class="form-control" name="currentAllergies" id="currentAllergies" #selectListA2 (change)="currentAllergyClick(selectListA2.value)" [disabled]="labOrderData.noAllergy">
-                                        <option *ngFor="let option of allergyCurrentList" [value]="option.allergyId" >
+                                        <option *ngFor="let option of allergyCurrentList" [value]="option.allergyId + ',' + option.description" >
                                         {{option.description}}
                                         </option>
                                     </select>
@@ -2702,8 +2712,17 @@
                             </div>
                             <div class="col-md-4  pr-1" *ngIf="!orderDisabled">
                                 <div class="form-group" >
-                                    <label>Select an allergy</label>
-                                    <input maxlength="20" name="searchAllergy" type="text" class="form-control" (keyup)="allergyKeypress($event)" [disabled]="labOrderData.noAllergy">
+                                    <div class="row">
+                                        <div class="col-md-10 pr-1">
+                                            <div class="form-group" >
+                                                <label>Select an allergy</label>
+                                                <input [(ngModel)]="allergyName" maxlength="50" name="searchAllergy" type="text" class="form-control" (keyup)="allergyKeypress($event)" [disabled]="labOrderData.noAllergy">
+                                            </div>
+                                        </div>
+                                        <div clas="col-md-2 pr-1">
+                                            <button type="button" *ngIf="addAllergy" (click)="addAllergyButtonClicked()" class="btn btn-primary" >Add</button>
+                                        </div>
+                                    </div>
                                     <select multiple class="form-control" name="allergyList" id="allergyList" #selectListA (change)="newAllergyClick(selectListA.value)" [disabled]="labOrderData.noAllergy">
                                         <option *ngFor="let option of allergySearchList" [value]="option.allergyId" >
                                             {{option.description}}
@@ -2721,7 +2740,7 @@
                                         </label>
                                     </div>
                                     <select multiple [ngClass]="allergyOrderList.length < 1 ? 'form-control required' : 'form-control completed'" name="labAllergies" id="labAllergies" #selectListA3 (change)="orderAllergyClick(selectListA3.value)" [disabled]="orderDisabled || labOrderData.noMeds">
-                                        <option *ngFor="let option of allergyOrderList" [value]="option.allergyId">
+                                        <option *ngFor="let option of allergyOrderList" [value]="option.allergyId + ',' + option.description">
                                         {{option.description}}
                                         </option>
                                     </select>
@@ -2985,6 +3004,13 @@
             <div class="card">
                 <div class="card-body">
                 <form name="button-form">
+                    <div class="row" *ngIf="allowFacesheet && patientData.address.street1 == ''">
+                        <div class="col-md-12">
+                            <label style="color:red">
+                                Please include a facesheet with this order.
+                            </label>
+                        </div>
+                    </div>
                     <div class="row" *ngIf="userId == labOrderData.userId_Physician  && signatureId > 0">
                         <div class="col-md-12 pr-1">
                                 <label [ngStyle]="{'color': signature == false ? '#F06B4E' : '#0d7d1c'}">

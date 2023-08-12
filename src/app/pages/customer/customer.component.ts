@@ -15,6 +15,8 @@
 //07/15/2023 SJF Added alternate login id option
 //07/20/2023 SJF Added Setting a temporary user password
 //07/24/2023 SJF Added email check
+//07/28/2023 SJF Added sales edit users based on flag on user 
+//08/07/2023 SJF Require location to save, hide NPI/Pecos if physician not selected.
 //-----------------------------------------------------------------------------
 // Data Passing
 //-----------------------------------------------------------------------------
@@ -203,6 +205,8 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
   tempPwdFlag: boolean = false;
   pwdError: string = "";
 
+  salesEdit: number = 0;
+
   constructor(
     private customerService: CustomerService,
     private codeService: CodeService,
@@ -234,6 +238,8 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
 
     this.userType = Number(sessionStorage.getItem('userType'));
     var userId = Number(sessionStorage.getItem('userId_Login'));
+    this.salesEdit = Number(sessionStorage.getItem('salesUserEdit'));
+
     if (this.userType == 1){
       // Admin
       this.accessLevel = 1; // full
@@ -301,10 +307,11 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
       this.searchCity = "";
       this.searchState = "";
       this.searchRegion = 0;
+    }
+    if (!this.salesFlag){
       this.searchAM = 0;
       this.searchTM = 0;
       this.searchRM = 0;
-
     }
 
   }
@@ -420,7 +427,6 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
             data => {
               if (data.valid)
               {
-                
                 this.customerId = data.customerId;
 
                 this.errorMessage = "";
@@ -900,17 +906,25 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
     if (this.userData.firstName != "" && this.userData.lastName !=""
       && this.userData.email !="" && !this.invalidEmail &&
       (this.userData.physician == false || this.userData.npi !="")
+      && this.locationSelected.length > 0
       ){
       this.userSave = true;
     }
     this.dataShareService.changeUnsaved(true);
     if (this.userData.userId == 0){
-      this.userData.userName = this.userData.firstName.substring(0,1) + this.userData.lastName + this.customerData.facilityCode;
+      var lname = this.userData.lastName;
+      if (lname.indexOf(" ") > 0){
+        lname = lname.substring(0,lname.indexOf(" "));
+      }
+      if (lname.indexOf("-") > 0){
+        lname = lname.substring(0,lname.indexOf("-"));
+      }
+
+      this.userData.userName = this.userData.firstName.substring(0,1) + lname + this.customerData.facilityCode;
     }
   }
 
   emailChanged(){
-    console.log("Email",this.userData.email);
     this.userData.email = this.userData.email.replace(/\s/g, "");
     if (this.userData.email != ""){
       const expression: RegExp = /^(?=.{1,254}$)(?=.{1,64}@)[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+(\.[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+)*@[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$/;
@@ -920,8 +934,6 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
       this.invalidEmail = false;
     }
     this.userChanged();
-
-    console.log("InvalidEmail",this.invalidEmail);
   }
 
   saveUserButtonClicked(){
@@ -1358,9 +1370,7 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
       this.stopDevice();
     }
 
-    console.log("FileUpload",this.fileUploaded);
     if (!this.fileUploaded){
-      console.log("Scanned");
       // Scanned image
       const doc = new jsPDF();
       var width = doc.internal.pageSize.getWidth();
@@ -1382,9 +1392,6 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
 
       this.attachmentData.fileAsBase64 = b64.replace("data:application/pdf;filename=generated.pdf;base64,", "");
     }
-
-    console.log("B64",this.attachmentData.fileAsBase64);
-
 
     this.customerService.saveCustomerAttachment( this.attachmentData)
           .pipe(first())
@@ -1478,14 +1485,12 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
       var temp = target.files[0].name;
 
       this.attachmentData.fileType = event.target.files[0].type;
-      //console.log("File Type:",fileType)
       this.convertFile(event.target.files[0]).subscribe(base64 => {
         this.attachmentData.fileAsBase64 = base64;
         this.attachmentChanged();
       });
 
       this.fileUploaded = true;
-      console.log("File",this.attachmentData.fileAsBase64);
 
     }
   }
@@ -1677,8 +1682,6 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
 
                 this.hideSummaryItems();
 
-                console.log("LoadTest");
-
                 if (this.preferenceData.labTypeId == 1){
                   this.loadTestsFromPreference();
                   this.showToxUrine = true;
@@ -1690,10 +1693,8 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
                 }
 
                 // Position screen
-                console.log("Set Position");
                 var elmnt = document.getElementById("topOfScreen");
                 elmnt.scrollIntoView();
-                console.log("Set Position 2");
               }
               else
               {

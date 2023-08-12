@@ -52,6 +52,8 @@ import { CustomerModalComponent } from '../../modal/customer-modal/customer-moda
 import { InsuranceComponent } from '../../pages/insurance/insurance.component';
 import { LabComponent } from '../../pages/lab/lab.component';
 import { PreauthComponent } from '../../pages/preauth/preauth.component';
+import { AutoFocusDirective } from '../../directives/auto-focus.directive';
+import { PatientMergeComponent } from '../../pages/patient-merge/patient-merge.component';
 
 
 
@@ -111,6 +113,8 @@ import { PreauthComponent } from '../../pages/preauth/preauth.component';
     InsuranceComponent,
     LabComponent,
     PreauthComponent,
+    AutoFocusDirective,
+    PatientMergeComponent,
     
   ],
   entryComponents: [
