@@ -32,6 +32,7 @@ export class LabOrderSearchModel {
   userId_Accessioner: number = 0;
   option: string = '';
   dateType: number = 1;
+  userId_Sales: number = 0;
 }
 
 export class LabOrderModel {
@@ -328,6 +329,7 @@ export class LabOrderSummarySearchModel {
   labTypeId: number = 0;
   collectionDateStart: string = '';
   collectionDateEnd: string = '';
+  userId_Sales: number = 0;
 }
 
 export class LabOrderSummaryModel {

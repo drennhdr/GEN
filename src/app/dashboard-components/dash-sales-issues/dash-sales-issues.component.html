@@ -16,7 +16,7 @@
         </div>
     </div>
   
-      <!-- Physician Buttons                   -->
+      <!-- Summary Buttons                   -->
       <div class="row" *ngIf="!showError" id="physicianButtons">
         <div class="col-md-12">
             <div class="card">
@@ -34,8 +34,8 @@
                       </button>
                     </div>
                     <div class="col-md-3 pr-1" *ngIf="issueCount > 0">
-                      <!-- <button type="button" *ngIf="button!=2" style="width:100%; background-color:yellow; color:black" (click)="issueButtonClicked()" class="btn btn-primary" > -->
-                      <button type="button" *ngIf="button!=2" style="width:100%; background-color:yellow; color:black" class="btn btn-primary" >
+                      <button type="button" *ngIf="button!=2" style="width:100%; background-color:yellow; color:black" (click)="issueButtonClicked()" class="btn btn-primary" >
+                      <!-- <button type="button" *ngIf="button!=2" style="width:100%; background-color:yellow; color:black" class="btn btn-primary" > -->
                         {{issueCount}} patient demographics issues.
                       </button>
                       <button type="button" *ngIf="button==2" style="width:100%; background-color:yellow; color:black; box-shadow: 4px 4px 4px 4px #0c0c0c;" class="btn btn-primary" >
@@ -43,8 +43,8 @@
                       </button>
                     </div>
                     <div class="col-md-3 pr-1" *ngIf="unsignedCount > 0">
-                      <!-- <button type="button" style="width:100%; background-color:yellow; color:black" (click)="signatureButtonClicked()" class="btn btn-primary" > -->
-                      <button type="button" style="width:100%; background-color:yellow; color:black" class="btn btn-primary" >
+                      <button type="button" style="width:100%; background-color:yellow; color:black" (click)="signatureButtonClicked()" class="btn btn-primary" >
+                      <!-- <button type="button" style="width:100%; background-color:yellow; color:black" class="btn btn-primary" > -->
                         {{unsignedCount}} order(s) require signatures.
                       </button>
                     </div>
@@ -56,7 +56,7 @@
                           <div class="col-md-3 pr-1">
                               <div class="form-group" >
                                   <label>Location</label>
-                                  <select class="form-control" id="searchLabStatusId" name="searchLabStatusId" [(ngModel)]="searchLocationId" (change)="loadLabSummary()">
+                                  <select class="form-control" id="searchLabStatusId" name="searchLabStatusId" [(ngModel)]="searchLocationId" (change)="locationChanged()">
                                       <option *ngFor="let option of locationList" [value]="option.locationId">
                                       {{option.locationName}}
                                       </option>
@@ -163,12 +163,15 @@
                 <table class="table table-striped" datatable >
                   <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
                   <thead class="text-primary">
-                    <th>Specimen ID</th>
-                    <th>Collected</th>
-                    <th>Received</th>
-                    <!-- <th>Patient</th> -->
-                    <th>Status</th>
-                    <th>Sample Type</th>
+                    <th><a (click)="sortBy('specimenBarcode')">Specimen ID</a></th>
+                    <th><a (click)="sortBy('collectionDate')">Collected</a></th>
+                    <th><a (click)="sortBy('receivedDate')">Received</a></th>
+                    <th *ngIf="button==50"><a (click)="sortBy('resultedDate')">Resulted</a></th>
+                    <th *ngIf="button!=1"><a (click)="sortBy('resultedDate')">TAT</a></th>
+                    <th><a (click)="sortBy('location')">Location</a></th>
+                    <th><a (click)="sortBy('patient')">Patient</a></th>
+                    <th><a (click)="sortBy('status')">Status</a></th>
+                    <th><a (click)="sortBy('labType')">Sample Type</a></th>
                     <th *ngIf="salesReport">Actions</th>
                   </thead>
                   <tbody *ngIf="labOrderListData!=null">
@@ -176,7 +179,11 @@
                       <td>{{item.specimenBarcode}}</td>
                       <td>{{item.collectionDate}}</td>
                       <td>{{item.receivedDate}}</td>
-                      <!-- <td>{{item.patient}}</td> -->
+                      <td *ngIf="button==50">{{item.resultedDate}}</td>
+                      <td *ngIf="button==50">{{item.turnaround}}</td>
+                      <td *ngIf="button!=1 && button!=50">{{item.pending}}</td>
+                      <td>{{item.location}}</td>
+                      <td>{{item.patient}}</td>
                       <td>{{item.status}}</td>
                       <td>{{item.labType}}</td>
                       <td *ngIf="salesReport"><button type="button" (click)="selectButtonClicked(item.labOrderId,item.labOrderSpecimenId)" class="btn btn-primary" >Select</button></td>
@@ -203,14 +210,16 @@
                   <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
                   <thead class="text-primary">
                     <th>Patient</th>
+                    <th>Location</th>
                     <th>Issue</th>
-                    <th>Actions</th>
+                    <!-- <th *ngIf="salesReport">Actions</th> -->
                   </thead>
                   <tbody *ngIf="issueListData!=null">
                     <tr *ngFor="let item of issueListData">
                       <td>{{item.name}}</td>
+                      <td>{{item.locationName}}</td>
                       <td>{{item.missing}}</td>
-                      <td><button type="button" (click)="patientButtonClicked(item.patientId, item.missing)" class="btn btn-primary" >Select</button></td>
+                      <!-- <td *ngIf="salesReport"><button type="button" (click)="patientButtonClicked(item.patientId, item.missing)" class="btn btn-primary" >Select</button></td> -->
                     </tr>
                   </tbody>
                 </table>

@@ -89,6 +89,10 @@ export class LabOrderService {
     searchCriteria.collectionDateStart = collectionDateStart;
     searchCriteria.collectionDateEnd = collectionDateEnd;
     searchCriteria.dateType = dateType;
+    if (searchCriteria.locationId == -1)
+    {
+        searchCriteria.userId_Sales = parseInt(sessionStorage.getItem('userId_Login'));
+    }
 
     var url = this.apiRoot + 'api/LabOrder/GetLabOrderList' + '?validation=' + JSON.stringify(validation) + '&searchCriteria=' + JSON.stringify(searchCriteria);
     return this.httpClient.get(url)
@@ -165,7 +169,13 @@ export class LabOrderService {
     validation.tranSourceId = this.tranSourceId;
     validation.version = this.version;
 
-    var url = this.apiRoot + 'api/LabOrder/GetLocationUnsignedCount' + '?validation=' + JSON.stringify(validation) + '&locationId=' + locationId;
+    var userId_Sales: number = 0;
+    if (locationId == -1)
+    {
+        userId_Sales = parseInt(sessionStorage.getItem('userId_Login'));
+    }
+
+    var url = this.apiRoot + 'api/LabOrder/GetLocationUnsignedCount' + '?validation=' + JSON.stringify(validation) + '&locationId=' + locationId + '&userId_Sales=' + userId_Sales;
 
     return this.httpClient.get(url)
         .pipe(
@@ -214,6 +224,36 @@ export class LabOrderService {
     validation.version = this.version;
 
     var url = this.apiRoot + 'api/LabOrder/GetDelegateList' + '?validation=' + JSON.stringify(validation) + '&userId=' + userId;
+
+    return this.httpClient.get(url)
+        .pipe(
+             map((data: LabOrderListModel) => {
+          return data;
+      }), catchError(error => {
+          return throwError('Something went wrong!'); 
+      })
+    )
+  }
+
+  // ------------------------------------------------------------------------------------------------------------------
+  // SearchSalesSigMissing - retrun a list of LabOrders that meet the search criteria
+  // ------------------------------------------------------------------------------------------------------------------
+  searchSalesSigMissing(locationId: number) {
+
+    var validation = new ValidationModel();
+    validation.entityId_Login = parseInt(sessionStorage.getItem('entityId_Login'));
+    validation.userId_Login = parseInt(sessionStorage.getItem('userId_Login'));
+    validation.token = sessionStorage.getItem('token');
+    validation.tranSourceId = this.tranSourceId;
+    validation.version = this.version;
+
+    var userId_Sales: number = 0;
+    if (locationId == -1)
+    {
+        userId_Sales = parseInt(sessionStorage.getItem('userId_Login'));
+    }
+
+    var url = this.apiRoot + 'api/LabOrder/GetSalesSigMissing' + '?validation=' + JSON.stringify(validation) + '&locationId=' + locationId + '&userId=' + userId_Sales;
 
     return this.httpClient.get(url)
         .pipe(
@@ -614,6 +654,11 @@ export class LabOrderService {
     searchCriteria.labTypeId = labTypeId;
     searchCriteria.collectionDateStart = collectionDateStart;
     searchCriteria.collectionDateEnd = collectionDateEnd;
+    searchCriteria.userId_Sales = 0;
+    if (searchCriteria.locationId == -1)
+    {
+        searchCriteria.userId_Sales = parseInt(sessionStorage.getItem('userId_Login'));
+    }
 
     var url = this.apiRoot + 'api/LabOrder/GetSummary' + '?validation=' + JSON.stringify(validation) + '&searchCriteria=' + JSON.stringify(searchCriteria);
 

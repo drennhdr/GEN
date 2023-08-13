@@ -5,6 +5,8 @@
 //Description     : Sales Issues component for dashboard
 //MM/DD/YYYY xxx  Description
 //07/28/2023 SJF  Added view of orders based on flag on user profile
+//08/10/2023 SJF  Added patient and location to lab order list
+//08/10/2023 SJF  Added sort to lab order list
 //-----------------------------------------------------------------------------
 // Data Passing
 //-----------------------------------------------------------------------------
@@ -58,6 +60,9 @@ export class DashSalesIssuesComponent implements OnInit {
   
     errorMessage: string = '';
     showError: boolean = false;
+
+    sortProperty: string = 'specimenBarcode';
+    sortOrder = 1;
   
     constructor(
       private labOrderService: LabOrderService,
@@ -85,6 +90,7 @@ export class DashSalesIssuesComponent implements OnInit {
       this.searchLabTypeId = 99
 
       this.loadLocationList();
+      this.searchLocationId = -1;
 
       this.labOrderSummaryData = new LabOrderSummaryModel();
       this.labOrderSummaryData.created = 0;
@@ -109,17 +115,25 @@ export class DashSalesIssuesComponent implements OnInit {
         sessionStorage.setItem('searchPatientId','');
         sessionStorage.setItem('searchCustomerId','');
         sessionStorage.setItem('searchOrderId', '');
-        this.loadLabSummary();
         this.showLabList = false;
         this.showIssueList = true; 
 
       }
-  
-   
+
+      this.loadLabSummary();
+      this.loadDemoIssues();
+      this.loadUnsignedCount();
+    }
+
+    locationChanged(){
+      this.loadLabSummary();
+      this.loadDemoIssues();
+      this.loadUnsignedCount();
+      this.showLabList = false;
+      this.showIssueList = false; 
     }
 
     loadLabSummary(){
-
       this.labOrderListData = null;
       this.button = 0;
 
@@ -139,8 +153,6 @@ export class DashSalesIssuesComponent implements OnInit {
                 this.holdCount = 0;
               }
 
-              this.loadDemoIssues();
-              this.loadUnsignedCount();
             },
             error => {
               this.errorMessage = error;
@@ -199,6 +211,9 @@ export class DashSalesIssuesComponent implements OnInit {
                 {
                   this.locationList = new Array<LocationListItemModel>();
                   var item = new LocationListItemModel();
+                  item.locationId = -1;
+                  item.locationName = 'All locations';
+                  this.locationList.push(item);
   
                   data.list.forEach( (location) =>{
                     this.locationList.push(location);
@@ -292,8 +307,26 @@ export class DashSalesIssuesComponent implements OnInit {
   
     signatureButtonClicked(){
       this.button = 3;
-      sessionStorage.setItem('unsigned', "true");
-      this.router.navigateByUrl('/lab-order');
+      
+      this.labOrderService.searchSalesSigMissing(this.searchLocationId)
+        .pipe(first())
+        .subscribe(
+        data => {
+          if (data.valid)
+          {
+            this.labOrderListData = data.list;
+          }
+          else
+          {
+            this.labOrderListData = null;
+          }
+        },
+        error => {
+          this.errorMessage = error;
+          this.showError = true;
+        });
+        this.showLabList = true;
+        this.showIssueList = false; 
     }
   
     issueButtonClicked(){
@@ -305,7 +338,7 @@ export class DashSalesIssuesComponent implements OnInit {
     holdButtonClicked(){
       this.button = 99;
   
-      this.labOrderService.search(this.customerId, 0, 1200, 0, 0, '', '', 99, '', '', 1 )
+      this.labOrderService.search(0, this.searchLocationId, 1200, 0, 0, '', '', 99, '', '', 1 )
         .pipe(first())
         .subscribe(
         data => {
@@ -349,5 +382,21 @@ export class DashSalesIssuesComponent implements OnInit {
   
   
       this.router.navigateByUrl('/patient');
+    }
+
+    sortBy(property: string) {
+      this.sortOrder = property === this.sortProperty ? (this.sortOrder * -1) : 1;
+      this.sortProperty = property;
+      this.labOrderListData = [...this.labOrderListData.sort((a: any, b: any) => {
+          // sort comparison function
+          let result = 0;
+          if (a[property] < b[property]) {
+              result = -1;
+          }
+          if (a[property] > b[property]) {
+              result = 1;
+          }
+          return result * this.sortOrder;
+      })];
     }
   }

@@ -341,7 +341,7 @@
                                     <input type="checkbox" name="addressMissing" [(ngModel)]="useFacesheet" (change)="patientChanged()">
                                     Use Facesheet
                                 </label>
-                                <label *ngIf="(userType != 6 && userType != 7 && userType != 8 && !patientData.addressMissing && !CustomerLogin) || (!allowFacesheet && CustomerLogin)">Street Address</label>
+                                <label *ngIf="(userType != 6 && userType != 7 && userType != 8 && !patientData.addressMissing && !allowFacesheet)">Street Address</label>
                                 <label *ngIf="userType == 6 || userType == 7 || userType == 8 || patientData.addressMissing">    
                                     Street Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                     <input type="checkbox" name="addressMissing" [(ngModel)]="patientData.addressMissing" (change)="addressCkChanged()">
@@ -388,8 +388,8 @@
                     <div class="row">
                         <div class="col-md-3 pr-1">
                             <div class="form-group" >
-                                <label *ngIf="userType != 6 && !patientData.phoneMissing">Home Phone</label>
-                                <label *ngIf="userType == 6 || userType == 7 || userType == 8 || patientData.phoneMissing">    
+                                <label *ngIf="!(userType == 6 || userType == 7 || userType == 8)">Home Phone</label>
+                                <label *ngIf="userType == 6 || userType == 7 || userType == 8">    
                                     Home Phone&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                     <input type="checkbox" name="phoneMissing" [(ngModel)]="patientData.phoneMissing" (change)="patientChanged()">
                                     Missing

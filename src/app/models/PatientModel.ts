@@ -166,6 +166,7 @@ export class PatientMissingListModel {
 export class PatientMissingListItemModel {
   patientId: number = 0;
   name: string = '';
+  locationName: string = '';
   missing: string = '';
 }
 

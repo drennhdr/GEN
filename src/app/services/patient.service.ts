@@ -925,8 +925,13 @@ export class PatientService {
     validation.tranSourceId = this.tranSourceId;
     validation.version = this.version;
 
+    var userId_Sales: number = 0;
+    if (locationId == -1)
+    {
+        userId_Sales = parseInt(sessionStorage.getItem('userId_Login'));
+    }
 
-    var url = this.apiRoot + 'api/Patient/GetPatientsMissingInfo' + '?validation=' + JSON.stringify(validation) + '&CustomerId=' + customerId + '&LocationId=' + locationId;
+    var url = this.apiRoot + 'api/Patient/GetPatientsMissingInfo' + '?validation=' + JSON.stringify(validation) + '&CustomerId=' + customerId + '&LocationId=' + locationId + '&userId_Sales=' + userId_Sales;
 
     return this.httpClient.get(url)
         .pipe(

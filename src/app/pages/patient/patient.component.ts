@@ -678,8 +678,9 @@ export class PatientComponent implements OnInit, AfterViewChecked {
                                 this.customerBillingTypeId = data.customerBillingTypeId;
                                 this.allowSelfPay = data.allowSelfPay;
                                 this.parolOfficer = data.parolOfficer;
-                                this.allowFacesheet = data.facesheetAddress;
-
+                                if (this.patientData.address.street1 == '' && this.patientData.address.postalCode == ''){
+                                  this.allowFacesheet = data.facesheetAddress;
+                                }
                                 // Check if this came from inbox with a flag
                                 if (sessionStorage.getItem('searchItem') == "Insurance"){
                                   sessionStorage.setItem('searchItem','');
