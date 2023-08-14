@@ -35,6 +35,8 @@
 //07/30/2023 CTB Added export lab orders to CSV, prepare list of requests/results pdf's as single pdf.
 //08/03/2023 SJF Added Freeform Medication & Allergy
 //08/09/2023 SJF Added include facesheet message and logic
+//08/14/2023 SJF Added edit ability for CET Admin no matter what status.
+//08/14/2023 SJF Added ability for CET & Accessioning to switch between tox oral and urine
 //-----------------------------------------------------------------------------
 // Data Passing
 //-----------------------------------------------------------------------------
@@ -61,7 +63,6 @@ import { PdfUTISTIService } from '../../services/pdfUTISTI.service';
 import { PdfToxUrineService } from '../../services/pdfToxUrine.Service';
 import { PdfToxOralService } from '../../services/pdfToxOral.service';
 import { DownloadService } from '../../services/download.service';
-//import { DatePipe } from '@angular/common'
 
 import jsPDF from 'jspdf';
 
@@ -71,18 +72,15 @@ import { PatientModel } from '../../models/PatientModel';
 import { LabOrderModel, LabOrderTestItemModel, LabOrderDiagnosisItemModel, LabOrderMedicationItemModel, LabOrderPOCTModel, LabOrderSpecmenItemModel, LabOrderAllergyItemModel, LabOrderListModel, LabOrderListItemModel } from '../../models/LabOrderModel';
 import { LabOrderAttachmentModel, LabOrderAttachmentListItemModel, LabOrderPdfModel } from '../../models/LabOrderAttachmentModel';
 import { LabOrderNoteModel, LabOrderNoteListItemModel } from '../../models/LabOrderNoteModel';
-import { PhysicianPreferenceModel, PhysicianPreferenceTestModel } from '../../models/PhysicianPreferenceModel';
 import { ToxModel,AlcoholModel, AntidepressantsModel, AntipsychoticsModel, BenzodiazepinesModel, CannabinoidsModel, CannabinoidsSynthModel, DissociativeModel, GabapentinoidsModel, HallucinogensModel, IllicitModel, OpioidAgonistsModel, OpioidAntagonistsModel, SedativeModel, SkeletalModel, StimulantsModel, GPPModel, UTIModel, RPPModel} from '../../models/LabOrderTestModel';
 import { ToxOralModel, OralIllicitModel, OralSedativeModel, OralBenzodiazepinesModel, OralMuscleModel, OralAntipsychoticsModel, OralAntidepressantsModel, OralStimulantsModel, OralKratomModel, OralNicotineModel, OralOpioidAntagonistsModel, OralGabapentinoidsModel, OralDissociativeModel, OralOpioidAgonistsModel} from '../../models/LabOrderTestModel';
-//import { isNgTemplate } from '@angular/compiler';
-import { Toast } from 'bootstrap';
+
 import { PatientInsuranceModel, PatientInsuranceListItemModel } from '../../models/PatientInsuranceModel';
-import { MedicationListModel, MedicationListItemModel } from '../../models/MedicationModel';
+import { MedicationListItemModel } from '../../models/MedicationModel';
 import { LocationListItemModel } from '../../models/LocationModel';
-import { Icd10ListModel, Icd10ListItemModel } from '../../models/Icd10Model';
-import { AllergyListModel, AllergyListItemModel } from '../../models/AllergyModel';
+import { Icd10ListItemModel } from '../../models/Icd10Model';
+import { AllergyListItemModel } from '../../models/AllergyModel';
 import { CodeItemModel } from '../../models/CodeModel';
-import { ThisReceiver } from '@angular/compiler';
 import { forkJoin, from, Observable, of, ReplaySubject } from 'rxjs';
 import { StatusModalComponent } from '../../modal/status-modal/status-modal.component';
 import { IssueModalComponent } from '../../modal/issue-modal/issue-modal.component';
@@ -714,7 +712,7 @@ export class LabOrderComponent implements OnInit {
       var locationId = Number(sessionStorage.getItem('locationId'));
     }
     
-    console.log("LocationId",locationId);
+    //console.log("LocationId",locationId);
     this.labOrderService.search(this.customerId, locationId, this.searchLabStatusId, 0, 0, this.searchName, this.searchSpecimenId, this.searchLabTypeId, this.searchStartDate, this.searchEndtDate, this.searchDateTypeId )
         .pipe(first())
         .subscribe(
@@ -1226,10 +1224,10 @@ export class LabOrderComponent implements OnInit {
               // Accessioning - CET
               this.orderDisabled = false;
             } 
-            else if (this.labOrderData.specimens[0].labStatusId < 50 && this.userType == 8){
+            else if (this.labOrderData.specimens[0].labStatusId > 30 && this.userType == 8){
               // CET Manager
               this.showLabMessage = true;
-              this.orderDisabled = false;
+              this.orderDisabled = true;
             } 
             else{
               this.orderDisabled = true; 
@@ -2187,6 +2185,140 @@ export class LabOrderComponent implements OnInit {
     this.showPOCCSwitch = false;
     this.utiData.urine = true; // Default to urine
     this.duplicateCheck();
+    this.donerSignature();
+    if (this.userType ==6 || this.userType == 7 || this.userType == 8 ){
+      this.showNoteList = true;
+      this.showNoteAdd = true;
+    }
+    else{
+      this.showNoteList = false;
+    }
+  }
+
+  changeToOralButtonClicked(){
+    this.labOrderData.specimens[0].labTypeId = 2;
+    this.labOrderData.specimens[0].version = "2023.01";
+
+    this.labOrderData.specimens[0].tests = new Array<LabOrderTestItemModel>();
+    this.labOrderData.requestPDF = 0;
+
+    this.presumptiveTesting15 = false;
+    this.presumptiveTesting13 = false;
+    
+    this.oralIllicit = new OralIllicitModel();
+    this.oralSedative = new OralSedativeModel();
+    this.oralBenzodiazepines = new OralBenzodiazepinesModel();
+    this.oralMuscle = new OralMuscleModel();
+    this.oralAntipsychotics = new OralAntipsychoticsModel();
+    this.oralAntidepressants = new OralAntidepressantsModel();
+    this.oralStimulants = new OralStimulantsModel();
+    this.oralKratom = new OralKratomModel();
+    this.oralNicotine = new OralNicotineModel();
+    this.oralOpioidAntagonists = new OralOpioidAntagonistsModel();
+    this.oralGabapentinoids = new OralGabapentinoidsModel();
+    this.oralDissociative = new OralDissociativeModel();
+    this.oralOpioidAgonists = new OralOpioidAgonistsModel();
+
+    this.showSelect = false;
+    this.orderDisabled = false;
+    this.showLabInfo = true;
+    this.showPreferences = true;
+    this.showToxUrine = false;
+    this.showToxUrinePanel = false;
+    this.showToxOral = true;
+    this.showToxOralPanel = true;
+    this.showGPP = false;
+    this.showUTI = false;
+    this.showRPP = false;
+    this.showICD10 = true;
+    this.showMeds = true;
+    this.showAllergies = false;
+    this.showButtons = true;
+    this.showPOCC = false;
+    this.showPOCCSwitch = true;
+
+    this.preference1 = false;
+    this.preference2 = false;
+    this.preference3 = false;
+    this.preference4 = false;
+    this.preference5 = false;
+    this.preference6 = false;
+    this.preference7 = false;
+    this.preference8 = false;
+
+    this.duplicateCheck();
+    this.physicianSelected();
+    this.donerSignature();
+    if (this.userType ==6 || this.userType == 7 || this.userType == 8 ){
+      this.showNoteList = true;
+      this.showNoteAdd = true;
+    }
+    else{
+      this.showNoteList = false;
+    }
+  }
+
+  changeToUrineButtonClicked(){
+    this.labOrderData.specimens[0].labTypeId = 1;
+    this.labOrderData.specimens[0].version = "2022.11";
+
+    this.labOrderData.specimens[0].tests = new Array<LabOrderTestItemModel>();
+    this.labOrderData.requestPDF = 0;
+
+    this.toxUrineConfirmationPanel = false;
+    this.toxUrineFullPanel = false;
+    this.toxUrineTargetReflexPanel = false;
+    this.toxUrineUniversalReflexPanel = false;
+    this.toxUrineCustomPanel = false;
+    this.presumptiveTesting15 = false;
+    this.presumptiveTesting13 = false;
+    this.alcohol = new AlcoholModel();
+    this.antidepressants = new AntidepressantsModel();
+    this.antipsychotics = new AntipsychoticsModel();
+    this.benzodiazepines = new BenzodiazepinesModel();
+    this.cannabinoids = new CannabinoidsModel();
+    this.cannabinoidsSynth = new CannabinoidsSynthModel();
+    this.dissociative = new DissociativeModel();
+    this.gabapentinoids = new  GabapentinoidsModel();
+    this.hallucinogens = new HallucinogensModel();
+    this.illicit = new IllicitModel();
+    this.kratom = false;
+    this.opioidAgonists = new OpioidAgonistsModel();
+    this.opioidAntagonists = new OpioidAntagonistsModel();
+    this.sedative = new SedativeModel();
+    this.skeletal  = new SkeletalModel();
+    this.stimulants = new StimulantsModel()
+    this.thcSource = false;
+    this.showSelect = false;
+    this.orderDisabled = false;
+    this.showLabInfo = true;
+    this.showPreferences = true;
+    this.showToxUrine = true;
+    this.showToxUrinePanel = true;
+    this.showToxOral = false;
+    this.showToxOralPanel = false;
+    this.showGPP = false;
+    this.showUTI = false;
+    this.showRPP = false;
+    this.showICD10 = true;
+    this.showMeds = true;
+    this.showAllergies = false;
+    this.showButtons = true;
+    this.showPOCC = false;
+    this.showPOCCSwitch = true;
+
+    this.preference1 = false;
+    this.preference2 = false;
+    this.preference3 = false;
+    this.preference4 = false;
+    this.preference5 = false;
+    this.preference6 = false;
+    this.preference7 = false;
+    this.preference8 = false;
+
+    this.duplicateCheck();
+  
+    this.physicianSelected();
     this.donerSignature();
     if (this.userType ==6 || this.userType == 7 || this.userType == 8 ){
       this.showNoteList = true;
@@ -3756,8 +3888,13 @@ export class LabOrderComponent implements OnInit {
       }
     }
 
+    if (this.labOrderData.specimens[0].labStatusId >=40){
+      // The orders is already in processing or results, reset the Request PDF Flag
+      this.labOrderData.requestPDF = 0;
+    }
+
     this.showError = false;
-    console.log("Save Date", this.labOrderData);
+    //console.log("Save Date", this.labOrderData);
     this.labOrderService.save( this.labOrderData)
           .pipe(first())
           .subscribe(
@@ -3772,25 +3909,42 @@ export class LabOrderComponent implements OnInit {
                 this.printBarcode();
               }
 
-              const initialState: ModalOptions = {
-                initialState: {
-                  message: "Specimen Id: " + this.labOrderData.specimens[0].specimenBarcode,
-                  button1:"Close",
-                  button2:"Print",
-                }
-              };
-              
-              this.modalRef = this.modalService.show(MessageModalComponent, {
-                initialState 
-              });
+              if (this.labOrderData.specimens[0].labStatusId >=40){
+                // The orders is already in processing or results
+                const initialState: ModalOptions = {
+                  initialState: {
+                    message: "Specimen Id: " + this.labOrderData.specimens[0].specimenBarcode + " has already been sent to the lab.  Please make sure to update the specimen in the Lab System.  The request PDF is being regenerated.",
+                  }
+                };
+                
+                this.modalRef = this.modalService.show(PopupModalComponent, {
+                  initialState 
+                });
 
-              this.modalRef.content.onClose.subscribe(result => {
-                if (result == 0){
-                  // Print Selected
-                  this.orderPdfClicked(OrderId);
-                }
-              });
+                this.orderPdfClicked(OrderId);
 
+              }
+              else{
+
+                const initialState: ModalOptions = {
+                  initialState: {
+                    message: "Specimen Id: " + this.labOrderData.specimens[0].specimenBarcode,
+                    button1:"Close",
+                    button2:"Print",
+                  }
+                };
+                
+                this.modalRef = this.modalService.show(MessageModalComponent, {
+                  initialState 
+                });
+
+                this.modalRef.content.onClose.subscribe(result => {
+                  if (result == 0){
+                    // Print Selected
+                    this.orderPdfClicked(OrderId);
+                  }
+                });
+              }
               // If this is a new lab order, check if there is a note to save
 
               if (this.labOrderData.labOrderId == 0 && this.noteData.note != ""){

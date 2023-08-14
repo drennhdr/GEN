@@ -217,7 +217,7 @@
                                         <div class="dropdown-menu" ngbDropdownMenu aria-labelledby="dropdownMenuButton">
                                             <a class="dropdown-item" *ngIf="item.labStatusId<30 && userType!=15" (click)="selectButtonClicked(item.labOrderId)">Edit</a>
                                             <a class="dropdown-item" *ngIf="item.labStatusId==30 && (userType==6 || userType==7 || userType==8)" (click)="unAccessionButtonClicked(item.labOrderId)">UnAccession</a>
-                                            <a class="dropdown-item" *ngIf="item.labStatusId==40 && UserType==8" (click)="selectButtonClicked(item.labOrderId)">Edit</a>
+                                            <a class="dropdown-item" *ngIf="item.labStatusId>=40 && item.labStatusId < 98 && userType==8" (click)="selectButtonClicked(item.labOrderId)">Edit</a>
                                             <a class="dropdown-item" (click)="attachmentModalClicked(item.labOrderId, item.patientId)">Attachments</a>
                                             <a class="dropdown-item" *ngIf="userType!=15"(click)="printBarcodeFromMenu(item.labOrderId)">Print Label</a>
                                             <a class="dropdown-item" (click)="orderPdfClicked(item.labOrderId)">Request Pdf</a>
@@ -713,7 +713,7 @@
             <!-- Errors -->
             <div class="card">
                 <div class="card-header">
-                <h5 class="title">This order is in a processing status.  Pleasse coordinate with the lab prior to making any changes</h5>
+                <h5 class="title">This order is in {{labOrderData.specimens[0].labStatus}} status.  Pleasse coordinate with the lab prior to making any changes</h5>
                 </div>
                 <div class="card-body">
                     <button type="button" (click)="labMessageButtonClicked()" class="btn btn-primary" >Yes, continue</button>
@@ -1115,7 +1115,9 @@
                                 Custom
                             </label>
                         </div>
-
+                        <div class="col-md-2 pr-1" *ngIf="labOrderData.specimens[0].labStatusId <= 30 && (userType == 6 || userType == 7 || userType == 8)">
+                            <button type="button" (click)="changeToOralButtonClicked()" class="btn btn-primary" >Change To Oral</button>
+                        </div>
                     </div>
                 </form>
                 </div>
@@ -1623,11 +1625,14 @@
                 <div class="card-body">
                 <form name="toxOralPanel-form">
                     <div class="row">
-                        <div class="col-md-3 pr-1">
+                        <div class="col-md-10 pr-1">
                             <label class="dark-label">
                                 <input type="checkbox" [(ngModel)]="toxOralFullPanel" name="toxOralFull" (change)="toxOralFull()">
                                 Test Full Menu
                             </label>
+                        </div>
+                        <div class="col-md-2 pr-1" *ngIf="labOrderData.specimens[0].labStatusId <= 30 && (userType == 6 || userType == 7 || userType == 8)">
+                            <button type="button" (click)="changeToUrineButtonClicked()" class="btn btn-primary" >Change To Urine</button>
                         </div>
                     </div>
                 </form>
