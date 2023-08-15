@@ -3,6 +3,7 @@
 //Written By      : Stephen Farkas
 //Description     : Inbox
 //MM/DD/YYYY xxx  Description
+//08/15/2023 SJF  Added Clear Button
 //-----------------------------------------------------------------------------
 // Data Passing
 //-----------------------------------------------------------------------------
@@ -163,5 +164,34 @@ export class InboxComponent implements OnInit {
     sessionStorage.setItem('searchOrderId', this.inboxData.labOrderId);
 
     this.router.navigateByUrl('/lab-order');
+  }
+
+  clearButtonClicked(){
+    this.inboxService.clearItem( this.inboxId)
+        .pipe(first())
+        .subscribe(
+        data => {
+          if (data.valid)
+          {
+            var index = 0;
+            this.inboxListData.forEach(item => {
+              if (item.inboxId == this.inboxId){
+                this.inboxId = item.inboxId;
+                this.inboxListData.splice(index, 1);
+              }
+              this.inboxData = new InboxModel();
+              index++;
+          });
+            this.inboxId = 0;
+          }
+          else
+          {
+            //this.errorMessage = data.message;
+          }
+        },
+        error => {
+          this.errorMessage = error;
+          this.showError = true;
+        });
   }
 }

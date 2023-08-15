@@ -81,5 +81,31 @@ export class InboxService {
       )
   }
 
+  // ------------------------------------------------------------------------------------------------------------------
+  // Clear - remove item from inbox based on the id passed in
+  // ------------------------------------------------------------------------------------------------------------------
+  clearItem(inboxId: number )
+  {
+    var validation = new ValidationModel();
+    validation.entityId_Login = parseInt(sessionStorage.getItem('entityId_Login'));
+    validation.userId_Login = parseInt(sessionStorage.getItem('userId_Login'));
+    validation.token = sessionStorage.getItem('token');
+    validation.tranSourceId = this.tranSourceId;
+    validation.version = this.version;
 
+    var url = this.apiRoot + 'api/Inbox/ClearInboxItem' + '?validation=' + JSON.stringify(validation) + '&inboxId=' + inboxId;
+
+      console.log ("URL",url);
+      return this.httpClient.get(url)
+          .pipe(
+            
+              map((data: InboxModel) => { 
+                console.log("Data",data);
+                  return data;
+              }), catchError(error => {
+                console.log("Error",error);
+                  return throwError('Something went wrong!');
+              })
+      )
+  }
 }
