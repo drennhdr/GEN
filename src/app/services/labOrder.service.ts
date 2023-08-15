@@ -25,6 +25,7 @@
 // 06/06/2023 SJF Added unAccession
 // 06/18/2023 SJF Added locationUnsignedCount
 // 07/09/2023 SJF Removed Norhydrocodone & Noroxycodone
+// 08/15/2023 SJF Added PhysicianHardcopy & PatientHardcopy to ReleaseDemographicsHold
 //------------------------------------------------------------------------
 // Imports
 //------------------------------------------------------------------------
@@ -5440,7 +5441,7 @@ console.log("Check for existing");
   // ------------------------------------------------------------------------------------------------------------------
   // Release Demographics Hold
   // ------------------------------------------------------------------------------------------------------------------
-  releaseDemographicsHold( labOrderId: number, note: string)
+  releaseDemographicsHold( labOrderId: number, note: string, physicianHardcopy: boolean, patientHardcopy: boolean )
   {
     var labStatus = new LabOrderStatusModel();
     var validation = new ValidationModel();
@@ -5456,6 +5457,8 @@ console.log("Check for existing");
     labStatus.labOrderSpecimenId =0;
     labStatus.labStatusId = 0;
     labStatus.comment = note;
+    labStatus.physicianHardcopy = physicianHardcopy;
+    labStatus.patientHardcopy = patientHardcopy;
 
     labStatus.mismatchDate = false;
     labStatus.mismatchDOB = false;

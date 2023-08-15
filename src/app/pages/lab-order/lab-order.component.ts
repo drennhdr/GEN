@@ -803,6 +803,11 @@ export class LabOrderComponent implements OnInit {
           }
         });
       }
+      // Check if the request PDF needs to be regenerated
+      if (result == 2){
+        this.orderPdfClicked(labOrderId);
+        this.searchButtonClicked();
+      }
     });
   }
 

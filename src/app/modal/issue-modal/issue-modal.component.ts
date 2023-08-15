@@ -3,6 +3,7 @@
 //Written By      : Stephen Farkas
 //Description     : Lab Order Issues & Warning Modal
 //MM/DD/YYYY xxx  Description
+// 08/15/2023 SJF Added PhysicianHardcopy & PatientHardcopy checkboxes
 //-----------------------------------------------------------------------------
 // Data Passing
 //-----------------------------------------------------------------------------
@@ -27,6 +28,11 @@ export class IssueModalComponent implements OnInit {
   initialState: any;
   note: string; 
   noteEntered: boolean = false;
+
+  noPhysicianSig: boolean = false;
+  physicianSig: boolean = false;
+  noPatientSig: boolean = false;
+  patientSig: boolean = false;
   
   constructor(
     private modalService: BsModalService,
@@ -48,6 +54,15 @@ export class IssueModalComponent implements OnInit {
               {              
                 this.labOrderIssue = data.issues;
                 this.releaseHold = data.releaseHold;
+
+                this.labOrderIssue.forEach(item => {
+                  if (item.orderIssueId == 11){
+                    this.noPatientSig = true;
+                  }
+                  if (item.orderIssueId == 21){
+                    this.noPhysicianSig = true;
+                  }
+                });
               }
               else
               {
@@ -69,11 +84,15 @@ export class IssueModalComponent implements OnInit {
   }
 
   ReleaseHoldButtonClicked(){
-    this.labOrderService.releaseDemographicsHold( this.labOrderId, this.note)
+    var response = 1;
+    if (this.physicianSig || this.patientSig){
+      response = 2;
+    }
+    this.labOrderService.releaseDemographicsHold( this.labOrderId, this.note, this.physicianSig, this.patientSig)
           .pipe(first())
           .subscribe(
           data => {
-            this.onClose.next(1);
+            this.onClose.next(response);
             this.bsModalRef.hide();
 
           });

@@ -27,6 +27,25 @@
       </tbody>
     </table>
   </div>
+  <div class="row">
+    <div class="col-md-6 pr-1" *ngIf="noPhysicianSig">
+        <div class="form-group"  >
+            <label class="dark-label">
+                <input type="checkbox" name="physicianSig" [(ngModel)]="physicianSig">
+                Provider Signature
+            </label>
+        </div>
+    </div>
+    <div class="col-md-6 pr-1" *ngIf="noPatientSig">
+        <div class="form-group" >
+            <label class="dark-label">
+                <input type="checkbox" name="patientSig" [(ngModel)]="patientSig">
+                Patient Signature
+            </label>
+        </div>
+    </div>
+
+</div>
   <div class="row" *ngIf="releaseHold != ''">
     <h5>Demographics Hold Released</h5>
     <div class="col-md-12 pr-1">
