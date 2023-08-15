@@ -4,18 +4,20 @@
 //Description     : Physician Signature Capture
 //MM/DD/YYYY xxx  Description
 //05/22/2023 SJF  Added Topaz Signature Capture
+//12/08/2023 SJF  Displaying current Signature of physician
 //-----------------------------------------------------------------------------
 // Data Passing
 //-----------------------------------------------------------------------------
 import { Component, OnInit, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 import SignaturePad from 'signature_pad';
-import { first } from 'rxjs/operators';
+import { first, switchMap } from 'rxjs/operators';
 import {formatDate} from '@angular/common';
 
 import { UserService } from '../../services/user.service';
 import { Router } from '@angular/router';
 
 import { UserSignatureModel } from '../../models/UserSignatureModel';
+import { GenericResponseModel } from '../../models/GenericResponseModel';
 
 @Component({
   selector: 'app-physician-signature',
@@ -43,6 +45,8 @@ export class PhysicianSignatureComponent implements OnInit, AfterViewInit  {
   imageData: string = "";
   interval: any;
 
+  currentPhysicianSignatureAs64String:string;
+
   constructor(
     private userService: UserService, 
     private router: Router,
@@ -69,7 +73,7 @@ export class PhysicianSignatureComponent implements OnInit, AfterViewInit  {
             this.refreshData(); 
         }, 5000);
     }
-    
+    this.getCurrentPhysicianSignature();
   }
 
   ngAfterViewInit() {
@@ -194,6 +198,20 @@ export class PhysicianSignatureComponent implements OnInit, AfterViewInit  {
     sessionStorage.setItem('image',obj.imageData)
 
 
+  }
+
+  getCurrentPhysicianSignature(){
+    this.currentPhysicianSignatureAs64String = "";
+    var userID = Number(sessionStorage.getItem('userId_Login'));
+    this.userService.GetUserSignatureId(userID).pipe(
+      switchMap((genericResponseModel:GenericResponseModel)=>{
+        return this.userService.getSignature(userID, (Number(genericResponseModel.id)||0))
+      })
+    ).subscribe((userSignatureModel:UserSignatureModel)=>{
+      this.currentPhysicianSignatureAs64String = !!userSignatureModel.fileAsBase64? `data:image/png;base64,${userSignatureModel.fileAsBase64}` : "";
+    },error=>{
+      console.log(JSON.stringify(error));
+    })
   }
 }
 

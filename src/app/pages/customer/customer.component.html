@@ -1210,6 +1210,13 @@
 
 
                                 <div class="col-md-6 pr-1" *ngIf="accessLevel == 1 && userData.physician && userData.userId > 0">
+                                    <div class="row" *ngIf="!!physicianSignatureData.fileAsBase64">
+                                        <div class="col-md-12">
+                                            <h5 class="title">Current Signature</h5>
+                                            <img class="physicianSignature"  [src]='physicianSignatureData.fileAsBase64' />
+                                        </div>
+                                    </div>
+
                                     <div class="row">
 
                                         <div class="col-md-8 pr-1" *ngIf="userData.userSignatureId == 0 && signatureMessage == ''">
