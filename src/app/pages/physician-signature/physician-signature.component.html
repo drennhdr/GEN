@@ -7,14 +7,17 @@
 <div class="panel-header panel-header-sm">
 </div>
 <div class="main-content">
-
     <div class="row">
         <div class="col-md-12">
             <div class="card">
-                <div class="card-header">
-                    <h5 class="title">Physician Signature</h5>
-                </div>
                 <div class="card-body">
+                    <div class="row" *ngIf="!!currentPhysicianSignatureAs64String">
+                        <div class="col-md-12">
+                            <h5 class="title">Current Signature</h5>
+                            <img class="physicianSignature"  [src]='currentPhysicianSignatureAs64String' />
+                        </div>
+                    </div>
+                    <h5 class="title">Physician Signature</h5>
                     <div class="row" *ngIf="!topazInstalled">
                         <div class="col-md-12" *ngIf="signatureImg ==''">
                             <canvas width="400" height="100" #canvas (touchstart)="startDrawing($event)" (touchmove)="moved($event)"></canvas>
@@ -36,7 +39,6 @@
                         </div>
                     </div>
                 </div>
-                
             </div>
         </div>
     </div>

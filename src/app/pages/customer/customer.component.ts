@@ -21,7 +21,7 @@
 // Data Passing
 //-----------------------------------------------------------------------------
 import { Component, OnInit, AfterViewChecked, ViewChild, ElementRef, HostListener } from '@angular/core';
-import { first } from 'rxjs/operators';
+import { first, map, switchMap } from 'rxjs/operators';
 import {formatDate} from '@angular/common';
 
 import { CustomerService } from '../../services/customer.service';
@@ -40,7 +40,7 @@ import { CustomerNoteListModel, CustomerNoteListItemModel, CustomerNoteModel} fr
 import { UserModel, UserListItemModel, UserListModel, UserLocationModel, UserDelegateModel, UserDelegateItemModel } from '../../models/UserModel';
 import { CodeItemModel } from '../../models/CodeModel';
 import { UserSignatureModel } from '../../models/UserSignatureModel';
-import { Observable, ReplaySubject } from 'rxjs';
+import { Observable, of, ReplaySubject } from 'rxjs';
 import { Router } from '@angular/router';
 import { DataShareService } from '../../services/data-share.service';
 
@@ -67,6 +67,7 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
   preferenceData: any;
   showError: boolean;
   errorMessage: string;
+  currentPhysicianSignatureAs64String:string;
 
   // Search Variables
   searchName: string;
@@ -831,19 +832,35 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
     this.tempPwdFlag = false;
     // Call the user service to get the data for the selected user
     this.physicianSignatureData = new UserSignatureModel();
-    this.userService.get( userId)
+    this.userService.get(userId)
             .pipe(first())
+            .pipe(
+              switchMap((userData: UserModel)=>{
+                if (userData.valid && userData.userSignatureId){
+                  return this.userService.getSignature(userData.userId, userData.userSignatureId)
+                  .pipe(
+                    map((userSignatureModel:UserSignatureModel)=>{
+                      userSignatureModel.fileAsBase64 = !!userSignatureModel.fileAsBase64? `data:image/png;base64,${userSignatureModel.fileAsBase64}` : "";
+                      return {userData,userSignatureModel}
+                  }))
+                }
+                else{
+                  return of({userData:userData,userSignatureModel: this.physicianSignatureData})
+                }
+              })
+            )
             .subscribe(
-            data => {
-              if (data.valid)
+            (response: {userData: UserModel,userSignatureModel:UserSignatureModel}) => {
+              if (response.userData.valid)
               {
+                this.physicianSignatureData = response.userSignatureModel;
                 this.errorMessage = "";
                 this.showError = false;
-                this.userData = data;
+                this.userData = response.userData;
                 this.userSiteAdmin = false;
                 this.userSave = false;
                 this.delegateAdd = false;
-                if (data.userTypeId == 3){
+                if (response.userData.userTypeId == 3){
                   this.userSiteAdmin = true;
                 }
 
