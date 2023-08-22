@@ -284,7 +284,7 @@
                             </div>
                         </div>
                         <div class="col-md-3  pr-1">
-                            <div class="form-group" >
+                            <div class="form-group" *ngIf="showLCSList">
                                 <label>LCS</label>
                                 <select multiple class="form-control" name="lcs" id="lcs" [(ngModel)]="lcsSelected" (change)="customerChanged()"  [disabled]="accessLevel == 2">
                                     <option *ngFor="let option of lcsList" [value]="option.id">
@@ -2355,5 +2355,6 @@
             </div>
         </div>
     </div>
+
 </div>
 

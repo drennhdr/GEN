@@ -9,7 +9,7 @@
 //03/30/2023 SJF Added AccountIncidentButton
 //04/06/2023 SJF Added DataShareService & check for data change on cancel/exit
 //04/10/2023 SJF Added DeleteAttachment
-//05/01/2023 SJF  Changed to new oral tox method
+//05/01/2023 SJF Changed to new oral tox method
 //07/06/2023 SJF Added upload physician signature
 //07/12/2023 SJF Added delegate setup to users
 //07/15/2023 SJF Added alternate login id option
@@ -17,11 +17,12 @@
 //07/24/2023 SJF Added email check
 //07/28/2023 SJF Added sales edit users based on flag on user 
 //08/07/2023 SJF Require location to save, hide NPI/Pecos if physician not selected.
+//08/22/2023 SJF Hiding LCS list for customer role.
 //-----------------------------------------------------------------------------
 // Data Passing
 //-----------------------------------------------------------------------------
 import { Component, OnInit, AfterViewChecked, ViewChild, ElementRef, HostListener } from '@angular/core';
-import { first, map, switchMap } from 'rxjs/operators';
+import { catchError, first, map, switchMap } from 'rxjs/operators';
 import {formatDate} from '@angular/common';
 
 import { CustomerService } from '../../services/customer.service';
@@ -68,6 +69,7 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
   showError: boolean;
   errorMessage: string;
   currentPhysicianSignatureAs64String:string;
+  showLCSList:boolean;
 
   // Search Variables
   searchName: string;
@@ -217,12 +219,14 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
     private physicianPreferenceService: PhysicianPreferenceService,
     private labOrderService: LabOrderService,
     private router: Router,
-    private dataShareService: DataShareService,
+    private dataShareService: DataShareService
   ) { 
   }
 
   ngOnInit(): void {   
     this.dataShareService.changeUnsaved(false);
+    //entityId_Login is customerid so if customerid exists then hide LCS list box else showit.
+    this.showLCSList = !!Number(sessionStorage.getItem('entityId_Login'))? false: true;
 
     if (sessionStorage.getItem('userId_Login') == ""){
       this.router.navigateByUrl('/login');
