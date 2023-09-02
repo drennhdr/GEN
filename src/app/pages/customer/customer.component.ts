@@ -9,7 +9,7 @@
 //03/30/2023 SJF Added AccountIncidentButton
 //04/06/2023 SJF Added DataShareService & check for data change on cancel/exit
 //04/10/2023 SJF Added DeleteAttachment
-//05/01/2023 SJF  Changed to new oral tox method
+//05/01/2023 SJF Changed to new oral tox method
 //07/06/2023 SJF Added upload physician signature
 //07/12/2023 SJF Added delegate setup to users
 //07/15/2023 SJF Added alternate login id option
@@ -17,11 +17,12 @@
 //07/24/2023 SJF Added email check
 //07/28/2023 SJF Added sales edit users based on flag on user 
 //08/07/2023 SJF Require location to save, hide NPI/Pecos if physician not selected.
+//08/22/2023 SJF Hiding LCS list for customer role.
 //-----------------------------------------------------------------------------
 // Data Passing
 //-----------------------------------------------------------------------------
-import { Component, OnInit, AfterViewChecked, ViewChild, ElementRef, HostListener } from '@angular/core';
-import { first, map, switchMap } from 'rxjs/operators';
+import { Component, OnInit, AfterViewChecked, ViewChild, ElementRef, HostListener, TemplateRef } from '@angular/core';
+import { catchError, first, map, switchMap } from 'rxjs/operators';
 import {formatDate} from '@angular/common';
 
 import { CustomerService } from '../../services/customer.service';
@@ -33,16 +34,17 @@ import { PhysicianPreferenceService } from '../../services/physicianPreference.s
 import { LabOrderService } from '../../services/labOrder.service';
 import jsPDF from 'jspdf';
 
-import { CustomerModel, CustomerLcsModel } from '../../models/CustomerModel';
+import { CustomerModel, CustomerLcsModel, CustomerListItemModel, CustomerListModel } from '../../models/CustomerModel';
 import { LocationModel, LocationListItemModel } from '../../models/LocationModel';
 import { CustomerAttachmentModel, CustomerAttachmentListItemModel} from '../../models/CustomerAttachmentModel';
 import { CustomerNoteListModel, CustomerNoteListItemModel, CustomerNoteModel} from '../../models/CustomerNoteModel';
 import { UserModel, UserListItemModel, UserListModel, UserLocationModel, UserDelegateModel, UserDelegateItemModel } from '../../models/UserModel';
 import { CodeItemModel } from '../../models/CodeModel';
 import { UserSignatureModel } from '../../models/UserSignatureModel';
-import { Observable, of, ReplaySubject } from 'rxjs';
+import { forkJoin, Observable, of, ReplaySubject } from 'rxjs';
 import { Router } from '@angular/router';
 import { DataShareService } from '../../services/data-share.service';
+import { BsModalRef, BsModalService, ModalOptions } from 'ngx-bootstrap/modal';
 
 // import { stringify } from 'querystring';
 
@@ -68,6 +70,8 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
   showError: boolean;
   errorMessage: string;
   currentPhysicianSignatureAs64String:string;
+  showLCSList:boolean;
+  customerSearchWithLocationData: {customer:CustomerListItemModel,locationModel:CustomerModel}[] = [];
 
   // Search Variables
   searchName: string;
@@ -196,6 +200,9 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
   @ViewChild("canvas")
   public canvas: ElementRef;
 
+  @ViewChild("accountInforModal")
+  public accountInforModal: TemplateRef<any>;
+
   captures: string[] = [];
   error: any;
   isCaptured: boolean = false;
@@ -208,6 +215,9 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
 
   salesEdit: number = 0;
 
+  // Modal Dialog
+  accountInforModalModalRef: BsModalRef;
+
   constructor(
     private customerService: CustomerService,
     private codeService: CodeService,
@@ -218,11 +228,14 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
     private labOrderService: LabOrderService,
     private router: Router,
     private dataShareService: DataShareService,
+    private modalService: BsModalService
   ) { 
   }
 
   ngOnInit(): void {   
     this.dataShareService.changeUnsaved(false);
+    //entityId_Login is customerid so if customerid exists then hide LCS list box else showit.
+    this.showLCSList = !!Number(sessionStorage.getItem('entityId_Login'))? false: true;
 
     if (sessionStorage.getItem('userId_Login') == ""){
       this.router.navigateByUrl('/login');
@@ -420,7 +433,6 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
   }
 
   selectButtonClicked(customerId: number){
-
     // Call the customer service to get the data for the selected customer
     this.customerService.get( customerId)
             .pipe(first())
@@ -513,8 +525,43 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
 
     this.customerSave = false;
     this.showError = false;
-    
-    this.customerService.save( this.customerData)
+    this.customerService.search(this.customerData.name,1,'','','',0, 0,0,0,0)
+    .pipe(
+      switchMap((CustomerList: CustomerListModel)=>{
+        let customerModel = new CustomerModel();
+        if(CustomerList.valid && CustomerList.list.length>0){
+          let getCustomerRequests = CustomerList.list.map((customer)=>
+          {
+            return this.customerService.get(customer.customerId)
+            .pipe(
+              map((locationModel:CustomerModel)=>{
+                return {customer,locationModel}
+              })
+             )
+            .pipe(catchError(e => {
+            customerModel.message = e;
+            console.log("error handler message", e.toString())
+            return of({customer,customerModel})
+            }))
+          });
+          return forkJoin(getCustomerRequests);
+        }else{
+          return of([{customer:null,customerModel:null}])
+        }
+      })
+    ).subscribe((response:{customer:CustomerListItemModel,locationModel:CustomerModel}[])=>{
+      if(response.length>0){
+        this.customerSearchWithLocationData = response || [];
+        const initialState: ModalOptions = {
+          class: 'gray modal-lg'
+        };
+        this.accountInforModalModalRef = this.modalService.show(this.accountInforModal,initialState);
+      }
+    });
+  }
+
+  private saveNewCustomer(){
+    this.customerService.save(this.customerData)
           .pipe(first())
           .subscribe(
           data => {

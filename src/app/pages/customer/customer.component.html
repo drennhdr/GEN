@@ -2357,3 +2357,50 @@
     </div>
 </div>
 
+
+<ng-template #accountInforModal>
+    <div class="modal-body">
+        <button type="button" class="btn-close close pull-right" (click)="accountInforModalModalRef.hide()"
+            aria-label="Close">
+            <span aria-hidden="true" class="visually-hidden">&times;</span>
+        </button>
+        <accordion [isAnimated]="true">
+            <accordion-group #groupVal *ngFor="let customersearch of customerSearchWithLocationData;let i=index"
+                [isOpen]="i==0">
+                <div accordion-heading>
+                    {{customersearch.customer.name}}
+                    <span>
+                        <i class="fa" style="float:right"
+                            [ngClass]="{'fa-angle-double-down':groupVal?.open,'fa-angle-double-down':!groupVal.open}"></i>
+                    </span>
+                </div>
+                <div class="row">
+                    <div class="table">
+                        <table class="table table-striped" datatable>
+                            <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
+                            <thead class=" text-primary">
+                                <th>Name</th>
+                                <th>Area</th>
+                                <th>Phone</th>
+                                <th>Email</th>
+                                <th>Actions</th>
+                            </thead>
+                            <tr *ngFor="let item of customersearch.locationModel.locations">
+                                <td>{{item.locationName}}</td>
+                                <td>{{item.area}}</td>
+                                <td>{{item.phone}}</td>
+                                <td>{{item.email}}</td>
+                                <td><button type="button" (click)="selectButtonClicked(customersearch.customer.customerId);accountInforModalModalRef.hide()"
+                                        class="btn btn-primary">Select</button></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </accordion-group>
+        </accordion>
+    </div>
+    <div class="modal-footer">
+        <button type="button" (click)="accountInforModalModalRef.hide();saveNewCustomer()" class="btn btn-primary">Continue to Create</button>
+        <button type="button" (click)="accountInforModalModalRef.hide()" class="btn btn-primary">Cancel</button>
+    </div>
+</ng-template>

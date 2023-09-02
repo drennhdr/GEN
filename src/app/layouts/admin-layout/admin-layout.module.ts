@@ -54,8 +54,7 @@ import { LabComponent } from '../../pages/lab/lab.component';
 import { PreauthComponent } from '../../pages/preauth/preauth.component';
 import { AutoFocusDirective } from '../../directives/auto-focus.directive';
 import { PatientMergeComponent } from '../../pages/patient-merge/patient-merge.component';
-
-
+import { AccordionModule } from 'ngx-bootstrap/accordion';
 
 @NgModule({
   imports: [
@@ -64,7 +63,8 @@ import { PatientMergeComponent } from '../../pages/patient-merge/patient-merge.c
     FormsModule,
     ChartsModule,
     NgbModule,
-    ToastrModule.forRoot()
+    ToastrModule.forRoot(),
+    AccordionModule.forRoot(),
   ],
   declarations: [
     DashboardComponent,
