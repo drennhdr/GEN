@@ -2404,3 +2404,18 @@
         <button type="button" (click)="accountInforModalModalRef.hide()" class="btn btn-primary">Cancel</button>
     </div>
 </ng-template>
+
+<ng-template #deleteAttachmentConfirmModal>
+    <div class="modal-header">
+        <button type="button" class="btn-close close pull-right" (click)="deleteAttachmentConfirmModalRef.hide()" aria-label="Close">
+        <span aria-hidden="true" class="visually-hidden">&times;</span>
+    </button>
+    </div>
+    <div class="modal-body">
+        <h5>Are you sure you want to delete?</h5>
+    </div>
+    <div class="modal-footer">
+        <button type="button" (click)="onConfirmDeleteAttachment(modalService.config.initialState.attachmentId)" class="btn btn-primary">Continue to Delete</button>
+        <button type="button" (click)="deleteAttachmentConfirmModalRef.hide()" class="btn btn-primary">Cancel</button>
+    </div>
+</ng-template>

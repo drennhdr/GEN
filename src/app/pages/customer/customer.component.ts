@@ -203,6 +203,9 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
   @ViewChild("accountInforModal")
   public accountInforModal: TemplateRef<any>;
 
+  @ViewChild("deleteAttachmentConfirmModal")
+  public deleteAttachmentConfirmModal: TemplateRef<any>;
+
   captures: string[] = [];
   error: any;
   isCaptured: boolean = false;
@@ -217,6 +220,7 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
 
   // Modal Dialog
   accountInforModalModalRef: BsModalRef;
+  deleteAttachmentConfirmModalRef: BsModalRef;
 
   constructor(
     private customerService: CustomerService,
@@ -1516,7 +1520,17 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
   }
 
   deleteAttachmentButtonClicked(attachmentId: number){
-    this.customerService.deletedCustomerAttachment( attachmentId)
+    let modalOptions :ModalOptions = {
+      initialState:{
+        attachmentId: attachmentId
+      }
+    }
+    this.deleteAttachmentConfirmModalRef = this.modalService.show(this.deleteAttachmentConfirmModal,modalOptions);
+  }
+
+  onConfirmDeleteAttachment(attachmentId: number){
+    this.deleteAttachmentConfirmModalRef.hide();
+    this.customerService.deletedCustomerAttachment(attachmentId)
             .pipe(first())
             .subscribe(
             data => {
