@@ -225,8 +225,6 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
 
   ngOnInit(): void {   
     this.dataShareService.changeUnsaved(false);
-    //entityId_Login is customerid so if customerid exists then hide LCS list box else showit.
-    this.showLCSList = !!Number(sessionStorage.getItem('entityId_Login'))? false: true;
 
     if (sessionStorage.getItem('userId_Login') == ""){
       this.router.navigateByUrl('/login');
@@ -244,6 +242,10 @@ export class CustomerComponent implements OnInit, AfterViewChecked {
     this.userType = Number(sessionStorage.getItem('userType'));
     var userId = Number(sessionStorage.getItem('userId_Login'));
     this.salesEdit = Number(sessionStorage.getItem('salesUserEdit'));
+
+    //userType is customer then hide LCS list box else showit.
+    this.showLCSList = this.userType != 2 && this.userType != 3
+
 
     if (this.userType == 1){
       // Admin
