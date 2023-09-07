@@ -50,19 +50,24 @@
           </div>
     </div>
 </div>
+<div class="row">
+  <div class="col-md-12">
+    <app-dash-dailysales></app-dash-dailysales>
+  </div>
+</div>
 <div class="row" id="accessionedListCard">
   <div class="col-md-12">
       <div class="card">
           <div class="card-header">
               <div class="row">
                   <div class="col-md-9 pr-1">
-                      <h5 class="title">Totals</h5>
+                      <h5 class="title">{{saleTotalTitle}}</h5>
                   </div>
               </div>
           </div>
           <div class="card-body">
             <div class="table-responsive">
-              <table class="table table-striped" datatable >
+              <table class="table" datatable >
                 <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
                 <thead class="text-primary">
                   <th>Period</th>
@@ -72,9 +77,10 @@
                   <th>RPP</th>
                   <th>UTI/STI</th>
                   <th>GPP</th>
+                  <th>TOTAL</th>
                 </thead>
                 <tbody *ngIf="salesData!=null">
-                  <tr *ngFor="let item of salesData">
+                  <tr *ngFor="let item of salesData" [ngClass]="{'total-sales-custom-row':item.isCustomRowData}">
                     <!-- <td *ngIf="monthly">{{item.year}}/{{item.week}}</td> -->
                     <td *ngIf="monthly">{{item.sunday}}</td>
                     <td *ngIf="!monthly">{{item.month}}/01/{{item.year}}</td>
@@ -86,6 +92,7 @@
                     <td>{{item.rpp}}</td>
                     <td>{{item.uti}}</td>
                     <td>{{item.gpp}}</td>
+                    <td>{{item.total}}</td>
                   </tr>
                 </tbody>
               </table>

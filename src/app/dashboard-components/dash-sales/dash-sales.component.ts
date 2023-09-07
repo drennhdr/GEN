@@ -15,6 +15,7 @@ import {formatDate} from '@angular/common';
 import {DatePipe} from '@angular/common';
 
 import { SalesReportItemModel } from '../../models/ReportModel';
+import _ from 'lodash';
 
 
 @Component({
@@ -30,6 +31,11 @@ export class DashSalesComponent implements OnInit {
   userId: number = 0;
   dateRangeType: string = 'W';
   monthly: boolean = true;
+  saleTotalTitle:string;
+  SaleTitles = {
+    weekly: 'Week Total',
+    monthly: 'Month Total'
+  }
 
   public gradientStroke;
   public chartColor;
@@ -75,11 +81,11 @@ export class DashSalesComponent implements OnInit {
     this.chartColor = "#FFFFFF";
 
     this.gridConfigure();
-
     this.buttonWeek();
+    this.saleTotalTitle = this.getSaleTitle();
 
   }
-
+  
   buttonWeek(){
     this.dateRangeType = 'W';
     this.monthly = true;
@@ -291,13 +297,60 @@ export class DashSalesComponent implements OnInit {
                 data => {
                   if (data.valid)
                   {
-                    this.salesData = data.items;
+                    this.salesData = this.calculateSaleTotals(data.items);
                     this.loadChartData(data.items);
                   }
                 },
                 error => {
 
                 });
+  }
+
+  calculateSaleTotals(salesData){
+    let dataToFlat = _.chain(salesData).groupBy(saleData=>this.getSalesByGroup(saleData)).map(groupedData=> groupedData).map(order=>
+      {
+          order.forEach(order=>{
+          order['total'] = order['toxOral'] + order['toxUrine'] + order['rpp'] +  order['uti'] + order['gpp']
+      });
+      let orderDetailsByPeriod = {}
+      orderDetailsByPeriod['customer'] = this.getSaleTitle();
+      orderDetailsByPeriod['month'] = order[0]['month'];
+      orderDetailsByPeriod['week'] = order[0]['week'];
+      orderDetailsByPeriod['sunday'] = order[0]['sunday'];
+      orderDetailsByPeriod['year'] = order[0]['year'];
+      orderDetailsByPeriod['isCustomRowData'] = true; 
+      orderDetailsByPeriod = order.reduce((a, b) =>{ 
+              a['toxOral'] = (a['toxOral'] || 0) + (b['toxOral'] || 0);
+              a['toxUrine'] = (a['toxUrine'] || 0) + (b['toxUrine'] || 0);
+              a['rpp']= (a['rpp'] || 0) + (b['rpp'] || 0)
+              a['uti']= (a['uti'] || 0) + (b['uti'] || 0)
+              a['gpp']= (a['gpp'] || 0) + (b['gpp'] || 0)
+              a['total']= (a['total'] || 0) + (b['total'] || 0)
+          return a;
+      },orderDetailsByPeriod);
+      order.push(orderDetailsByPeriod);
+      return order;
+      }).value();
+    let calculatedTotalsSalesData = _.flatten(dataToFlat);
+    return calculatedTotalsSalesData;
+  }
+
+  getSalesByGroup(saleData){
+    if(this.monthly){
+      return saleData.sunday;
+    }
+    else{
+      return `${saleData.month}_${saleData.year}`;
+    }
+  }
+
+  getSaleTitle(){
+    if(this.monthly){
+      return this.SaleTitles.weekly;
+    }
+    else{
+      return this.SaleTitles.monthly;
+    }
   }
 
   loadChartData(chartData: Array<SalesReportItemModel>){

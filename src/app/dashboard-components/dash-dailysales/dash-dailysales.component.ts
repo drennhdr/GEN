@@ -13,6 +13,7 @@ import { LabOrderService } from '../../services/labOrder.service';
 
 import {formatDate} from '@angular/common';
 import {DatePipe} from '@angular/common';
+import _ from 'lodash';
 
 @Component({
   selector: 'app-dash-dailysales',
@@ -59,7 +60,7 @@ export class DashDailysalesComponent implements OnInit {
                 data => {
                   if (data.valid)
                   {
-                    this.salesDailyData = data.items;
+                    this.salesDailyData = this.calculateSaleTotals(data.items);
                   }
                   else{
                     this.salesDailyData = null;
@@ -68,5 +69,27 @@ export class DashDailysalesComponent implements OnInit {
                 error => {
 
                 });
+  }
+
+  calculateSaleTotals(salesData){
+    let dataSet = salesData.map(order=>
+      {
+          order['total'] = order['toxOral'] + order['toxUrine'] + order['rpp'] +  order['uti'] + order['gpp'];
+          return order;
+      });
+      let orderDetailsByPeriod = {}
+      orderDetailsByPeriod['customer'] = 'Daily Total'
+      orderDetailsByPeriod['isCustomRowData'] = true; 
+      orderDetailsByPeriod = dataSet.reduce((a, b) =>{ 
+              a['toxOral'] = (a['toxOral'] || 0) + (b['toxOral'] || 0);
+              a['toxUrine'] = (a['toxUrine'] || 0) + (b['toxUrine'] || 0);
+              a['rpp']= (a['rpp'] || 0) + (b['rpp'] || 0)
+              a['uti']= (a['uti'] || 0) + (b['uti'] || 0)
+              a['gpp']= (a['gpp'] || 0) + (b['gpp'] || 0)
+              a['total']= (a['total'] || 0) + (b['total'] || 0)
+          return a;
+      },orderDetailsByPeriod);
+      dataSet.push(orderDetailsByPeriod);
+    return dataSet;
   }
 }

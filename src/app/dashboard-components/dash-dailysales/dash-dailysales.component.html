@@ -19,7 +19,7 @@
             </div>
             <div class="card-body">
               <div class="table-responsive">
-                <table class="table table-striped" datatable >
+                <table class="table" datatable >
                   <!-- <table class="table table-striped" [mfData]="data" #mf="mfDataTable" [mfRowsOnPage]="5"></table> -->
                   <thead class="text-primary">
                     <th>Account</th>
@@ -28,15 +28,17 @@
                     <th>RPP</th>
                     <th>UTI/STI</th>
                     <th>GPP</th>
+                    <th>TOTAL</th>
                   </thead>
                   <tbody *ngIf="salesDailyData!=null">
-                    <tr *ngFor="let item of salesDailyData">
+                    <tr *ngFor="let item of salesDailyData" [ngClass]="{'total-sales-custom-row':item.isCustomRowData}">
                       <td>{{item.customer}}</td>
                       <td>{{item.toxUrine}}</td>
                       <td>{{item.toxOral}}</td>
                       <td>{{item.rpp}}</td>
                       <td>{{item.uti}}</td>
                       <td>{{item.gpp}}</td>
+                      <td>{{item.total}}</td>
                     </tr>
                   </tbody>
                 </table>
